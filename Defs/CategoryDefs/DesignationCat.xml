@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <DesignationCategoryDef>
+    <defName>LightsTab</defName>
+    <label>Lights</label>
+    <description>Light Cat.</description>
+    <order>425</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>TableChairsTab</defName>
+    <label>Table/Chairs</label>
+    <description>All tables and chairs</description>
+    <order>426</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>BedroomTab</defName>
+    <label>Bedroom</label>
+    <description>Furniture for Bedrooms</description>
+    <order>427</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+</Defs>
