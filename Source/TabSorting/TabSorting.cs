@@ -10,6 +10,8 @@ namespace TabSorting
     [StaticConstructorOnStartup]
     public static class TabSorting
     {
+        public static List<string> defsToIgnore = new List<string>();
+
         /// <summary>
         /// Goes through all items and checks if there are any references to the selected category
         /// Removes the category if there are none
@@ -60,7 +62,8 @@ namespace TabSorting
             {
                 var lightsInGame = (from td in DefDatabase<ThingDef>.AllDefsListForReading
                                     where
-                                    td.designationCategory != null &&
+                                    !defsToIgnore.Contains(td.defName) &&
+                                    (td.designationCategory != null &&
                                     ((td.category == ThingCategory.Building &&
                                     (td.GetCompProperties<CompProperties_Power>() == null || td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant)) &&
                                     (td.placeWorkers == null || !td.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
@@ -73,7 +76,7 @@ namespace TabSorting
                                     td.thingClass.Name != "Building_Heater" &&
                                     td.thingClass.Name != "Building_PlantGrower" &&
                                     !td.hasInteractionCell) ||
-                                    (td.label != null && (td.label.ToLower().Contains("wall lamp") || td.label.ToLower().Contains("wall light"))))
+                                    (td.label != null && (td.label.ToLower().Contains("wall lamp") || td.label.ToLower().Contains("wall light")))))
                                     select td).ToList();
                 changedCategories.Add(lightsDesignationCategory);
                 foreach (ThingDef furniture in lightsInGame)
@@ -102,10 +105,11 @@ namespace TabSorting
             {
                 var floorsInGame = (from td in DefDatabase<TerrainDef>.AllDefsListForReading
                                     where
-                                    td.designationCategory != null &&
+                                    !defsToIgnore.Contains(td.defName) &&
+                                    (td.designationCategory != null &&
                                     td.designationCategory.defName != "Floors" &&
                                     td.fertility == 0 &&
-                                    !td.destroyBuildingsOnDestroyed
+                                    !td.destroyBuildingsOnDestroyed)
                                     select td).ToList();
                 var floorsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Floors");
                 changedCategories.Add(floorsDesignationCategory);
@@ -133,8 +137,9 @@ namespace TabSorting
             {
                 var tableChairsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                          where
-                                         dd.designationCategory != null &&
-                                         (dd.IsTable || (dd.building != null && dd.building.isSittable))
+                                        !defsToIgnore.Contains(dd.defName) &&
+                                         (dd.designationCategory != null &&
+                                         (dd.IsTable || (dd.building != null && dd.building.isSittable)))
                                          select dd).ToList();
                 changedCategories.Add(tableChairsDesignationCategory);
                 foreach (ThingDef tableOrChair in tableChairsInGame)
@@ -163,11 +168,12 @@ namespace TabSorting
             {
                 var doorsAndWallsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                            where
-                                           dd.designationCategory != null &&
+                                        !defsToIgnore.Contains(dd.defName) &&
+                                           (dd.designationCategory != null &&
                                            dd.designationCategory.defName != "Structure" &&
                                            dd.fillPercent == 1f &&
                                            (dd.holdsRoof ||
-                                           dd.IsDoor)
+                                           dd.IsDoor))
                                            select dd).ToList();
                 var structureDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Structure");
                 changedCategories.Add(structureDesignationCategory);
@@ -195,9 +201,10 @@ namespace TabSorting
             {
                 var bedsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                   where
-                                  dd.designationCategory != null
-                                  && dd.IsBed
-                                  && (dd.building == null || !dd.building.bed_defaultMedical)
+                                  !defsToIgnore.Contains(dd.defName) &&
+                                  (dd.designationCategory != null &&
+                                  dd.IsBed &&
+                                  (dd.building == null || !dd.building.bed_defaultMedical))
                                   select dd).ToList();
                 changedCategories.Add(bedroomFurnitureDesignationCategory);
                 HashSet<ThingDef> affectedByFacilities = new HashSet<ThingDef>();
@@ -249,16 +256,17 @@ namespace TabSorting
         /// <param name="changedCategories">A variable to save each category that has been changed</param>
         static void SortStorage(ref HashSet<DesignationCategoryDef> changedCategories)
         {
-            var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage");
+            var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
             if (storageDesignationCategory != null && TabSortingMod.instance.Settings.SortStorage)
             {
                 var storageInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                      where
-                                     dd.designationCategory != null &&
+                                     !defsToIgnore.Contains(dd.defName) &&
+                                     (dd.designationCategory != null &&
                                      dd.designationCategory.defName != "FurnitureStorage" &&
                                      dd.thingClass.Name != "Building_Grave" &&
                                      (dd.thingClass.Name == "Building_Storage" || (dd.inspectorTabs != null && dd.inspectorTabs.Contains(typeof(ITab_Storage)))) &&
-                                     (dd.placeWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
+                                     (dd.placeWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))))
                                      select dd).ToList();
                 changedCategories.Add(storageDesignationCategory);
                 foreach (ThingDef storage in storageInGame)
@@ -278,6 +286,18 @@ namespace TabSorting
         /// </summary>
         static TabSorting()
         {
+            var androidsMod = (from mod in LoadedModManager.RunningModsListForReading where mod.PackageId == "atlas.androidtiers" select mod).ToList();
+            if (androidsMod.Count == 1)
+            {
+#if DEBUGGING
+                Log.Message("TabSorting: " + androidsMod[0].Name + " has " + androidsMod[0].AllDefs.Count() + " definitions, adding to ignore.");
+#endif
+                foreach (Def def in androidsMod[0].AllDefs)
+                {
+                    defsToIgnore.Add(def.defName);
+                }
+            }
+
             if (TabSortingMod.instance.Settings == null)
             {
                 TabSortingMod.instance.Settings.SortLights = true;

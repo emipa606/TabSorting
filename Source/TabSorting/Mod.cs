@@ -1,6 +1,4 @@
-﻿using SettingsHelper;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Verse;
 
 namespace TabSorting
@@ -61,7 +59,7 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("Sort walls & doors", ref Settings.SortDoorsAndWalls, "Moves all doors and walls to the Structure-tab");
             listing_Standard.CheckboxLabeled("Sort tables & chairs", ref Settings.SortTablesAndChairs, "Moves all tables and chairs the Table/Chairs-tab");
             listing_Standard.CheckboxLabeled("Sort bedroom furniture", ref Settings.SortBedroomFurniture, "Moves all bedroom-furniture to the Bedroom-tab");
-            if(DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage") != null)
+            if(DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false) != null)
                 listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");
             listing_Standard.Gap();
             listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs, "If a tab has no things left to build after sorting, remove the tab");
