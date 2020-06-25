@@ -10,5 +10,8 @@
   <BedroomTab.label>Bedroom</BedroomTab.label>
   <BedroomTab.description>Furniture for Bedrooms</BedroomTab.description>
 
+  <DecorationTab.label>Decorations</DecorationTab.label>
+  <DecorationTab.description>Items to decorate with</DecorationTab.description>
+
 
 </LanguageData>
