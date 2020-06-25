@@ -140,7 +140,7 @@ namespace TabSorting
                                          where
                                           !defsToIgnore.Contains(dd.defName) &&
                                          (dd.designationCategory != null &&
-                                         ((dd.IsTable || (dd.surfaceType == SurfaceType.Eat && dd.label.ToLower().Contains("table"))) || 
+                                         ((dd.IsTable || (dd.surfaceType == SurfaceType.Eat && dd.label.ToLower().Contains("table"))) ||
                                          (dd.building != null && dd.building.isSittable)))
                                          select dd).ToList();
                 changedCategories.Add(tableChairsDesignationCategory);
@@ -283,6 +283,7 @@ namespace TabSorting
                                                  dd.altitudeLayer == AltitudeLayer.BuildingOnTop &&
                                                  dd.StatBaseDefined(StatDefOf.Beauty) &&
                                                  dd.GetCompProperties<CompProperties_Glower>() == null &&
+                                                 !dd.neverMultiSelect &&
                                                  (dd.PlaceWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
                                                  !dd.IsBed && !dd.IsTable)
                                                  select dd).ToList();
@@ -357,15 +358,25 @@ namespace TabSorting
         /// </summary>
         static TabSorting()
         {
-            var androidsMod = (from mod in LoadedModManager.RunningModsListForReading where mod.PackageId == "atlas.androidtiers" select mod).ToList();
-            if (androidsMod.Count == 1)
+            var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
+                              where
+                                    mod.PackageId == "atlas.androidtiers" ||
+                                    mod.PackageId == "dubwise.dubsbadhygiene" ||
+                                    mod.PackageId == "vanillaexpanded.vfepower" ||
+                                    mod.PackageId == "vanillaexpanded.vfepropsanddecor"
+                              select mod).ToList();
+            if (ignoreMods.Count > 0)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: " + androidsMod[0].Name + " has " + androidsMod[0].AllDefs.Count() + " definitions, adding to ignore.");
-#endif
-                foreach (Def def in androidsMod[0].AllDefs)
+                foreach (var mod in ignoreMods)
                 {
-                    defsToIgnore.Add(def.defName);
+#if DEBUGGING
+                Log.Message("TabSorting: " + mod.Name + " has " + mod.AllDefs.Count() + " definitions, adding to ignore.");
+#endif
+                    foreach (Def def in mod.AllDefs)
+                    {
+                        defsToIgnore.Add(def.defName);
+                    }
+
                 }
             }
 
