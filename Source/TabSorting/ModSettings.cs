@@ -15,6 +15,7 @@ namespace TabSorting
         public bool SortBedroomFurniture = false;
         public bool SortDecorations = false;
         public bool SortStorage = false;
+        public bool SortGarden = false;
 
         public bool RemoveEmptyTabs = true;
         public List<string> CategoriesToIgnore = new List<string>();
@@ -29,6 +30,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortBedroomFurniture, "SortBedroomFurniture", false, false);
             Scribe_Values.Look(ref SortDecorations, "SortDecorations", false, false);
             Scribe_Values.Look(ref SortStorage, "SortStorage", false, false);
+            Scribe_Values.Look(ref SortGarden, "SortGarden", false, false);
 
             Scribe_Values.Look(ref RemoveEmptyTabs, "RemoveEmptyTabs", true, false);
 

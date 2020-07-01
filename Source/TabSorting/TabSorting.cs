@@ -60,6 +60,8 @@ namespace TabSorting
             var lightsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("LightsTab");
             if (TabSortingMod.instance.Settings.SortLights)
             {
+                bool gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
+
                 var lightsInGame = (from td in DefDatabase<ThingDef>.AllDefsListForReading
                                     where
                                     !defsToIgnore.Contains(td.defName) &&
@@ -72,9 +74,9 @@ namespace TabSorting
                                     td.GetCompProperties<CompProperties_TempControl>() == null &&
                                     td.surfaceType != SurfaceType.Eat &&
                                     td.thingClass.Name != "Building_TurretGun" &&
-                                    td.thingClass.Name != "Building_SunLamp" &&
-                                    td.thingClass.Name != "Building_Heater" &&
                                     td.thingClass.Name != "Building_PlantGrower" &&
+                                    td.thingClass.Name != "Building_Heater" &&
+                                    (td.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) &&
                                     (td.inspectorTabs == null || !td.inspectorTabs.Contains(typeof(ITab_Storage))) &&
                                     !td.hasInteractionCell) ||
                                     (td.label != null && (td.label.ToLower().Contains("wall lamp") || td.label.ToLower().Contains("wall light")))))
@@ -354,6 +356,37 @@ namespace TabSorting
         }
 
         /// <summary>
+        /// Sorts all garden-items to the Garden-tab if VGP Garden tools is loaded
+        /// </summary>
+        /// <param name="changedCategories">A variable to save each category that has been changed</param>
+        static void SortGarden(ref HashSet<DesignationCategoryDef> changedCategories)
+        {
+            var gardenDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false);
+            if (gardenDesignationCategory != null && TabSortingMod.instance.Settings.SortGarden)
+            {
+                var gardenInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                                     where
+                                     !defsToIgnore.Contains(dd.defName) &&
+                                     (dd.designationCategory != null &&
+                                     dd.designationCategory.defName != "GardenTools" &&
+                                     (dd.thingClass.Name == "Building_SunLamp" || 
+                                     (dd.thingClass.Name == "Building_PlantGrower" && (dd.building == null || dd.building.sowTag != "Decorative")) ||
+                                     (dd.label.ToLower().Contains("sprinkler") && !dd.label.ToLower().Contains("fire"))))
+                                     select dd).ToList();
+                changedCategories.Add(gardenDesignationCategory);
+                foreach (ThingDef gardenTool in gardenInGame)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for " + gardenTool.defName + " from " + gardenTool.designationCategory + " to " + gardenDesignationCategory.defName);
+#endif
+                    changedCategories.Add(gardenTool.designationCategory);
+                    gardenTool.designationCategory = gardenDesignationCategory;
+                }
+                Log.Message("TabSorting: Moved " + gardenInGame.Count + " garden-items to the Garden tab.");
+            }
+        }
+
+        /// <summary>
         /// The main sorting function
         /// </summary>
         static TabSorting()
@@ -363,7 +396,8 @@ namespace TabSorting
                                     mod.PackageId == "atlas.androidtiers" ||
                                     mod.PackageId == "dubwise.dubsbadhygiene" ||
                                     mod.PackageId == "vanillaexpanded.vfepower" ||
-                                    mod.PackageId == "vanillaexpanded.vfepropsanddecor"
+                                    mod.PackageId == "vanillaexpanded.vfepropsanddecor" ||
+                                    mod.PackageId == "kentington.saveourship2"
                               select mod).ToList();
             if (ignoreMods.Count > 0)
             {
@@ -389,6 +423,7 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.SortTablesAndChairs = false;
                 TabSortingMod.instance.Settings.SortDecorations = false;
                 TabSortingMod.instance.Settings.SortStorage = false;
+                TabSortingMod.instance.Settings.SortGarden = false;
 
                 TabSortingMod.instance.Settings.RemoveEmptyTabs = true;
             }
@@ -408,6 +443,8 @@ namespace TabSorting
             SortDecorations(ref changedCategories);
 
             SortStorage(ref changedCategories);
+
+            SortGarden(ref changedCategories);
 
             var designationsNotToTestForRemoval = new List<string>()
             {

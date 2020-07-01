@@ -62,6 +62,8 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations, "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
             if (DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false) != null)
                 listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");
+            if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
+                listing_Standard.CheckboxLabeled("Sort garden tools", ref Settings.SortGarden, "Moves all garden items to the Garden-tab from VGP Garden Tools");
             listing_Standard.Gap();
             listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs, "If a tab has no things left to build after sorting, remove the tab");
             //listing_Standard.Gap();
