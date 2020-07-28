@@ -1,6 +1,7 @@
 ﻿//#define DEBUGGING
 
 using RimWorld;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Verse;
@@ -426,6 +427,8 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.SortGarden = false;
 
                 TabSortingMod.instance.Settings.RemoveEmptyTabs = true;
+                TabSortingMod.instance.Settings.SortTabs = false;
+                TabSortingMod.instance.Settings.SkipBuiltIn = false;
             }
 
             var changedCategories = new HashSet<DesignationCategoryDef>();
@@ -469,6 +472,21 @@ namespace TabSorting
                         CheckEmptyDesignationCategoryDef(designationCategoryDef);
                 }
             }
+
+            if (!TabSortingMod.instance.Settings.SortTabs) return;
+
+            int topValue = 800;
+            var designationCategoryDefs = from dd in DefDatabase<DesignationCategoryDef>.AllDefs
+                                            orderby dd.label
+                                            select dd;
+            int steps = (int)Math.Floor((decimal)(topValue / designationCategoryDefs.Count()));
+            foreach (var designationCategoryDef in designationCategoryDefs)
+            {
+                topValue = topValue - steps;
+                if (TabSortingMod.instance.Settings.SkipBuiltIn && (designationCategoryDef.label == "orders" || designationCategoryDef.label == "zone")) continue;
+                designationCategoryDef.order = topValue;
+            }
+
         }
     }
 }

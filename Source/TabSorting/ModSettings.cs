@@ -18,6 +18,8 @@ namespace TabSorting
         public bool SortGarden = false;
 
         public bool RemoveEmptyTabs = true;
+        public bool SortTabs = false;
+        public bool SkipBuiltIn = false;
         public List<string> CategoriesToIgnore = new List<string>();
 
         public override void ExposeData()
@@ -33,6 +35,8 @@ namespace TabSorting
             Scribe_Values.Look(ref SortGarden, "SortGarden", false, false);
 
             Scribe_Values.Look(ref RemoveEmptyTabs, "RemoveEmptyTabs", true, false);
+            Scribe_Values.Look(ref SortTabs, "SortTabs", false, false);
+            Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn", false, false);
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
         }

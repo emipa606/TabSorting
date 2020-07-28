@@ -66,6 +66,9 @@ namespace TabSorting
                 listing_Standard.CheckboxLabeled("Sort garden tools", ref Settings.SortGarden, "Moves all garden items to the Garden-tab from VGP Garden Tools");
             listing_Standard.Gap();
             listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs, "If a tab has no things left to build after sorting, remove the tab");
+            listing_Standard.Gap();
+            listing_Standard.CheckboxLabeled("Sort all tabs alphabetically", ref Settings.SortTabs, "Puts all tabs in alphabetical order");
+            listing_Standard.CheckboxLabeled("Skip Orders and Zone-tab", ref Settings.SkipBuiltIn, "Orders and Zone-tab will remain in the top if the menu");
             //listing_Standard.Gap();
             //var allDesignators = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
             //List<bool> designatorStatuses = new List<bool>();
