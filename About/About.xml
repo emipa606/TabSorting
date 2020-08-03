@@ -6,6 +6,7 @@
   <url>https://github.com/emipa606/TabSorting</url>
   <supportedVersions>
     <li>1.1</li>
+    <li>1.2</li>
   </supportedVersions>
   <modDependencies />
   <loadAfter />
