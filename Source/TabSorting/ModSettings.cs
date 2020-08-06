@@ -16,6 +16,7 @@ namespace TabSorting
         public bool SortDecorations = false;
         public bool SortStorage = false;
         public bool SortGarden = false;
+        public bool SortFences = false;
 
         public bool RemoveEmptyTabs = true;
         public bool SortTabs = false;
@@ -33,6 +34,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortDecorations, "SortDecorations", false, false);
             Scribe_Values.Look(ref SortStorage, "SortStorage", false, false);
             Scribe_Values.Look(ref SortGarden, "SortGarden", false, false);
+            Scribe_Values.Look(ref SortFences, "SortFences", false, false);
 
             Scribe_Values.Look(ref RemoveEmptyTabs, "RemoveEmptyTabs", true, false);
             Scribe_Values.Look(ref SortTabs, "SortTabs", false, false);

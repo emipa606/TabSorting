@@ -271,7 +271,8 @@ namespace TabSorting
                                   dd.altitudeLayer == AltitudeLayer.FloorEmplacement &&
                                   !dd.clearBuildingArea &&
                                   dd.passability == Traversability.Standable &&
-                                  dd.StatBaseDefined(StatDefOf.Beauty))
+                                  dd.StatBaseDefined(StatDefOf.Beauty) &&
+                                  dd.GetStatValueAbstract(StatDefOf.Beauty) > 0)
                                   select dd).ToList();
                 var decorativePlantsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                               where
@@ -285,6 +286,7 @@ namespace TabSorting
                                                  (dd.designationCategory != null &&
                                                  dd.altitudeLayer == AltitudeLayer.BuildingOnTop &&
                                                  dd.StatBaseDefined(StatDefOf.Beauty) &&
+                                                 dd.GetStatValueAbstract(StatDefOf.Beauty) > 0 &&
                                                  dd.GetCompProperties<CompProperties_Glower>() == null &&
                                                  !dd.neverMultiSelect &&
                                                  (dd.PlaceWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
@@ -387,6 +389,40 @@ namespace TabSorting
             }
         }
 
+
+        /// <summary>
+        /// Sorts all fences-items to the Fences-tab if Fences and Floors is loaded
+        /// </summary>
+        /// <param name="changedCategories">A variable to save each category that has been changed</param>
+        static void SortFences(ref HashSet<DesignationCategoryDef> changedCategories)
+        {
+            var fencesDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Fences", false);
+            if (fencesDesignationCategory != null && TabSortingMod.instance.Settings.SortFences)
+            {
+                var fencesInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                                    where
+                                    !defsToIgnore.Contains(dd.defName) &&
+                                    (dd.designationCategory != null &&
+                                    dd.designationCategory.defName != "Fences" &&
+                                    ((((dd.thingClass.Name == "Building_Door" ) || 
+                                    (dd.thingClass.Name == "Building" && dd.graphicData != null && dd.graphicData.linkType == LinkDrawerType.Basic && dd.passability == Traversability.Impassable)) &&
+                                    dd.fillPercent < 1f &&
+                                    dd.fillPercent > 0) ||
+                                    (dd.label.ToLower().Contains("fence"))))
+                                    select dd).ToList();
+                changedCategories.Add(fencesDesignationCategory);
+                foreach (ThingDef fence in fencesInGame)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for " + fence.defName + " from " + fence.designationCategory + " to " + fencesDesignationCategory.defName + " passability: " + fence.passability);
+#endif
+                    changedCategories.Add(fence.designationCategory);
+                    fence.designationCategory = fencesDesignationCategory;
+                }
+                Log.Message("TabSorting: Moved " + fencesInGame.Count + " fences to the Fences-tab.");
+            }
+        }
+
         /// <summary>
         /// The main sorting function
         /// </summary>
@@ -425,6 +461,7 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.SortDecorations = false;
                 TabSortingMod.instance.Settings.SortStorage = false;
                 TabSortingMod.instance.Settings.SortGarden = false;
+                TabSortingMod.instance.Settings.SortFences = false;
 
                 TabSortingMod.instance.Settings.RemoveEmptyTabs = true;
                 TabSortingMod.instance.Settings.SortTabs = false;
@@ -448,6 +485,8 @@ namespace TabSorting
             SortStorage(ref changedCategories);
 
             SortGarden(ref changedCategories);
+
+            SortFences(ref changedCategories);
 
             var designationsNotToTestForRemoval = new List<string>()
             {
