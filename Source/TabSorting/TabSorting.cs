@@ -68,10 +68,11 @@ namespace TabSorting
                                     !defsToIgnore.Contains(td.defName) &&
                                     (td.designationCategory != null &&
                                     ((td.category == ThingCategory.Building &&
-                                    (td.GetCompProperties<CompProperties_Power>() == null || td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant)) &&
+                                    (td.GetCompProperties<CompProperties_Power>() == null || (td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && td.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000)) &&
                                     (td.placeWorkers == null || !td.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
                                     td.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
                                     td.GetCompProperties<CompProperties_Glower>() != null &&
+                                    td.GetCompProperties<CompProperties_Glower>().glowRadius > 5 &&
                                     td.GetCompProperties<CompProperties_TempControl>() == null &&
                                     td.surfaceType != SurfaceType.Eat &&
                                     td.thingClass.Name != "Building_TurretGun" &&
@@ -521,7 +522,7 @@ namespace TabSorting
             int steps = (int)Math.Floor((decimal)(topValue / designationCategoryDefs.Count()));
             foreach (var designationCategoryDef in designationCategoryDefs)
             {
-                topValue = topValue - steps;
+                topValue -= steps;
                 if (TabSortingMod.instance.Settings.SkipBuiltIn && (designationCategoryDef.label == "orders" || designationCategoryDef.label == "zone")) continue;
                 designationCategoryDef.order = topValue;
             }
