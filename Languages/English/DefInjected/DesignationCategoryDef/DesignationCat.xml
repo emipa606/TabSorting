@@ -10,6 +10,9 @@
   <BedroomTab.label>Bedroom</BedroomTab.label>
   <BedroomTab.description>Furniture for Bedrooms</BedroomTab.description>
 
+  <HospitalTab.label>Hospital</HospitalTab.label>
+  <HospitalTab.description>Furniture for Hospital</HospitalTab.description>
+
   <DecorationTab.label>Decorations</DecorationTab.label>
   <DecorationTab.description>Items to decorate with</DecorationTab.description>
 

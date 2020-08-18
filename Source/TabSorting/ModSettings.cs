@@ -13,6 +13,7 @@ namespace TabSorting
         public bool SortDoorsAndWalls = false;
         public bool SortTablesAndChairs = false;
         public bool SortBedroomFurniture = false;
+        public bool SortHospitalFurniture = false;
         public bool SortDecorations = false;
         public bool SortStorage = false;
         public bool SortGarden = false;
@@ -31,6 +32,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortDoorsAndWalls, "SortDoorsAndWalls", false, false);
             Scribe_Values.Look(ref SortTablesAndChairs, "SortTablesAndChairs", false, false);
             Scribe_Values.Look(ref SortBedroomFurniture, "SortBedroomFurniture", false, false);
+            Scribe_Values.Look(ref SortHospitalFurniture, "SortHospitalFurniture", false, false);
             Scribe_Values.Look(ref SortDecorations, "SortDecorations", false, false);
             Scribe_Values.Look(ref SortStorage, "SortStorage", false, false);
             Scribe_Values.Look(ref SortGarden, "SortGarden", false, false);

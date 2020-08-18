@@ -12,6 +12,9 @@
   <Architect_BedroomTab.label>Bedroom tab</Architect_BedroomTab.label>
   <Architect_BedroomTab.description>Key bindings for the "Bedroom" section of the Architect menu</Architect_BedroomTab.description>
 
+  <Architect_HospitalTab.label>Hospital tab</Architect_HospitalTab.label>
+  <Architect_HospitalTab.description>Key bindings for the "Hospital" section of the Architect menu</Architect_HospitalTab.description>
+
   <Architect_DecorationTab.label>Decorations tab</Architect_DecorationTab.label>
   <Architect_DecorationTab.description>Key bindings for the "Decorations" section of the Architect menu</Architect_DecorationTab.description>
 

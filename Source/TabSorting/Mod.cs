@@ -59,6 +59,7 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("Sort walls & doors", ref Settings.SortDoorsAndWalls, "Moves all doors and walls to the Structure-tab");
             listing_Standard.CheckboxLabeled("Sort tables & chairs", ref Settings.SortTablesAndChairs, "Moves all tables and chairs the Table/Chairs-tab");
             listing_Standard.CheckboxLabeled("Sort bedroom furniture", ref Settings.SortBedroomFurniture, "Moves all bedroom-furniture to the Bedroom-tab");
+            listing_Standard.CheckboxLabeled("Sort hospital furniture", ref Settings.SortHospitalFurniture, "Moves all hospital-furniture to the Hospital-tab");
             listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations, "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
             if (DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false) != null)
                 listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");

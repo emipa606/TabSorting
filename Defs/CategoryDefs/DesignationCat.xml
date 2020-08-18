@@ -31,10 +31,20 @@
     </specialDesignatorClasses>
   </DesignationCategoryDef>
   <DesignationCategoryDef>
+    <defName>HospitalTab</defName>
+    <label>Hospital</label>
+    <description>Furniture for Hospital</description>
+    <order>428</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
     <defName>DecorationTab</defName>
     <label>Decorations</label>
     <description>Items to decorate with</description>
-    <order>428</order>
+    <order>429</order>
     <specialDesignatorClasses>
       <li>Designator_Cancel</li>
       <li>Designator_Deconstruct</li>
