@@ -175,14 +175,18 @@ namespace TabSorting
             if (TabSortingMod.instance.Settings.SortDoorsAndWalls)
             {
                 var doorsAndWallsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
-                                           where
-                                        !defsToIgnore.Contains(dd.defName) &&
+                                           where !defsToIgnore.Contains(dd.defName) &&
                                            (dd.designationCategory != null &&
                                            dd.designationCategory.defName != "Structure" &&
-                                           dd.fillPercent == 1f &&
-                                           (dd.holdsRoof ||
-                                           dd.IsDoor))
+                                           (dd.fillPercent == 1f || dd.label.ToLower().Contains("column")) &&
+                                           (dd.holdsRoof || dd.IsDoor))
                                            select dd).ToList();
+                var bridgesInGame = (from dd in DefDatabase<TerrainDef>.AllDefsListForReading
+                                     where !defsToIgnore.Contains(dd.defName) &&
+                                     (dd.designationCategory != null &&
+                                     dd.designationCategory.defName != "Structure" &&
+                                     dd.destroyEffect != null && dd.destroyEffect.defName.ToLower().Contains("bridge"))
+                                     select dd).ToList();
                 var structureDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Structure");
                 changedCategories.Add(structureDesignationCategory);
                 foreach (ThingDef doorOrWall in doorsAndWallsInGame)
@@ -193,7 +197,15 @@ namespace TabSorting
                     changedCategories.Add(doorOrWall.designationCategory);
                     doorOrWall.designationCategory = structureDesignationCategory;
                 }
-                Log.Message("TabSorting: Moved " + doorsAndWallsInGame.Count + " doors and walls to the Structure tab.");
+                foreach (TerrainDef bridge in bridgesInGame)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for " + bridge.defName + " from " + bridge.designationCategory + " to " + structureDesignationCategory.defName);
+#endif
+                    changedCategories.Add(bridge.designationCategory);
+                    bridge.designationCategory = structureDesignationCategory;
+                }
+                Log.Message("TabSorting: Moved " + doorsAndWallsInGame.Count + " bridges, doors and walls to the Structure tab.");
 
             }
         }
@@ -268,12 +280,12 @@ namespace TabSorting
             if (TabSortingMod.instance.Settings.SortHospitalFurniture)
             {
                 var hospitalBedsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
-                                  where
-                                  !defsToIgnore.Contains(dd.defName) &&
-                                  (dd.designationCategory != null &&
-                                  dd.IsBed &&
-                                  (dd.building != null && dd.building.bed_defaultMedical))
-                                  select dd).ToList();
+                                          where
+                                          !defsToIgnore.Contains(dd.defName) &&
+                                          (dd.designationCategory != null &&
+                                          dd.IsBed &&
+                                          (dd.building != null && dd.building.bed_defaultMedical))
+                                          select dd).ToList();
                 changedCategories.Add(hospitalFurnitureDesignationCategory);
                 HashSet<ThingDef> affectedByFacilities = new HashSet<ThingDef>();
                 foreach (ThingDef hospitalBed in hospitalBedsInGame)
@@ -287,7 +299,7 @@ namespace TabSorting
                     {
                         if (facility.designationCategory == null)
                             continue;
-                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset  || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
+                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
                             affectedByFacilities.Add(facility);
                     }
                 }
@@ -316,7 +328,6 @@ namespace TabSorting
                 RemoveEmptyDesignationCategoryDef(hospitalFurnitureDesignationCategory);
             }
         }
-
 
         /// <summary>
         /// Sort decorative items to the Decorations-tab
@@ -451,7 +462,6 @@ namespace TabSorting
                 Log.Message("TabSorting: Moved " + gardenInGame.Count + " garden-items to the Garden tab.");
             }
         }
-
 
         /// <summary>
         /// Sorts all fences-items to the Fences-tab if Fences and Floors is loaded
