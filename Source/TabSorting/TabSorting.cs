@@ -68,7 +68,7 @@ namespace TabSorting
                                     !defsToIgnore.Contains(td.defName) &&
                                     (td.designationCategory != null &&
                                     ((td.category == ThingCategory.Building &&
-                                    (td.GetCompProperties<CompProperties_Power>() == null || (td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && td.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000)) &&
+                                    (td.GetCompProperties<CompProperties_Power>() == null || (td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (td.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || td.thingClass.Name == "Building_SunLamp"))) &&
                                     (td.placeWorkers == null || !td.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
                                     td.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
                                     td.GetCompProperties<CompProperties_Glower>() != null &&
@@ -174,12 +174,18 @@ namespace TabSorting
         {
             if (TabSortingMod.instance.Settings.SortDoorsAndWalls)
             {
+                var staticStructureDefs = new List<string>
+                {
+                    "GL_DoorFrame"
+                };
+
                 var doorsAndWallsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
                                            where !defsToIgnore.Contains(dd.defName) &&
-                                           (dd.designationCategory != null &&
+                                           ((dd.designationCategory != null &&
                                            dd.designationCategory.defName != "Structure" &&
                                            (dd.fillPercent == 1f || dd.label.ToLower().Contains("column")) &&
                                            (dd.holdsRoof || dd.IsDoor))
+                                           || staticStructureDefs.Contains(dd.defName))
                                            select dd).ToList();
                 var bridgesInGame = (from dd in DefDatabase<TerrainDef>.AllDefsListForReading
                                      where !defsToIgnore.Contains(dd.defName) &&
@@ -271,7 +277,7 @@ namespace TabSorting
         }
 
         /// <summary>
-        /// Sort hospotal furniture to the Hospital-tab
+        /// Sort hospital furniture to the Hospital-tab
         /// </summary>
         /// <param name="changedCategories">A variable to save each category that has been changed</param>
         static void SortHospitalFurniture(ref HashSet<DesignationCategoryDef> changedCategories)
@@ -523,6 +529,8 @@ namespace TabSorting
 
                 }
             }
+            // Static defs to ignore (not too many hopefully)
+            defsToIgnore.Add("FM_AIManager");
 
             if (TabSortingMod.instance.Settings == null)
             {
