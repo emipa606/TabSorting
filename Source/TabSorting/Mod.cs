@@ -28,10 +28,7 @@ namespace TabSorting
                 }
                 return settings;
             }
-            set
-            {
-                settings = value;
-            }
+            set => settings = value;
         }
 
         /// <summary>
@@ -49,7 +46,7 @@ namespace TabSorting
         /// <param name="rect"></param>
         public override void DoSettingsWindowContents(Rect rect)
         {
-            Listing_Standard listing_Standard = new Listing_Standard();
+            var listing_Standard = new Listing_Standard();
             listing_Standard.Begin(rect);
             listing_Standard.Gap();
             listing_Standard.Label("NOTICE: Any change here will only be activated on the next restart of RimWorld");
@@ -62,11 +59,20 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("Sort hospital furniture", ref Settings.SortHospitalFurniture, "Moves all hospital-furniture to the Hospital-tab");
             listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations, "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
             if (DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false) != null)
+            {
                 listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");
+            }
+
             if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
+            {
                 listing_Standard.CheckboxLabeled("Sort garden tools", ref Settings.SortGarden, "Moves all garden items to the Garden-tab from VGP Garden Tools");
+            }
+
             if (DefDatabase<DesignationCategoryDef>.GetNamed("Fences", false) != null)
+            {
                 listing_Standard.CheckboxLabeled("Sort fences", ref Settings.SortFences, "Moves all fences to the Fences-tab from Fences and Floors");
+            }
+
             listing_Standard.Gap();
             listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs, "If a tab has no things left to build after sorting, remove the tab");
             listing_Standard.Gap();

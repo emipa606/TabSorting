@@ -1,4 +1,4 @@
-﻿//#define DEBUGGING
+﻿#define DEBUGGING
 
 using RimWorld;
 using System;
@@ -12,6 +12,10 @@ namespace TabSorting
     public static class TabSorting
     {
         public static List<string> defsToIgnore = new List<string>();
+
+        public static HashSet<DesignationCategoryDef> changedCategories = new HashSet<DesignationCategoryDef>();
+
+        public static List<string> changedDefNames = new List<string>();
 
         /// <summary>
         /// Goes through all items and checks if there are any references to the selected category
@@ -55,42 +59,43 @@ namespace TabSorting
         /// <summary>
         /// Sorts all lights to the Lights-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortLights(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortLights()
         {
             var lightsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("LightsTab");
             if (TabSortingMod.instance.Settings.SortLights)
             {
-                bool gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
+                var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
 
-                var lightsInGame = (from td in DefDatabase<ThingDef>.AllDefsListForReading
+                var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
                                     where
-                                    !defsToIgnore.Contains(td.defName) &&
-                                    (td.designationCategory != null &&
-                                    ((td.category == ThingCategory.Building &&
-                                    (td.GetCompProperties<CompProperties_Power>() == null || (td.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (td.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || td.thingClass.Name == "Building_SunLamp"))) &&
-                                    (td.placeWorkers == null || !td.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
-                                    td.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
-                                    td.GetCompProperties<CompProperties_Glower>() != null &&
-                                    td.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 &&
-                                    td.GetCompProperties<CompProperties_TempControl>() == null &&
-                                    (td.GetCompProperties<CompProperties_HeatPusher>() == null || td.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < td.GetCompProperties<CompProperties_Glower>().glowRadius) &&
-                                    td.surfaceType != SurfaceType.Eat &&
-                                    td.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
-                                    td.thingClass.Name != "Building_TurretGun" &&
-                                    td.thingClass.Name != "Building_PlantGrower" &&
-                                    td.thingClass.Name != "Building_Heater" &&
-                                    (td.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) &&
-                                    (td.inspectorTabs == null || !td.inspectorTabs.Contains(typeof(ITab_Storage))) &&
-                                    !td.hasInteractionCell) ||
-                                    (td.label != null && td.label.ToLower().Contains("wall") && (td.label.ToLower().Contains("light") || td.label.ToLower().Contains("lamp")))))
-                                    select td).ToList();
+                                    !defsToIgnore.Contains(furniture.defName) &&
+                                    !changedDefNames.Contains(furniture.defName) &&
+                                    furniture.designationCategory != null &&
+                                    ((furniture.category == ThingCategory.Building &&
+                                    (furniture.GetCompProperties<CompProperties_Power>() == null || (furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || furniture.thingClass.Name == "Building_SunLamp"))) &&
+                                    (furniture.placeWorkers == null || !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
+                                    furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
+                                    furniture.GetCompProperties<CompProperties_Glower>() != null &&
+                                    furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 &&
+                                    furniture.GetCompProperties<CompProperties_TempControl>() == null &&
+                                    (furniture.GetCompProperties<CompProperties_HeatPusher>() == null || furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < furniture.GetCompProperties<CompProperties_Glower>().glowRadius) &&
+                                    furniture.surfaceType != SurfaceType.Eat &&
+                                    furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
+                                    furniture.thingClass.Name != "Building_TurretGun" &&
+                                    furniture.thingClass.Name != "Building_PlantGrower" &&
+                                    furniture.thingClass.Name != "Building_Heater" &&
+                                    (furniture.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) &&
+                                    (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) &&
+                                    !furniture.hasInteractionCell) ||
+                                    (furniture.label != null && (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) && (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"))))
+                                    select furniture).ToList();
                 changedCategories.Add(lightsDesignationCategory);
                 foreach (ThingDef furniture in lightsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + furniture.defName + " from " + furniture.designationCategory + " to " + lightsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for furniture " + furniture.defName + " from " + furniture.designationCategory + " to " + lightsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(furniture.defName);
                     changedCategories.Add(furniture.designationCategory);
                     furniture.designationCategory = lightsDesignationCategory;
                 }
@@ -105,26 +110,27 @@ namespace TabSorting
         /// <summary>
         /// Sorts all floors to the Floors-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortFloors(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortFloors()
         {
             if (TabSortingMod.instance.Settings.SortFloors)
             {
-                var floorsInGame = (from td in DefDatabase<TerrainDef>.AllDefsListForReading
+                var floorsInGame = (from floor in DefDatabase<TerrainDef>.AllDefsListForReading
                                     where
-                                    !defsToIgnore.Contains(td.defName) &&
-                                    (td.designationCategory != null &&
-                                    td.designationCategory.defName != "Floors" &&
-                                    td.fertility == 0 &&
-                                    !td.destroyBuildingsOnDestroyed)
-                                    select td).ToList();
+                                    !defsToIgnore.Contains(floor.defName) &&
+                                    !changedDefNames.Contains(floor.defName) &&
+                                    floor.designationCategory != null &&
+                                    floor.designationCategory.defName != "Floors" &&
+                                    floor.fertility == 0 &&
+                                    !floor.destroyBuildingsOnDestroyed
+                                    select floor).ToList();
                 var floorsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Floors");
                 changedCategories.Add(floorsDesignationCategory);
                 foreach (TerrainDef floor in floorsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + floor.defName + " from " + floor.designationCategory + " to " + floorsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for floor " + floor.defName + " from " + floor.designationCategory + " to " + floorsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(floor.defName);
                     changedCategories.Add(floor.designationCategory);
                     floor.designationCategory = floorsDesignationCategory;
                 }
@@ -136,25 +142,26 @@ namespace TabSorting
         /// <summary>
         /// Sorts all tables and sitting-furniture to the Table/Chairs-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortTablesAndChairs(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortTablesAndChairs()
         {
             var tableChairsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("TableChairsTab");
             if (TabSortingMod.instance.Settings.SortTablesAndChairs)
             {
-                var tableChairsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var tableChairsInGame = (from table in DefDatabase<ThingDef>.AllDefsListForReading
                                          where
-                                          !defsToIgnore.Contains(dd.defName) &&
-                                         (dd.designationCategory != null &&
-                                         ((dd.IsTable || (dd.surfaceType == SurfaceType.Eat && dd.label.ToLower().Contains("table"))) ||
-                                         (dd.building != null && dd.building.isSittable)))
-                                         select dd).ToList();
+                                         !defsToIgnore.Contains(table.defName) &&
+                                         !changedDefNames.Contains(table.defName) &&
+                                         table.designationCategory != null &&
+                                         (table.IsTable || (table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table")) ||
+                                         (table.building != null && table.building.isSittable))
+                                         select table).ToList();
                 changedCategories.Add(tableChairsDesignationCategory);
                 foreach (ThingDef tableOrChair in tableChairsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + tableOrChair.defName + " from " + tableOrChair.designationCategory + " to " + tableChairsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for tableOrChair " + tableOrChair.defName + " from " + tableOrChair.designationCategory + " to " + tableChairsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(tableOrChair.defName);
                     changedCategories.Add(tableOrChair.designationCategory);
                     tableOrChair.designationCategory = tableChairsDesignationCategory;
                 }
@@ -169,8 +176,7 @@ namespace TabSorting
         /// <summary>
         /// Sorts all walls and doors to the Structure-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortDoorsAndWalls(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortDoorsAndWalls()
         {
             if (TabSortingMod.instance.Settings.SortDoorsAndWalls)
             {
@@ -179,35 +185,41 @@ namespace TabSorting
                     "GL_DoorFrame"
                 };
 
-                var doorsAndWallsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
-                                           where !defsToIgnore.Contains(dd.defName) &&
-                                           ((dd.designationCategory != null &&
-                                           dd.designationCategory.defName != "Structure" &&
-                                           (dd.fillPercent == 1f || dd.label.ToLower().Contains("column")) &&
-                                           (dd.holdsRoof || dd.IsDoor))
-                                           || staticStructureDefs.Contains(dd.defName))
-                                           select dd).ToList();
-                var bridgesInGame = (from dd in DefDatabase<TerrainDef>.AllDefsListForReading
-                                     where !defsToIgnore.Contains(dd.defName) &&
-                                     (dd.designationCategory != null &&
-                                     dd.designationCategory.defName != "Structure" &&
-                                     dd.destroyEffect != null && dd.destroyEffect.defName.ToLower().Contains("bridge"))
-                                     select dd).ToList();
+                var doorsAndWallsInGame = (from doorOrWall in DefDatabase<ThingDef>.AllDefsListForReading
+                                           where 
+                                           !defsToIgnore.Contains(doorOrWall.defName) &&
+                                           !changedDefNames.Contains(doorOrWall.defName) &&
+                                           ((doorOrWall.designationCategory != null &&
+                                           doorOrWall.designationCategory.defName != "Structure" &&
+                                           (doorOrWall.fillPercent == 1f || doorOrWall.label.ToLower().Contains("column")) &&
+                                           (doorOrWall.holdsRoof || doorOrWall.IsDoor))
+                                           || staticStructureDefs.Contains(doorOrWall.defName))
+                                           select doorOrWall).ToList();
+                var bridgesInGame = (from bridge in DefDatabase<TerrainDef>.AllDefsListForReading
+                                     where 
+                                     !defsToIgnore.Contains(bridge.defName) &&
+                                     !changedDefNames.Contains(bridge.defName) &&
+                                     bridge.designationCategory != null &&
+                                     bridge.designationCategory.defName != "Structure" &&
+                                     bridge.destroyEffect != null && bridge.destroyEffect.defName.ToLower().Contains("bridge")
+                                     select bridge).ToList();
                 var structureDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Structure");
                 changedCategories.Add(structureDesignationCategory);
                 foreach (ThingDef doorOrWall in doorsAndWallsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + doorOrWall.defName + " from " + doorOrWall.designationCategory + " to " + structureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for doorOrWall " + doorOrWall.defName + " from " + doorOrWall.designationCategory + " to " + structureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(doorOrWall.defName);
                     changedCategories.Add(doorOrWall.designationCategory);
                     doorOrWall.designationCategory = structureDesignationCategory;
                 }
                 foreach (TerrainDef bridge in bridgesInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + bridge.defName + " from " + bridge.designationCategory + " to " + structureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for bridge " + bridge.defName + " from " + bridge.designationCategory + " to " + structureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(bridge.defName);
                     changedCategories.Add(bridge.designationCategory);
                     bridge.designationCategory = structureDesignationCategory;
                 }
@@ -219,42 +231,61 @@ namespace TabSorting
         /// <summary>
         /// Sort bedroom furniture to the Bedroom-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortBedroomFurniture(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortBedroomFurniture()
         {
             var bedroomFurnitureDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("BedroomTab");
             if (TabSortingMod.instance.Settings.SortBedroomFurniture)
             {
-                var bedsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var bedsInGame = (from bed in DefDatabase<ThingDef>.AllDefsListForReading
                                   where
-                                  !defsToIgnore.Contains(dd.defName) &&
-                                  (dd.designationCategory != null &&
-                                  dd.IsBed &&
-                                  (dd.building == null || (!dd.building.bed_defaultMedical && dd.building.bed_humanlike)))
-                                  select dd).ToList();
+                                  !defsToIgnore.Contains(bed.defName) &&
+                                  !changedDefNames.Contains(bed.defName) &&
+                                  bed.designationCategory != null &&
+                                  bed.IsBed &&
+                                  (bed.building == null || (!bed.building.bed_defaultMedical && bed.building.bed_humanlike))
+                                  select bed).ToList();
                 changedCategories.Add(bedroomFurnitureDesignationCategory);
-                HashSet<ThingDef> affectedByFacilities = new HashSet<ThingDef>();
+                var affectedByFacilities = new HashSet<ThingDef>();
                 foreach (ThingDef bed in bedsInGame)
                 {
                     if (bed.comps.Count == 0)
+                    {
                         continue;
+                    }
+
                     var affections = bed.GetCompProperties<CompProperties_AffectedByFacilities>();
                     if (affections == null || affections.linkableFacilities == null)
+                    {
                         continue;
+                    }
+
                     foreach (ThingDef facility in affections.linkableFacilities)
                     {
+                        if(changedDefNames.Contains(facility.defName))
+                        {
+                            continue;
+                        }
                         if (facility.designationCategory == null)
+                        {
                             continue;
-                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
+                        }
+
+                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || 
+                             offset.stat == StatDefOf.MedicalTendQualityOffset || 
+                             offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
+                        {
                             continue;
+                        }
+
                         affectedByFacilities.Add(facility);
                     }
                 }
                 foreach (ThingDef bed in bedsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + bed.defName + " from " + bed.designationCategory + " to " + bedroomFurnitureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for bed " + bed.defName + " from " + bed.designationCategory + " to " + bedroomFurnitureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(bed.defName);
                     changedCategories.Add(bed.designationCategory);
                     bed.designationCategory = bedroomFurnitureDesignationCategory;
 
@@ -262,8 +293,9 @@ namespace TabSorting
                 foreach (ThingDef facility in affectedByFacilities)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + facility.defName + " from " + facility.designationCategory + " to " + bedroomFurnitureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + bedroomFurnitureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(facility.defName);
                     changedCategories.Add(facility.designationCategory);
                     facility.designationCategory = bedroomFurnitureDesignationCategory;
 
@@ -279,41 +311,58 @@ namespace TabSorting
         /// <summary>
         /// Sort hospital furniture to the Hospital-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortHospitalFurniture(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortHospitalFurniture()
         {
             var hospitalFurnitureDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("HospitalTab");
             if (TabSortingMod.instance.Settings.SortHospitalFurniture)
             {
-                var hospitalBedsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var hospitalBedsInGame = (from hoispitalBed in DefDatabase<ThingDef>.AllDefsListForReading
                                           where
-                                          !defsToIgnore.Contains(dd.defName) &&
-                                          (dd.designationCategory != null &&
-                                          dd.IsBed &&
-                                          (dd.building != null && dd.building.bed_defaultMedical))
-                                          select dd).ToList();
+                                          !defsToIgnore.Contains(hoispitalBed.defName) &&
+                                          !changedDefNames.Contains(hoispitalBed.defName) &&
+                                          hoispitalBed.designationCategory != null &&
+                                          hoispitalBed.IsBed &&
+                                          hoispitalBed.building != null && hoispitalBed.building.bed_defaultMedical
+                                          select hoispitalBed).ToList();
                 changedCategories.Add(hospitalFurnitureDesignationCategory);
-                HashSet<ThingDef> affectedByFacilities = new HashSet<ThingDef>();
+                var affectedByFacilities = new HashSet<ThingDef>();
                 foreach (ThingDef hospitalBed in hospitalBedsInGame)
                 {
                     if (hospitalBed.comps.Count == 0)
+                    {
                         continue;
+                    }
+
                     var affections = hospitalBed.GetCompProperties<CompProperties_AffectedByFacilities>();
                     if (affections == null || affections.linkableFacilities == null)
+                    {
                         continue;
+                    }
+
                     foreach (ThingDef facility in affections.linkableFacilities)
                     {
-                        if (facility.designationCategory == null)
+                        if (changedDefNames.Contains(facility.defName))
+                        {
                             continue;
+                        }
+
+                        if (facility.designationCategory == null)
+                        {
+                            continue;
+                        }
+
                         if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
+                        {
                             affectedByFacilities.Add(facility);
+                        }
                     }
                 }
                 foreach (ThingDef hospitalBed in hospitalBedsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + hospitalBed.defName + " from " + hospitalBed.designationCategory + " to " + hospitalFurnitureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for hospitalBed " + hospitalBed.defName + " from " + hospitalBed.designationCategory + " to " + hospitalFurnitureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(hospitalBed.defName);
                     changedCategories.Add(hospitalBed.designationCategory);
                     hospitalBed.designationCategory = hospitalFurnitureDesignationCategory;
 
@@ -321,11 +370,11 @@ namespace TabSorting
                 foreach (ThingDef facility in affectedByFacilities)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + facility.defName + " from " + facility.designationCategory + " to " + hospitalFurnitureDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + hospitalFurnitureDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(facility.defName);
                     changedCategories.Add(facility.designationCategory);
                     facility.designationCategory = hospitalFurnitureDesignationCategory;
-
                 }
                 Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + hospitalBedsInGame.Count) + " hospital furniture to the Hospital tab.");
             }
@@ -338,63 +387,68 @@ namespace TabSorting
         /// <summary>
         /// Sort decorative items to the Decorations-tab
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortDecorations(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortDecorations()
         {
             var decorationsDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("DecorationTab");
             if (TabSortingMod.instance.Settings.SortDecorations)
             {
-                var rugsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var rugsInGame = (from rug in DefDatabase<ThingDef>.AllDefsListForReading
                                   where
-                                   !defsToIgnore.Contains(dd.defName) &&
-                                  (dd.designationCategory != null &&
-                                  dd.altitudeLayer == AltitudeLayer.FloorEmplacement &&
-                                  !dd.clearBuildingArea &&
-                                  dd.passability == Traversability.Standable &&
-                                  dd.StatBaseDefined(StatDefOf.Beauty) &&
-                                  dd.GetStatValueAbstract(StatDefOf.Beauty) > 0)
-                                  select dd).ToList();
-                var decorativePlantsInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                                  !defsToIgnore.Contains(rug.defName) &&
+                                  !changedDefNames.Contains(rug.defName) &&
+                                  rug.designationCategory != null &&
+                                  rug.altitudeLayer == AltitudeLayer.FloorEmplacement &&
+                                  !rug.clearBuildingArea &&
+                                  rug.passability == Traversability.Standable &&
+                                  rug.StatBaseDefined(StatDefOf.Beauty) &&
+                                  rug.GetStatValueAbstract(StatDefOf.Beauty) > 0
+                                  select rug).ToList();
+                var decorativePlantsInGame = (from decorativePlant in DefDatabase<ThingDef>.AllDefsListForReading
                                               where
-                                               !defsToIgnore.Contains(dd.defName) &&
-                                              (dd.designationCategory != null &&
-                                              dd.building != null && dd.building.sowTag == "Decorative")
-                                              select dd).ToList();
-                var decorativeFurnitureInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                                               !defsToIgnore.Contains(decorativePlant.defName) &&
+                                              !changedDefNames.Contains(decorativePlant.defName) &&
+                                              decorativePlant.designationCategory != null &&
+                                              decorativePlant.building != null && decorativePlant.building.sowTag == "Decorative"
+                                              select decorativePlant).ToList();
+                var decorativeFurnitureInGame = (from decorativeFurniture in DefDatabase<ThingDef>.AllDefsListForReading
                                                  where
-                                                  !defsToIgnore.Contains(dd.defName) &&
-                                                 (dd.designationCategory != null &&
-                                                 dd.altitudeLayer == AltitudeLayer.BuildingOnTop &&
-                                                 dd.StatBaseDefined(StatDefOf.Beauty) &&
-                                                 dd.GetStatValueAbstract(StatDefOf.Beauty) > 0 &&
-                                                 dd.GetCompProperties<CompProperties_Glower>() == null &&
-                                                 !dd.neverMultiSelect &&
-                                                 (dd.PlaceWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
-                                                 !dd.IsBed && !dd.IsTable)
-                                                 select dd).ToList();
+                                                 !defsToIgnore.Contains(decorativeFurniture.defName) &&
+                                                 !changedDefNames.Contains(decorativeFurniture.defName) &&
+                                                 decorativeFurniture.designationCategory != null &&
+                                                 decorativeFurniture.altitudeLayer == AltitudeLayer.BuildingOnTop &&
+                                                 decorativeFurniture.StatBaseDefined(StatDefOf.Beauty) &&
+                                                 decorativeFurniture.GetStatValueAbstract(StatDefOf.Beauty) > 0 &&
+                                                 decorativeFurniture.GetCompProperties<CompProperties_Glower>() == null &&
+                                                 !decorativeFurniture.neverMultiSelect &&
+                                                 (decorativeFurniture.PlaceWorkers == null || !decorativeFurniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
+                                                 !decorativeFurniture.IsBed && !decorativeFurniture.IsTable
+                                                 select decorativeFurniture).ToList();
 
                 changedCategories.Add(decorationsDesignationCategory);
                 foreach (ThingDef rug in rugsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + rug.defName + " from " + rug.designationCategory + " to " + decorationsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for rug " + rug.defName + " from " + rug.designationCategory + " to " + decorationsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(rug.defName);
                     changedCategories.Add(rug.designationCategory);
                     rug.designationCategory = decorationsDesignationCategory;
                 }
                 foreach (ThingDef planter in decorativePlantsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + planter.defName + " from " + planter.designationCategory + " to " + decorationsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for planter " + planter.defName + " from " + planter.designationCategory + " to " + decorationsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(planter.defName);
                     changedCategories.Add(planter.designationCategory);
                     planter.designationCategory = decorationsDesignationCategory;
                 }
                 foreach (ThingDef furniture in decorativeFurnitureInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + furniture.defName + " from " + furniture.designationCategory + " to " + decorationsDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for furniture " + furniture.defName + " from " + furniture.designationCategory + " to " + decorationsDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(furniture.defName);
                     changedCategories.Add(furniture.designationCategory);
                     furniture.designationCategory = decorationsDesignationCategory;
                 }
@@ -410,27 +464,28 @@ namespace TabSorting
         /// <summary>
         /// Sorts all storage-items to the Storage-tab if Storage-extended is loaded
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortStorage(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortStorage()
         {
             var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
             if (storageDesignationCategory != null && TabSortingMod.instance.Settings.SortStorage)
             {
-                var storageInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading
                                      where
-                                     !defsToIgnore.Contains(dd.defName) &&
-                                     (dd.designationCategory != null &&
-                                     dd.designationCategory.defName != "FurnitureStorage" &&
-                                     dd.thingClass.Name != "Building_Grave" &&
-                                     (dd.thingClass.Name == "Building_Storage" || (dd.inspectorTabs != null && dd.inspectorTabs.Contains(typeof(ITab_Storage)))) &&
-                                     (dd.placeWorkers == null || !dd.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))))
-                                     select dd).ToList();
+                                     !defsToIgnore.Contains(storage.defName) &&
+                                     !changedDefNames.Contains(storage.defName) &&
+                                     storage.designationCategory != null &&
+                                     storage.designationCategory.defName != "FurnitureStorage" &&
+                                     storage.thingClass.Name != "Building_Grave" &&
+                                     (storage.thingClass.Name == "Building_Storage" || (storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage)))) &&
+                                     (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
+                                     select storage).ToList();
                 changedCategories.Add(storageDesignationCategory);
                 foreach (ThingDef storage in storageInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + storage.defName + " from " + storage.designationCategory + " to " + storageDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for storage " + storage.defName + " from " + storage.designationCategory + " to " + storageDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(storage.defName);
                     changedCategories.Add(storage.designationCategory);
                     storage.designationCategory = storageDesignationCategory;
                 }
@@ -441,60 +496,62 @@ namespace TabSorting
         /// <summary>
         /// Sorts all garden-items to the Garden-tab if VGP Garden tools is loaded
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortGarden(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortGarden()
         {
             var gardenDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false);
             if (gardenDesignationCategory != null && TabSortingMod.instance.Settings.SortGarden)
             {
-                var gardenInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var gardenThingsInGame = (from gardenThing in DefDatabase<ThingDef>.AllDefsListForReading
                                     where
-                                    !defsToIgnore.Contains(dd.defName) &&
-                                    (dd.designationCategory != null &&
-                                    dd.designationCategory.defName != "GardenTools" &&
-                                    (dd.thingClass.Name == "Building_SunLamp" ||
-                                    (dd.thingClass.Name == "Building_PlantGrower" && (dd.building == null || dd.building.sowTag != "Decorative")) ||
-                                    (dd.label.ToLower().Contains("sprinkler") && !dd.label.ToLower().Contains("fire"))))
-                                    select dd).ToList();
+                                    !defsToIgnore.Contains(gardenThing.defName) &&
+                                    !changedDefNames.Contains(gardenThing.defName) &&
+                                    gardenThing.designationCategory != null &&
+                                    gardenThing.designationCategory.defName != "GardenTools" &&
+                                    (gardenThing.thingClass.Name == "Building_SunLamp" ||
+                                    (gardenThing.thingClass.Name == "Building_PlantGrower" && (gardenThing.building == null || gardenThing.building.sowTag != "Decorative")) ||
+                                    (gardenThing.label.ToLower().Contains("sprinkler") && !gardenThing.label.ToLower().Contains("fire")))
+                                    select gardenThing).ToList();
                 changedCategories.Add(gardenDesignationCategory);
-                foreach (ThingDef gardenTool in gardenInGame)
+                foreach (ThingDef gardenTool in gardenThingsInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + gardenTool.defName + " from " + gardenTool.designationCategory + " to " + gardenDesignationCategory.defName);
+                    Log.Message("TabSorting: Changing designation for gardenTool " + gardenTool.defName + " from " + gardenTool.designationCategory + " to " + gardenDesignationCategory.defName);
 #endif
+                    changedDefNames.Add(gardenTool.defName);
                     changedCategories.Add(gardenTool.designationCategory);
                     gardenTool.designationCategory = gardenDesignationCategory;
                 }
-                Log.Message("TabSorting: Moved " + gardenInGame.Count + " garden-items to the Garden tab.");
+                Log.Message("TabSorting: Moved " + gardenThingsInGame.Count + " garden-items to the Garden tab.");
             }
         }
 
         /// <summary>
         /// Sorts all fences-items to the Fences-tab if Fences and Floors is loaded
         /// </summary>
-        /// <param name="changedCategories">A variable to save each category that has been changed</param>
-        static void SortFences(ref HashSet<DesignationCategoryDef> changedCategories)
+        static void SortFences()
         {
             var fencesDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("Fences", false);
             if (fencesDesignationCategory != null && TabSortingMod.instance.Settings.SortFences)
             {
-                var fencesInGame = (from dd in DefDatabase<ThingDef>.AllDefsListForReading
+                var fencesInGame = (from fence in DefDatabase<ThingDef>.AllDefsListForReading
                                     where
-                                    !defsToIgnore.Contains(dd.defName) &&
-                                    (dd.designationCategory != null &&
-                                    dd.designationCategory.defName != "Fences" &&
-                                    ((((dd.thingClass.Name == "Building_Door") ||
-                                    (dd.thingClass.Name == "Building" && dd.graphicData != null && dd.graphicData.linkType == LinkDrawerType.Basic && dd.passability == Traversability.Impassable)) &&
-                                    dd.fillPercent < 1f &&
-                                    dd.fillPercent > 0) ||
-                                    (dd.label.ToLower().Contains("fence"))))
-                                    select dd).ToList();
+                                    !defsToIgnore.Contains(fence.defName) &&
+                                    !changedDefNames.Contains(fence.defName) &&
+                                    fence.designationCategory != null &&
+                                    fence.designationCategory.defName != "Fences" &&
+                                    ((((fence.thingClass.Name == "Building_Door") ||
+                                    (fence.thingClass.Name == "Building" && fence.graphicData != null && fence.graphicData.linkType == LinkDrawerType.Basic && fence.passability == Traversability.Impassable)) &&
+                                    fence.fillPercent < 1f &&
+                                    fence.fillPercent > 0) ||
+                                    fence.label.ToLower().Contains("fence"))
+                                    select fence).ToList();
                 changedCategories.Add(fencesDesignationCategory);
                 foreach (ThingDef fence in fencesInGame)
                 {
 #if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for " + fence.defName + " from " + fence.designationCategory + " to " + fencesDesignationCategory.defName + " passability: " + fence.passability);
+                    Log.Message("TabSorting: Changing designation for fence " + fence.defName + " from " + fence.designationCategory + " to " + fencesDesignationCategory.defName + " passability: " + fence.passability);
 #endif
+                    changedDefNames.Add(fence.defName);
                     changedCategories.Add(fence.designationCategory);
                     fence.designationCategory = fencesDesignationCategory;
                 }
@@ -513,14 +570,15 @@ namespace TabSorting
                                     mod.PackageId == "dubwise.dubsbadhygiene" ||
                                     mod.PackageId == "vanillaexpanded.vfepower" ||
                                     mod.PackageId == "vanillaexpanded.vfepropsanddecor" ||
-                                    mod.PackageId == "kentington.saveourship2"
+                                    mod.PackageId == "kentington.saveourship2" ||
+                                    mod.PackageId == "flashpoint55.poweredfloorpanelmod"
                               select mod).ToList();
             if (ignoreMods.Count > 0)
             {
                 foreach (var mod in ignoreMods)
                 {
 #if DEBUGGING
-                Log.Message("TabSorting: " + mod.Name + " has " + mod.AllDefs.Count() + " definitions, adding to ignore.");
+                    Log.Message("TabSorting: " + mod.Name + " has " + mod.AllDefs.Count() + " definitions, adding to ignore.");
 #endif
                     foreach (Def def in mod.AllDefs)
                     {
@@ -550,27 +608,25 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.SkipBuiltIn = false;
             }
 
-            var changedCategories = new HashSet<DesignationCategoryDef>();
+            SortLights();
 
-            SortLights(ref changedCategories);
+            SortFloors();
 
-            SortFloors(ref changedCategories);
+            SortDoorsAndWalls();
 
-            SortDoorsAndWalls(ref changedCategories);
+            SortTablesAndChairs();
 
-            SortTablesAndChairs(ref changedCategories);
+            SortBedroomFurniture();
 
-            SortBedroomFurniture(ref changedCategories);
+            SortHospitalFurniture();
 
-            SortHospitalFurniture(ref changedCategories);
+            SortDecorations();
 
-            SortDecorations(ref changedCategories);
+            SortStorage();
 
-            SortStorage(ref changedCategories);
+            SortGarden();
 
-            SortGarden(ref changedCategories);
-
-            SortFences(ref changedCategories);
+            SortFences();
 
             var designationsNotToTestForRemoval = new List<string>()
             {
@@ -589,24 +645,35 @@ namespace TabSorting
 
                     designationCategoryDef.ResolveReferences();
                     if (designationsNotToTestForRemoval.Contains(designationCategoryDef.defName))
+                    {
                         continue;
+                    }
 
                     if (TabSortingMod.instance.Settings.RemoveEmptyTabs)
+                    {
                         CheckEmptyDesignationCategoryDef(designationCategoryDef);
+                    }
                 }
             }
 
-            if (!TabSortingMod.instance.Settings.SortTabs) return;
+            if (!TabSortingMod.instance.Settings.SortTabs)
+            {
+                return;
+            }
 
-            int topValue = 800;
+            var topValue = 800;
             var designationCategoryDefs = from dd in DefDatabase<DesignationCategoryDef>.AllDefs
                                           orderby dd.label
                                           select dd;
-            int steps = (int)Math.Floor((decimal)(topValue / designationCategoryDefs.Count()));
+            var steps = (int)Math.Floor((decimal)(topValue / designationCategoryDefs.Count()));
             foreach (var designationCategoryDef in designationCategoryDefs)
             {
                 topValue -= steps;
-                if (TabSortingMod.instance.Settings.SkipBuiltIn && (designationCategoryDef.label == "orders" || designationCategoryDef.label == "zone")) continue;
+                if (TabSortingMod.instance.Settings.SkipBuiltIn && (designationCategoryDef.label == "orders" || designationCategoryDef.label == "zone"))
+                {
+                    continue;
+                }
+
                 designationCategoryDef.order = topValue;
             }
 
