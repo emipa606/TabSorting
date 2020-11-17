@@ -1,4 +1,4 @@
-﻿#define DEBUGGING
+﻿//#define DEBUGGING
 
 using RimWorld;
 using System;
