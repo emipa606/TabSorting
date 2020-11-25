@@ -57,6 +57,54 @@ namespace TabSorting
         }
 
         /// <summary>
+        /// Sorts all manually assigned things
+        /// </summary>
+        static void SortManually()
+        {
+            if (TabSortingMod.instance.Settings.ManualSorting == null || TabSortingMod.instance.Settings.ManualSorting.Count == 0)
+            {
+                return;
+            }
+            var thingsToRemove = new List<string>();
+            foreach (var itemToSort in TabSortingMod.instance.Settings.ManualSorting)
+            {
+                var categoryToSortTo = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(itemToSort.Value);
+                if (categoryToSortTo == null && itemToSort.Value != "None")
+                {
+                    thingsToRemove.Add(itemToSort.Key);
+                    continue;
+                }
+                var thingDefToSort = DefDatabase<ThingDef>.GetNamedSilentFail(itemToSort.Key);
+                var terrainDefToSort = DefDatabase<TerrainDef>.GetNamedSilentFail(itemToSort.Key);
+                if (thingDefToSort == null && terrainDefToSort == null)
+                {
+                    thingsToRemove.Add(itemToSort.Key);
+                    continue;
+                }
+                if (thingDefToSort != null)
+                {
+                    changedCategories.Add(thingDefToSort.designationCategory);
+                    thingDefToSort.designationCategory = itemToSort.Value != "None" ? categoryToSortTo : null;
+                }
+                else
+                {
+                    changedCategories.Add(terrainDefToSort.designationCategory);
+                    terrainDefToSort.designationCategory = itemToSort.Value != "None" ? categoryToSortTo : null;
+                }
+                changedDefNames.Add(itemToSort.Key);
+                if(itemToSort.Value != "None")
+                {
+                    changedCategories.Add(categoryToSortTo);
+                }
+            }
+            foreach (var defName in thingsToRemove)
+            {
+                TabSortingMod.instance.Settings.ManualSorting.Remove(defName);
+            }
+            Log.Message("TabSorting: Moved " + TabSortingMod.instance.Settings.ManualSorting.Count + " items to manually designated categories.");
+        }
+
+        /// <summary>
         /// Sorts all lights to the Lights-tab
         /// </summary>
         static void SortLights()
@@ -186,7 +234,7 @@ namespace TabSorting
                 };
 
                 var doorsAndWallsInGame = (from doorOrWall in DefDatabase<ThingDef>.AllDefsListForReading
-                                           where 
+                                           where
                                            !defsToIgnore.Contains(doorOrWall.defName) &&
                                            !changedDefNames.Contains(doorOrWall.defName) &&
                                            ((doorOrWall.designationCategory != null &&
@@ -196,7 +244,7 @@ namespace TabSorting
                                            || staticStructureDefs.Contains(doorOrWall.defName))
                                            select doorOrWall).ToList();
                 var bridgesInGame = (from bridge in DefDatabase<TerrainDef>.AllDefsListForReading
-                                     where 
+                                     where
                                      !defsToIgnore.Contains(bridge.defName) &&
                                      !changedDefNames.Contains(bridge.defName) &&
                                      bridge.designationCategory != null &&
@@ -261,7 +309,7 @@ namespace TabSorting
 
                     foreach (ThingDef facility in affections.linkableFacilities)
                     {
-                        if(changedDefNames.Contains(facility.defName))
+                        if (changedDefNames.Contains(facility.defName))
                         {
                             continue;
                         }
@@ -270,9 +318,11 @@ namespace TabSorting
                             continue;
                         }
 
-                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || 
-                             offset.stat == StatDefOf.MedicalTendQualityOffset || 
-                             offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
+                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets
+                             where offset.stat == StatDefOf.SurgerySuccessChanceFactor ||
+offset.stat == StatDefOf.MedicalTendQualityOffset ||
+offset.stat == StatDefOf.ImmunityGainSpeedFactor
+                             select offset).ToList().Count > 0)
                         {
                             continue;
                         }
@@ -502,15 +552,15 @@ namespace TabSorting
             if (gardenDesignationCategory != null && TabSortingMod.instance.Settings.SortGarden)
             {
                 var gardenThingsInGame = (from gardenThing in DefDatabase<ThingDef>.AllDefsListForReading
-                                    where
-                                    !defsToIgnore.Contains(gardenThing.defName) &&
-                                    !changedDefNames.Contains(gardenThing.defName) &&
-                                    gardenThing.designationCategory != null &&
-                                    gardenThing.designationCategory.defName != "GardenTools" &&
-                                    (gardenThing.thingClass.Name == "Building_SunLamp" ||
-                                    (gardenThing.thingClass.Name == "Building_PlantGrower" && (gardenThing.building == null || gardenThing.building.sowTag != "Decorative")) ||
-                                    (gardenThing.label.ToLower().Contains("sprinkler") && !gardenThing.label.ToLower().Contains("fire")))
-                                    select gardenThing).ToList();
+                                          where
+                                          !defsToIgnore.Contains(gardenThing.defName) &&
+                                          !changedDefNames.Contains(gardenThing.defName) &&
+                                          gardenThing.designationCategory != null &&
+                                          gardenThing.designationCategory.defName != "GardenTools" &&
+                                          (gardenThing.thingClass.Name == "Building_SunLamp" ||
+                                          (gardenThing.thingClass.Name == "Building_PlantGrower" && (gardenThing.building == null || gardenThing.building.sowTag != "Decorative")) ||
+                                          (gardenThing.label.ToLower().Contains("sprinkler") && !gardenThing.label.ToLower().Contains("fire")))
+                                          select gardenThing).ToList();
                 changedCategories.Add(gardenDesignationCategory);
                 foreach (ThingDef gardenTool in gardenThingsInGame)
                 {
@@ -564,6 +614,11 @@ namespace TabSorting
         /// </summary>
         static TabSorting()
         {
+            foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
+            {
+                TabSortingMod.instance.Settings.VanillaMemory.Add(categoryDef.defName, categoryDef.label);
+            }
+
             var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
                               where
                                     mod.PackageId == "atlas.androidtiers" ||
@@ -607,6 +662,8 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.SortTabs = false;
                 TabSortingMod.instance.Settings.SkipBuiltIn = false;
             }
+
+            SortManually();
 
             SortLights();
 

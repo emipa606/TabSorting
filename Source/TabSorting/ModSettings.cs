@@ -19,6 +19,11 @@ namespace TabSorting
         public bool SortGarden = false;
         public bool SortFences = false;
 
+        public Dictionary<string, string> VanillaMemory = new Dictionary<string, string>();
+        public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
+        private List<string> manualSortingKeys;
+        private List<string> manualSortingValues;
+
         public bool RemoveEmptyTabs = true;
         public bool SortTabs = false;
         public bool SkipBuiltIn = false;
@@ -43,6 +48,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn", false, false);
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
+            Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value, ref manualSortingKeys, ref manualSortingValues);
         }
     }
 }

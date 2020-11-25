@@ -61,6 +61,7 @@
     <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="List.cs" />
     <Compile Include="TabSorting.cs" />
     <Compile Include="Mod.cs" />
     <Compile Include="ModSettings.cs" />
