@@ -103,10 +103,7 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("Sort bedroom furniture", ref Settings.SortBedroomFurniture, "Moves all bedroom-furniture to the Bedroom-tab");
             listing_Standard.CheckboxLabeled("Sort hospital furniture", ref Settings.SortHospitalFurniture, "Moves all hospital-furniture to the Hospital-tab");
             listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations, "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
-            if (DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false) != null)
-            {
-                listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");
-            }
+            listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab from Extended storage");
 
             if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
             {
@@ -125,18 +122,27 @@ namespace TabSorting
             listing_Standard.CheckboxLabeled("But skip Orders and Zone-tab", ref Settings.SkipBuiltIn, "Orders and Zone-tab will remain in the top if the menu");
             listing_Standard.GapLine();
             listing_Standard.GapLine();
+            //Log.Message("Starting manual sorting view");
             var labelPoint = listing_Standard.Label("Manual sorting");
             DrawButton(delegate { ResetManualSorting(); }, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
             //listing_Standard.Label(labelPoint.position.y.ToString());
             var categories = from designationCategory in DefDatabase<DesignationCategoryDef>.AllDefsListForReading orderby designationCategory.label select designationCategory;
             foreach (var sortCategory in categories)
             {
+                //Log.Message($"Starting {sortCategory.defName} settings");
                 GUI.contentColor = Color.green;
-                listing_Standard.Label($"{GenText.CapitalizeFirst(sortCategory.label)} ({sortCategory.defName}) - {sortCategory.modContentPack.Name}");
+                var contentPack = "Unloaded mod";
+                if(sortCategory.modContentPack?.Name != null)
+                {
+                    contentPack = sortCategory.modContentPack.Name;
+                }
+                listing_Standard.Label($"{GenText.CapitalizeFirst(sortCategory.label)} ({sortCategory.defName}) - {contentPack}");
                 GUI.contentColor = Color.white;
+                //Log.Message($"{sortCategory.defName} Fetching defs");
                 var allDefsInCategory = from thing in DefDatabase<ThingDef>.AllDefsListForReading where thing.designationCategory != null && thing.designationCategory == sortCategory orderby thing.label select thing;
                 foreach (var thing in allDefsInCategory)
                 {
+                    //Log.Message($"Sorting {thing.defName}");
                     var currentPosition = listing_Standard.Label(GenText.CapitalizeFirst(thing.label));
                     var buttonText = "Default";
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(thing.defName))
@@ -148,6 +154,7 @@ namespace TabSorting
                 var allTerrainInCategory = from terrain in DefDatabase<TerrainDef>.AllDefsListForReading where terrain.designationCategory != null && terrain.designationCategory == sortCategory orderby terrain.label select terrain;
                 foreach (var terrain in allTerrainInCategory)
                 {
+                    //Log.Message($"Sorting {terrain.defName}");
                     var currentPosition = listing_Standard.Label(GenText.CapitalizeFirst(terrain.label));
                     var buttonText = "Default";
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(terrain.defName))
@@ -165,7 +172,7 @@ namespace TabSorting
                 GUI.contentColor = Color.white;
                 foreach (var hiddenItem in noneCategoryMembers)
                 {
-                    var currentPosition = listing_Standard.Label(GenText.CapitalizeFirst(hiddenItem.Value)); 
+                    var currentPosition = listing_Standard.Label(GenText.CapitalizeFirst(hiddenItem.Value));
                     var buttonText = "Default";
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(hiddenItem.Key))
                     {

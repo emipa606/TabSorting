@@ -50,4 +50,14 @@
       <li>Designator_Deconstruct</li>
     </specialDesignatorClasses>
   </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>StorageTab</defName>
+    <label>Storage</label>
+    <description>Storage containers</description>
+    <order>430</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
 </Defs>

@@ -39,6 +39,7 @@ Options dependant of other mods:
 Other options:
 - If a tab is empty after the sorting the mod can remove it
 - You can sort all tabs alphabetically, the Zones and Orders-tab can be skipped
+- Manual sorting - if some items gets in the wrong place, move them around.
 
 
 If you find any item that dont get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
@@ -53,5 +54,16 @@ Also, if you have any ideas on more stuff that can be categorised, just let me k
 
 The preview-images look horrible I know.
 If anyone can make me some nice ones Id appreciate it. Im a coder, not an artist. :)
+
+[img]https://i.imgur.com/Rs6T6cr.png[/img]
+[list]
+[*] See if the the error persists if you just have this mod and its requirements active.
+[*] If not, try adding your other mods until it happens again.
+[*] Post your error-log using [url=https://steamcommunity.com/workshop/filedetails/?id=818773962]HugsLib[/url] and command Ctrl+F12
+[*] For best support, please use the Discord-channel for error-reporting.
+[*] Do not report errors by making a discussion-thread, I get no notification of that.
+[*] If you have the solution for a problem, please post it to the GitHub repository.
+[/list]
 </description>
 </ModMetaData>
+

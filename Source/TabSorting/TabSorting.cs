@@ -92,7 +92,7 @@ namespace TabSorting
                     terrainDefToSort.designationCategory = itemToSort.Value != "None" ? categoryToSortTo : null;
                 }
                 changedDefNames.Add(itemToSort.Key);
-                if(itemToSort.Value != "None")
+                if (itemToSort.Value != "None")
                 {
                     changedCategories.Add(categoryToSortTo);
                 }
@@ -517,7 +517,14 @@ offset.stat == StatDefOf.ImmunityGainSpeedFactor
         static void SortStorage()
         {
             var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
-            if (storageDesignationCategory != null && TabSortingMod.instance.Settings.SortStorage)
+            if (storageDesignationCategory == null)
+            {
+                storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false);
+            } else
+            {
+                RemoveEmptyDesignationCategoryDef(DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
+            }
+            if (TabSortingMod.instance.Settings.SortStorage)
             {
                 var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading
                                      where
@@ -540,6 +547,10 @@ offset.stat == StatDefOf.ImmunityGainSpeedFactor
                     storage.designationCategory = storageDesignationCategory;
                 }
                 Log.Message("TabSorting: Moved " + storageInGame.Count + " storage-items to the Storage tab.");
+            }
+            else
+            {
+                RemoveEmptyDesignationCategoryDef(storageDesignationCategory);
             }
         }
 
