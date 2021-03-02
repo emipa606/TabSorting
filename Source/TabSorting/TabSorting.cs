@@ -54,6 +54,12 @@ namespace TabSorting
 
             // Static defs to ignore (not too many hopefully)
             defsToIgnore.Add("FM_AIManager");
+            defsToIgnore.Add("PRF_MiniDroneColumn");
+            defsToIgnore.Add("PRF_RecipeDatabase");
+            defsToIgnore.Add("PRF_TypeOneAssembler_I");
+            defsToIgnore.Add("PRF_TypeTwoAssembler_I");
+            defsToIgnore.Add("PRF_TypeTwoAssembler_II");
+            defsToIgnore.Add("PRF_TypeTwoAssembler_III");
 
             if (TabSortingMod.instance.Settings == null)
             {
@@ -265,9 +271,11 @@ namespace TabSorting
                           furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) &&
                           (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 ||
                            furniture.thingClass.Name == "Building_SunLamp")) &&
+                         furniture.recipes == null &&
                          (furniture.placeWorkers == null ||
                           !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
                          furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
+                         furniture.GetCompProperties<CompProperties_Battery>() == null &&
                          furniture.GetCompProperties<CompProperties_Glower>() != null &&
                          furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 &&
                          furniture.GetCompProperties<CompProperties_TempControl>() == null &&
