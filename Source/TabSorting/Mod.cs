@@ -20,13 +20,9 @@ namespace TabSorting
 
         private static string selectedDef = "Settings";
 
-        private static readonly int yStartPoint = 324;
-
-        private static readonly int rowHeight = 28;
-
         private static readonly int buttonSpacer = 300;
 
-        private static readonly Vector2 buttonSize = new Vector2(120f, 25f);
+        private static readonly Vector2 buttonSize = new(120f, 25f);
 
         private static Listing_Standard listing_Standard;
 
@@ -175,7 +171,7 @@ namespace TabSorting
                     listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations,
                         "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
                     listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage,
-                        "Moves all storage to the Storage-tab from Extended storage");
+                        "Moves all storage to the Storage-tab");
 
                     if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
                     {
@@ -379,7 +375,7 @@ namespace TabSorting
 
             var list = new List<FloatMenuOption>
             {
-                new FloatMenuOption("Default", defaultAction)
+                new("Default", defaultAction)
             };
 
             foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaMemory

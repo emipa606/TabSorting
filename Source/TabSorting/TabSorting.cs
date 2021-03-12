@@ -11,12 +11,12 @@ namespace TabSorting
     [StaticConstructorOnStartup]
     public static class TabSorting
     {
-        private static readonly List<string> defsToIgnore = new List<string>();
+        private static readonly List<string> defsToIgnore = new();
 
         private static readonly HashSet<DesignationCategoryDef> changedCategories =
-            new HashSet<DesignationCategoryDef>();
+            new();
 
-        private static readonly List<string> changedDefNames = new List<string>();
+        private static readonly List<string> changedDefNames = new();
 
         /// <summary>
         ///     The main sorting function
@@ -119,6 +119,11 @@ namespace TabSorting
                 {
                     designationCategoryDef.ResolveReferences();
                     if (designationsNotToTestForRemoval.Contains(designationCategoryDef.defName))
+                    {
+                        continue;
+                    }
+
+                    if (designationCategoryDef.defName.StartsWith("LWM_DS"))
                     {
                         continue;
                     }
@@ -698,7 +703,12 @@ namespace TabSorting
         /// </summary>
         private static void SortStorage()
         {
-            var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
+            var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("LWM_DS_Storage", false);
+            if (storageDesignationCategory == null)
+            {
+                storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
+            }
+
             if (storageDesignationCategory == null)
             {
                 storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false);
