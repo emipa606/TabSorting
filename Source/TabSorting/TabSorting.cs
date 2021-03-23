@@ -727,23 +727,25 @@ namespace TabSorting
         /// </summary>
         private static void SortStorage()
         {
-            var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("LWM_DS_Storage", false);
-            if (storageDesignationCategory == null)
-            {
-                storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
-            }
-
-            if (storageDesignationCategory == null)
-            {
-                storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false);
-            }
-            else
-            {
-                RemoveEmptyDesignationCategoryDef(DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
-            }
-
             if (TabSortingMod.instance.Settings.SortStorage)
             {
+                var storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("LWM_DS_Storage", false);
+                if (storageDesignationCategory == null)
+                {
+                    storageDesignationCategory =
+                        DefDatabase<DesignationCategoryDef>.GetNamed("FurnitureStorage", false);
+                }
+
+                if (storageDesignationCategory == null)
+                {
+                    storageDesignationCategory = DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false);
+                }
+                else
+                {
+                    RemoveEmptyDesignationCategoryDef(
+                        DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
+                }
+
                 var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading
                     where
                         !defsToIgnore.Contains(storage.defName) &&
@@ -772,7 +774,7 @@ namespace TabSorting
             }
             else
             {
-                RemoveEmptyDesignationCategoryDef(storageDesignationCategory);
+                RemoveEmptyDesignationCategoryDef(DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
             }
         }
 
