@@ -8,25 +8,43 @@ namespace TabSorting
     /// </summary>
     internal class TabSortingModSettings : ModSettings
     {
-        public readonly List<DesignationCategoryDef> VanillaMemory = new List<DesignationCategoryDef>();
-        private List<string> CategoriesToIgnore = new List<string>();
+        public readonly List<DesignationCategoryDef> VanillaCategoryMemory = new List<DesignationCategoryDef>();
+
+        public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory = new Dictionary<Def, DesignationCategoryDef>();
+
         public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
-        private List<string> manualSortingKeys;
-        private List<string> manualSortingValues;
 
         public bool RemoveEmptyTabs = true;
+
         public bool SkipBuiltIn;
+
         public bool SortBedroomFurniture;
+
         public bool SortDecorations;
+
         public bool SortDoorsAndWalls;
+
         public bool SortFences;
+
         public bool SortFloors;
+
         public bool SortGarden;
+
         public bool SortHospitalFurniture;
+
         public bool SortLights = true;
+
         public bool SortStorage;
+
         public bool SortTablesAndChairs;
+
         public bool SortTabs;
+
+        private List<string> CategoriesToIgnore = new List<string>();
+
+        private List<string> manualSortingKeys;
+
+        private List<string> manualSortingValues;
 
         public override void ExposeData()
         {
@@ -47,8 +65,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn");
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
-            Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value,
-                ref manualSortingKeys, ref manualSortingValues);
+            Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value, ref manualSortingKeys, ref manualSortingValues);
         }
     }
 }
