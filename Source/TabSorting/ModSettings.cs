@@ -12,6 +12,8 @@ namespace TabSorting
 
         public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory = new Dictionary<Def, DesignationCategoryDef>();
 
+        public readonly Dictionary<DesignationCategoryDef, int> VanillaOrderMemory = new Dictionary<DesignationCategoryDef, int>();
+
         public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
 
         public bool RemoveEmptyTabs = true;
@@ -66,6 +68,13 @@ namespace TabSorting
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
             Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value, ref manualSortingKeys, ref manualSortingValues);
+        }
+
+        public void ResetManualValues()
+        {
+            manualSortingKeys = new List<string>();
+            manualSortingValues = new List<string>();
+            ManualSorting = new Dictionary<string, string>();
         }
     }
 }

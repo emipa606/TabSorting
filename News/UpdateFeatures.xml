@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>TabSorting</modNameReadable>
@@ -45,10 +45,10 @@ The gui for it might not be optimally made but it gets the job done :)
 Feel free to still report any items that gets sorted wrong so I can improve on the general sorting.
 </content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>TabSorting_1_0_23_0</defName>
-		<assemblyVersion>1.0.23.0</assemblyVersion>
-		<content>The sorting is now redone when changing mod-settings so there is no longer a need for restarting the game when resorting items. Hope this may be of help!
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>TabSorting_1_0_23_0</defName>
+    <assemblyVersion>1.0.23.0</assemblyVersion>
+    <content>The sorting is now redone when changing mod-settings so there is no longer a need for restarting the game when resorting items. Hope this may be of help!
 </content>
-	</HugsLib.UpdateFeatureDef>
+  </HugsLib.UpdateFeatureDef>
 </Defs>

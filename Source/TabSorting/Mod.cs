@@ -141,6 +141,7 @@ namespace TabSorting
         public override void WriteSettings()
         {
             base.WriteSettings();
+            noneCategoryMembers = null;
             TabSorting.DoTheSorting();
         }
 
@@ -154,11 +155,6 @@ namespace TabSorting
 
             SoundDefOf.Designate_DragStandard_Changed.PlayOneShotOnCamera();
             action();
-        }
-
-        private static void ResetManualSorting()
-        {
-            instance.Settings.ManualSorting = new Dictionary<string, string>();
         }
 
         private static void SetManualSortTarget(string defName)
@@ -275,7 +271,7 @@ namespace TabSorting
                         listing_Standard.CheckboxLabeled("Sort all tabs alphabetically", ref Settings.SortTabs, "Puts all tabs in alphabetical order");
                         listing_Standard.CheckboxLabeled("But skip Orders and Zone-tab", ref Settings.SkipBuiltIn, "Orders and Zone-tab will remain in the top if the menu");
                         var labelPoint = listing_Standard.Label("Manual sorting reset", -1F, "Reset all manually defined sortings");
-                        DrawButton(ResetManualSorting, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                        DrawButton(instance.Settings.ResetManualValues, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
                         listing_Standard.End();
                         break;
                     }

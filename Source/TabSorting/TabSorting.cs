@@ -33,6 +33,7 @@ namespace TabSorting
                 foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
                 {
                     TabSortingMod.instance.Settings.VanillaCategoryMemory.Add(categoryDef);
+                    TabSortingMod.instance.Settings.VanillaOrderMemory.Add(categoryDef, categoryDef.order);
                 }
             }
 
@@ -235,7 +236,11 @@ namespace TabSorting
         {
             foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
             {
-                GetDesignationFromDatabase(designationCategoryDef.defName);
+                var designation = GetDesignationFromDatabase(designationCategoryDef.defName);
+                if (designation != null)
+                {
+                    designation.order = TabSortingMod.instance.Settings.VanillaOrderMemory[designationCategoryDef];
+                }
             }
 
             foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading)
@@ -670,14 +675,9 @@ namespace TabSorting
             foreach (var itemToSort in TabSortingMod.instance.Settings.ManualSorting)
             {
                 var designationCategory = GetDesignationFromDatabase(itemToSort.Value);
-                if (designationCategory == null)
+                if (designationCategory == null && itemToSort.Value != "None")
                 {
-                    Log.ErrorOnce($"[TabSorting]: Cannot find the {itemToSort.Value}-def, will not sort {itemToSort.Key}.", itemToSort.Key.GetHashCode());
-                    if (itemToSort.Value != "None")
-                    {
-                        thingsToRemove.Add(itemToSort.Key);
-                    }
-
+                    thingsToRemove.Add(itemToSort.Key);
                     continue;
                 }
 
