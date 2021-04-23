@@ -9,7 +9,11 @@
     <li>1.2</li>
   </supportedVersions>
   <modDependencies />
-  <loadAfter />
+  <loadAfter>
+    <li>Mlie.RemoveIndustrialStuff</li>
+    <li>Mlie.RemoveSpacerStuff</li>
+    <li>Mlie.LordoftheRimsTheThirdAge</li>
+  </loadAfter>
   <description>[img]https://i.imgur.com/WAEzk68.png[/img]
 Sort your stuff!
   

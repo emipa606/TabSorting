@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.25.0 - Fixes for some special cases, as well as some floor stuff
+
+
 1.0.24.0 - Fixed an issue with None-sorting and also fixed the sorting of the tabs without reload
 
 
