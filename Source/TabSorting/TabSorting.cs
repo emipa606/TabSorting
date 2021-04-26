@@ -83,6 +83,7 @@ namespace TabSorting
                 SortDoorsAndWalls = false,
                 SortBedroomFurniture = false,
                 SortHospitalFurniture = false,
+                SortKitchenFurniture = false,
                 SortTablesAndChairs = false,
                 SortDecorations = false,
                 SortStorage = false,
@@ -104,6 +105,8 @@ namespace TabSorting
             SortTablesAndChairs();
 
             SortBedroomFurniture();
+
+            SortKitchenFurniture();
 
             SortHospitalFurniture();
 
@@ -280,6 +283,149 @@ namespace TabSorting
             foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
             {
                 designationCategoryDef.ResolveReferences();
+            }
+        }
+
+        /// <summary>
+        ///     Sort kitchen furniture to the Kitchen-tab
+        /// </summary>
+        private static void SortKitchenFurniture()
+        {
+            var designationCategory = GetDesignationFromDatabase("KitchenTab");
+            if (designationCategory == null)
+            {
+                Log.ErrorOnce("[TabSorting]: Cannot find the KitchenTab-def, will not sort kitchen items.", "KitchenTab".GetHashCode());
+                return;
+            }
+
+            if (TabSortingMod.instance.Settings.SortKitchenFurniture)
+            {
+                var foodCatagories = ThingCategoryDefOf.Foods.ThisAndChildCategoryDefs;
+
+                var foods = (from food in DefDatabase<ThingDef>.AllDefsListForReading where food.thingCategories != null && food.thingCategories.SharesElementWith(foodCatagories) select food).ToList();
+//#if DEBUGGING
+//                Log.Message("TabSorting: Found " + foods.Count + " foods: " + string.Join(",", foods));
+//#endif
+                var foodRecipies = (from recipe in DefDatabase<RecipeDef>.AllDefsListForReading where recipe.ProducedThingDef != null && foods.Contains(recipe.ProducedThingDef) select recipe).ToList();
+//#if DEBUGGING
+//                Log.Message("TabSorting: Found " + foodRecipies.Count + " recipies: " + string.Join(",", foodRecipies));
+//#endif
+                var recipeMakers = (from foodMaker in DefDatabase<ThingDef>.AllDefsListForReading where foodMaker.recipes != null && foodMaker.recipes.SharesElementWith(foodRecipies) select foodMaker).ToList();
+//#if DEBUGGING
+//                Log.Message("TabSorting: Found " + recipeMakers.Count + " recipemakers: " + string.Join(",", recipeMakers));
+//#endif
+                var foodMakers = new HashSet<ThingDef>();
+                foodMakers.AddRange(recipeMakers);
+                foreach (var thingDef in foods)
+                {
+                    if (thingDef.recipes == null || !thingDef.recipes.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var thingDefRecipe in thingDef.recipes)
+                    {
+                        if (thingDefRecipe.recipeUsers == null || !thingDefRecipe.recipeUsers.Any())
+                        {
+                            continue;
+                        }
+
+                        foodMakers.AddRange(thingDefRecipe.recipeUsers);
+                    }
+                }
+
+                foreach (var recipeDef in foodRecipies)
+                {
+                    if (recipeDef.recipeUsers == null || !recipeDef.recipeUsers.Any())
+                    {
+                        continue;
+                    }
+
+                    foodMakers.AddRange(recipeDef.recipeUsers);
+                }
+
+#if DEBUGGING
+                Log.Message("TabSorting: Found " + foodMakers.Count + " food processing buildings");
+#endif
+
+                var foodMakersInGame = (from foodMaker in foodMakers where !defsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) && foodMaker.designationCategory != null select foodMaker).ToList();
+                var affectedByFacilities = new HashSet<ThingDef>();
+                foreach (var foodMaker in foodMakersInGame)
+                {
+                    if (!foodMaker.comps.Any())
+                    {
+                        continue;
+                    }
+
+                    var affections = foodMaker.GetCompProperties<CompProperties_AffectedByFacilities>();
+                    if (affections == null || !affections.linkableFacilities.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var facility in affections.linkableFacilities)
+                    {
+                        if (changedDefNames.Contains(facility.defName))
+                        {
+                            continue;
+                        }
+
+                        if (facility.designationCategory == null)
+                        {
+                            continue;
+                        }
+
+                        var compProperties = facility.GetCompProperties<CompProperties_Facility>();
+                        if (compProperties?.statOffsets == null)
+                        {
+                            continue;
+                        }
+
+                        var found = false;
+                        foreach (var offset in compProperties.statOffsets)
+                        {
+                            if (offset.stat != StatDefOf.WorkTableEfficiencyFactor && offset.stat != StatDefOf.WorkTableWorkSpeedFactor)
+                            {
+                                continue;
+                            }
+
+                            found = true;
+                            break;
+                        }
+
+                        if (!found)
+                        {
+                            continue;
+                        }
+
+                        affectedByFacilities.Add(facility);
+                        break;
+                    }
+                }
+
+                foreach (var foodMaker in foodMakersInGame)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for building " + foodMaker.defName + " from " + foodMaker.designationCategory + " to " + designationCategory.defName);
+#endif
+                    changedDefNames.Add(foodMaker.defName);
+                    foodMaker.designationCategory = designationCategory;
+                }
+
+                foreach (var facility in affectedByFacilities)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
+#endif
+                    changedDefNames.Add(facility.defName);
+                    facility.designationCategory = designationCategory;
+                }
+
+                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + foodMakersInGame.Count) + " kitchen furniture to the Kitchen tab.");
+            }
+            else
+            {
+                RemoveEmptyDesignationCategoryDef(designationCategory);
             }
         }
 

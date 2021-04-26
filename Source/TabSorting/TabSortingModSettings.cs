@@ -14,7 +14,13 @@ namespace TabSorting
 
         public readonly Dictionary<DesignationCategoryDef, int> VanillaOrderMemory = new Dictionary<DesignationCategoryDef, int>();
 
+        private List<string> CategoriesToIgnore = new List<string>();
+
         public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
+
+        private List<string> manualSortingKeys;
+
+        private List<string> manualSortingValues;
 
         public bool RemoveEmptyTabs = true;
 
@@ -34,6 +40,8 @@ namespace TabSorting
 
         public bool SortHospitalFurniture;
 
+        public bool SortKitchenFurniture;
+
         public bool SortLights = true;
 
         public bool SortStorage;
@@ -41,12 +49,6 @@ namespace TabSorting
         public bool SortTablesAndChairs;
 
         public bool SortTabs;
-
-        private List<string> CategoriesToIgnore = new List<string>();
-
-        private List<string> manualSortingKeys;
-
-        private List<string> manualSortingValues;
 
         public override void ExposeData()
         {
@@ -61,6 +63,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortStorage, "SortStorage");
             Scribe_Values.Look(ref SortGarden, "SortGarden");
             Scribe_Values.Look(ref SortFences, "SortFences");
+            Scribe_Values.Look(ref SortKitchenFurniture, "SortKitchenFurniture");
 
             Scribe_Values.Look(ref RemoveEmptyTabs, "RemoveEmptyTabs", true);
             Scribe_Values.Look(ref SortTabs, "SortTabs");

@@ -60,4 +60,14 @@
       <li>Designator_Deconstruct</li>
     </specialDesignatorClasses>
   </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>KitchenTab</defName>
+    <label>Kitchen</label>
+    <description>Storage furniture</description>
+    <order>431</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
 </Defs>

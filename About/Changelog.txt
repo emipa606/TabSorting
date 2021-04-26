@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.26.0 - Added a kitchen tab for sorting
+
+
 1.0.25.0 - Fixes for some special cases, as well as some floor stuff
 
 
