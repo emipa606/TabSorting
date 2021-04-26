@@ -44,6 +44,8 @@ namespace TabSorting
 
         public bool SortLights = true;
 
+        public bool SortResearchFurniture;
+
         public bool SortStorage;
 
         public bool SortTablesAndChairs;
@@ -64,6 +66,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortGarden, "SortGarden");
             Scribe_Values.Look(ref SortFences, "SortFences");
             Scribe_Values.Look(ref SortKitchenFurniture, "SortKitchenFurniture");
+            Scribe_Values.Look(ref SortResearchFurniture, "SortResearchFurniture");
 
             Scribe_Values.Look(ref RemoveEmptyTabs, "RemoveEmptyTabs", true);
             Scribe_Values.Look(ref SortTabs, "SortTabs");

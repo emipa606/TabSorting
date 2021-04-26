@@ -51,11 +51,17 @@ Feel free to still report any items that gets sorted wrong so I can improve on t
     <content>The sorting is now redone when changing mod-settings so there is no longer a need for restarting the game when resorting items. Hope this may be of help!
 </content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>TabSorting_1_0_26_0</defName>
-		<assemblyVersion>1.0.26.0</assemblyVersion>
-		<content>There is now an option to sort kitchen-related furniture into its own tab. 
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>TabSorting_1_0_26_0</defName>
+    <assemblyVersion>1.0.26.0</assemblyVersion>
+    <content>There is now an option to sort kitchen-related furniture into its own tab. 
 It will default move any building that is used for producing anything categorised as food and any facility that is connected to it. Hope this will help those with large production-tabs!
+</content>
+  </HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+		<defName>TabSorting_1_0_27_0</defName>
+		<assemblyVersion>1.0.27.0</assemblyVersion>
+		<content>Added an option to sort buildings into a Research-tab. It will move all research-buildings and affected facilities along with any building marked as required by any research-project to a separate research-tab.
 </content>
 	</HugsLib.UpdateFeatureDef>
 </Defs>

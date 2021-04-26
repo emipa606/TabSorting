@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.27.0 - Added a Research-tab
+
+
 1.0.26.0 - Added a kitchen tab for sorting
 
 

@@ -63,8 +63,18 @@
   <DesignationCategoryDef>
     <defName>KitchenTab</defName>
     <label>Kitchen</label>
-    <description>Storage furniture</description>
+    <description>Kitchen furniture</description>
     <order>431</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>ResearchTab</defName>
+    <label>Research</label>
+    <description>Research furniture</description>
+    <order>432</order>
     <specialDesignatorClasses>
       <li>Designator_Cancel</li>
       <li>Designator_Deconstruct</li>

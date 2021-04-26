@@ -31,6 +31,8 @@ Currently the mod supports the following sorting:
 - All hospitalbeds and linkable medical furniture to a separate Hospital-tab
 - All tables and sittable furniture to a separate Tables/Chairs-tab
 - All decorative items to a separate Decorations-tab
+- All kitchen furniture and linkables to a separate Kitchen-tab
+- Add research furniture to a separate Research-tab
 
 Special case
 - All storage-containers to the Storage-tab

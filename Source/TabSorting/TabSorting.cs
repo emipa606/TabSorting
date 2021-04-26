@@ -84,6 +84,7 @@ namespace TabSorting
                 SortBedroomFurniture = false,
                 SortHospitalFurniture = false,
                 SortKitchenFurniture = false,
+                SortResearchFurniture = false,
                 SortTablesAndChairs = false,
                 SortDecorations = false,
                 SortStorage = false,
@@ -107,6 +108,8 @@ namespace TabSorting
             SortBedroomFurniture();
 
             SortKitchenFurniture();
+
+            SortResearchFurniture();
 
             SortHospitalFurniture();
 
@@ -399,7 +402,6 @@ namespace TabSorting
                         }
 
                         affectedByFacilities.Add(facility);
-                        break;
                     }
                 }
 
@@ -422,6 +424,110 @@ namespace TabSorting
                 }
 
                 Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + foodMakersInGame.Count) + " kitchen furniture to the Kitchen tab.");
+            }
+            else
+            {
+                RemoveEmptyDesignationCategoryDef(designationCategory);
+            }
+        }
+
+        /// <summary>
+        ///     Sort research furniture to the Research-tab
+        /// </summary>
+        private static void SortResearchFurniture()
+        {
+            var designationCategory = GetDesignationFromDatabase("ResearchTab");
+            if (designationCategory == null)
+            {
+                Log.ErrorOnce("[TabSorting]: Cannot find the ResearchTab-def, will not sort research items.", "ResearchTab".GetHashCode());
+                return;
+            }
+
+            if (TabSortingMod.instance.Settings.SortResearchFurniture)
+            {
+                var researchBuildings = new HashSet<ThingDef>();
+                var requiredResearchBuildings = (from building in DefDatabase<ResearchProjectDef>.AllDefsListForReading where building.requiredResearchBuilding != null select building.requiredResearchBuilding).ToHashSet();
+                var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
+
+#if DEBUGGING
+                Log.Message("TabSorting: Found " + researchBenches.Count + " research-benches and " + requiredResearchBuildings.Count + " researchBuildings");
+#endif
+                researchBuildings.AddRange(researchBenches);
+                researchBuildings.AddRange(requiredResearchBuildings);
+                var researchBuildingsInGame = (from researchBuilding in researchBuildings where !defsToIgnore.Contains(researchBuilding.defName) && !changedDefNames.Contains(researchBuilding.defName) && researchBuilding.designationCategory != null select researchBuilding).ToList();
+
+                var affectedByFacilities = new HashSet<ThingDef>();
+                foreach (var researchBuilding in researchBuildingsInGame)
+                {
+                    if (!researchBuilding.comps.Any())
+                    {
+                        continue;
+                    }
+
+                    var affections = researchBuilding.GetCompProperties<CompProperties_AffectedByFacilities>();
+                    if (affections == null || !affections.linkableFacilities.Any())
+                    {
+                        continue;
+                    }
+
+                    foreach (var facility in affections.linkableFacilities)
+                    {
+                        if (changedDefNames.Contains(facility.defName))
+                        {
+                            continue;
+                        }
+
+                        if (facility.designationCategory == null)
+                        {
+                            continue;
+                        }
+
+                        var compProperties = facility.GetCompProperties<CompProperties_Facility>();
+                        if (compProperties?.statOffsets == null)
+                        {
+                            continue;
+                        }
+
+                        var found = false;
+                        foreach (var offset in compProperties.statOffsets)
+                        {
+                            if (offset.stat != StatDefOf.ResearchSpeed && offset.stat != StatDefOf.ResearchSpeedFactor)
+                            {
+                                continue;
+                            }
+
+                            found = true;
+                            break;
+                        }
+
+                        if (!found)
+                        {
+                            continue;
+                        }
+
+                        affectedByFacilities.Add(facility);
+                    }
+                }
+
+                foreach (var researchBuilding in researchBuildingsInGame)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for building " + researchBuilding.defName + " from " + researchBuilding.designationCategory + " to " + designationCategory.defName);
+#endif
+                    changedDefNames.Add(researchBuilding.defName);
+                    researchBuilding.designationCategory = designationCategory;
+                }
+
+                foreach (var facility in affectedByFacilities)
+                {
+#if DEBUGGING
+                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
+#endif
+                    changedDefNames.Add(facility.defName);
+                    facility.designationCategory = designationCategory;
+                }
+
+                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + researchBuildingsInGame.Count) + " research-buildings to the Research tab.");
             }
             else
             {
@@ -476,7 +582,7 @@ namespace TabSorting
                         {
                             foreach (var offset in compProperties.statOffsets)
                             {
-                                if (offset.stat != StatDefOf.SurgerySuccessChanceFactor && offset.stat != StatDefOf.MedicalTendQualityOffset && offset.stat != StatDefOf.ImmunityGainSpeedFactor)
+                                if (offset.stat != StatDefOf.Comfort)
                                 {
                                     continue;
                                 }
