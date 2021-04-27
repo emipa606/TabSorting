@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.29.0 - Fixed an error connected to the dynamic sorting. Added version-number in settings
+
+
 1.0.28.0 - Added an option for verbose logging, to help finding reported issues
 
 

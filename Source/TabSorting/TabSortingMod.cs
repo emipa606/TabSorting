@@ -38,6 +38,8 @@ namespace TabSorting
 
         private static Vector2 tabsScrollPosition;
 
+        private static string currentVersion;
+
         /// <summary>
         ///     The private settings
         /// </summary>
@@ -51,6 +53,7 @@ namespace TabSorting
             : base(content)
         {
             instance = this;
+            currentVersion = Mlie.VersionFromManifest.GetVersionFromModMetaData(ModLister.GetActiveModWithIdentifier("Mlie.TabSorting"));
         }
 
         /// <summary>
@@ -277,6 +280,14 @@ namespace TabSorting
                     listing_Standard.Label("NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.");
                     listing_Standard.CheckboxLabeled("Enable verbose logging", ref Settings.VerboseLogging, "Shows verbose logging during sorting, for finding errors");
                     DrawButton(instance.Settings.ResetManualValues, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                    if (currentVersion != null)
+                    {
+                        listing_Standard.Gap();
+                        GUI.contentColor = Color.gray;
+                        listing_Standard.Label("Installed mod-version: " + currentVersion);
+                        GUI.contentColor = Color.white;
+                    }
+
                     listing_Standard.End();
                     break;
                 }

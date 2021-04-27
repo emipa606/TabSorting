@@ -128,7 +128,7 @@ namespace TabSorting
                 }
 
                 designationCategoryDef.ResolveReferences();
-                if (CheckEmptyDesignationCategoryDef(designationCategoryDef))
+                if (CheckEmptyDesignationCategoryDef(designationCategoryDef.defName))
                 {
                     designationCategoriesToRemove.Add(designationCategoryDef);
                 }
@@ -170,9 +170,10 @@ namespace TabSorting
         ///     Goes through all items and checks if there are any references to the selected category
         ///     Removes the category if there are none
         /// </summary>
-        /// <param name="currentCategory">The category to check</param>
-        private static bool CheckEmptyDesignationCategoryDef(DesignationCategoryDef currentCategory)
+        /// <param name="currentCategoryName">The category to check</param>
+        private static bool CheckEmptyDesignationCategoryDef(string currentCategoryName)
         {
+            var currentCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(currentCategoryName);
             if (currentCategory.defName == "Orders" || currentCategory.defName == "Zone")
             {
                 return false;
@@ -293,119 +294,117 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortKitchenFurniture)
+            if (!TabSortingMod.instance.Settings.SortKitchenFurniture)
             {
-                var foodCatagories = ThingCategoryDefOf.Foods.ThisAndChildCategoryDefs;
-
-                var foods = (from food in DefDatabase<ThingDef>.AllDefsListForReading where food.thingCategories != null && food.thingCategories.SharesElementWith(foodCatagories) select food).ToList();
-                var foodRecipies = (from recipe in DefDatabase<RecipeDef>.AllDefsListForReading where recipe.ProducedThingDef != null && foods.Contains(recipe.ProducedThingDef) select recipe).ToList();
-                var recipeMakers = (from foodMaker in DefDatabase<ThingDef>.AllDefsListForReading where foodMaker.recipes != null && foodMaker.recipes.SharesElementWith(foodRecipies) select foodMaker).ToList();
-                var foodMakers = new HashSet<ThingDef>();
-                foodMakers.AddRange(recipeMakers);
-                foreach (var thingDef in foods)
-                {
-                    if (thingDef.recipes == null || !thingDef.recipes.Any())
-                    {
-                        continue;
-                    }
-
-                    foreach (var thingDefRecipe in thingDef.recipes)
-                    {
-                        if (thingDefRecipe.recipeUsers == null || !thingDefRecipe.recipeUsers.Any())
-                        {
-                            continue;
-                        }
-
-                        foodMakers.AddRange(thingDefRecipe.recipeUsers);
-                    }
-                }
-
-                foreach (var recipeDef in foodRecipies)
-                {
-                    if (recipeDef.recipeUsers == null || !recipeDef.recipeUsers.Any())
-                    {
-                        continue;
-                    }
-
-                    foodMakers.AddRange(recipeDef.recipeUsers);
-                }
-
-                LogMessage($"Found {foodMakers.Count} food processing buildings");
-
-                var foodMakersInGame = (from foodMaker in foodMakers where !defsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) && foodMaker.designationCategory != null select foodMaker).ToList();
-                var affectedByFacilities = new HashSet<ThingDef>();
-                foreach (var foodMaker in foodMakersInGame)
-                {
-                    if (!foodMaker.comps.Any())
-                    {
-                        continue;
-                    }
-
-                    var affections = foodMaker.GetCompProperties<CompProperties_AffectedByFacilities>();
-                    if (affections == null || !affections.linkableFacilities.Any())
-                    {
-                        continue;
-                    }
-
-                    foreach (var facility in affections.linkableFacilities)
-                    {
-                        if (changedDefNames.Contains(facility.defName))
-                        {
-                            continue;
-                        }
-
-                        if (facility.designationCategory == null)
-                        {
-                            continue;
-                        }
-
-                        var compProperties = facility.GetCompProperties<CompProperties_Facility>();
-                        if (compProperties?.statOffsets == null)
-                        {
-                            continue;
-                        }
-
-                        var found = false;
-                        foreach (var offset in compProperties.statOffsets)
-                        {
-                            if (offset.stat != StatDefOf.WorkTableEfficiencyFactor && offset.stat != StatDefOf.WorkTableWorkSpeedFactor)
-                            {
-                                continue;
-                            }
-
-                            found = true;
-                            break;
-                        }
-
-                        if (!found)
-                        {
-                            continue;
-                        }
-
-                        affectedByFacilities.Add(facility);
-                    }
-                }
-
-                foreach (var foodMaker in foodMakersInGame)
-                {
-                    LogMessage($"Changing designation for building {foodMaker.defName} from {foodMaker.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(foodMaker.defName);
-                    foodMaker.designationCategory = designationCategory;
-                }
-
-                foreach (var facility in affectedByFacilities)
-                {
-                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(facility.defName);
-                    facility.designationCategory = designationCategory;
-                }
-
-                LogMessage($"Moved {affectedByFacilities.Count + foodMakersInGame.Count} kitchen furniture to the Kitchen tab.", true);
+                return;
             }
-            else
+
+            var foodCatagories = ThingCategoryDefOf.Foods.ThisAndChildCategoryDefs;
+
+            var foods = (from food in DefDatabase<ThingDef>.AllDefsListForReading where food.thingCategories != null && food.thingCategories.SharesElementWith(foodCatagories) select food).ToList();
+            var foodRecipies = (from recipe in DefDatabase<RecipeDef>.AllDefsListForReading where recipe.ProducedThingDef != null && foods.Contains(recipe.ProducedThingDef) select recipe).ToList();
+            var recipeMakers = (from foodMaker in DefDatabase<ThingDef>.AllDefsListForReading where foodMaker.recipes != null && foodMaker.recipes.SharesElementWith(foodRecipies) select foodMaker).ToList();
+            var foodMakers = new HashSet<ThingDef>();
+            foodMakers.AddRange(recipeMakers);
+            foreach (var thingDef in foods)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                if (thingDef.recipes == null || !thingDef.recipes.Any())
+                {
+                    continue;
+                }
+
+                foreach (var thingDefRecipe in thingDef.recipes)
+                {
+                    if (thingDefRecipe.recipeUsers == null || !thingDefRecipe.recipeUsers.Any())
+                    {
+                        continue;
+                    }
+
+                    foodMakers.AddRange(thingDefRecipe.recipeUsers);
+                }
             }
+
+            foreach (var recipeDef in foodRecipies)
+            {
+                if (recipeDef.recipeUsers == null || !recipeDef.recipeUsers.Any())
+                {
+                    continue;
+                }
+
+                foodMakers.AddRange(recipeDef.recipeUsers);
+            }
+
+            LogMessage($"Found {foodMakers.Count} food processing buildings");
+
+            var foodMakersInGame = (from foodMaker in foodMakers where !defsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) && foodMaker.designationCategory != null select foodMaker).ToList();
+            var affectedByFacilities = new HashSet<ThingDef>();
+            foreach (var foodMaker in foodMakersInGame)
+            {
+                if (!foodMaker.comps.Any())
+                {
+                    continue;
+                }
+
+                var affections = foodMaker.GetCompProperties<CompProperties_AffectedByFacilities>();
+                if (affections == null || !affections.linkableFacilities.Any())
+                {
+                    continue;
+                }
+
+                foreach (var facility in affections.linkableFacilities)
+                {
+                    if (changedDefNames.Contains(facility.defName))
+                    {
+                        continue;
+                    }
+
+                    if (facility.designationCategory == null)
+                    {
+                        continue;
+                    }
+
+                    var compProperties = facility.GetCompProperties<CompProperties_Facility>();
+                    if (compProperties?.statOffsets == null)
+                    {
+                        continue;
+                    }
+
+                    var found = false;
+                    foreach (var offset in compProperties.statOffsets)
+                    {
+                        if (offset.stat != StatDefOf.WorkTableEfficiencyFactor && offset.stat != StatDefOf.WorkTableWorkSpeedFactor)
+                        {
+                            continue;
+                        }
+
+                        found = true;
+                        break;
+                    }
+
+                    if (!found)
+                    {
+                        continue;
+                    }
+
+                    affectedByFacilities.Add(facility);
+                }
+            }
+
+            foreach (var foodMaker in foodMakersInGame)
+            {
+                LogMessage($"Changing designation for building {foodMaker.defName} from {foodMaker.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(foodMaker.defName);
+                foodMaker.designationCategory = designationCategory;
+            }
+
+            foreach (var facility in affectedByFacilities)
+            {
+                LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(facility.defName);
+                facility.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {affectedByFacilities.Count + foodMakersInGame.Count} kitchen furniture to the Kitchen tab.", true);
         }
 
         /// <summary>
@@ -420,90 +419,88 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortResearchFurniture)
+            if (!TabSortingMod.instance.Settings.SortResearchFurniture)
             {
-                var researchBuildings = new HashSet<ThingDef>();
-                var requiredResearchBuildings = (from building in DefDatabase<ResearchProjectDef>.AllDefsListForReading where building.requiredResearchBuilding != null select building.requiredResearchBuilding).ToHashSet();
-                var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
+                return;
+            }
 
-                LogMessage($"Found {researchBenches.Count} research-benches and {requiredResearchBuildings.Count} researchBuildings");
-                researchBuildings.AddRange(researchBenches);
-                researchBuildings.AddRange(requiredResearchBuildings);
-                var researchBuildingsInGame = (from researchBuilding in researchBuildings where !defsToIgnore.Contains(researchBuilding.defName) && !changedDefNames.Contains(researchBuilding.defName) && researchBuilding.designationCategory != null select researchBuilding).ToList();
+            var researchBuildings = new HashSet<ThingDef>();
+            var requiredResearchBuildings = (from building in DefDatabase<ResearchProjectDef>.AllDefsListForReading where building.requiredResearchBuilding != null select building.requiredResearchBuilding).ToHashSet();
+            var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
 
-                var affectedByFacilities = new HashSet<ThingDef>();
-                foreach (var researchBuilding in researchBuildingsInGame)
+            LogMessage($"Found {researchBenches.Count} research-benches and {requiredResearchBuildings.Count} researchBuildings");
+            researchBuildings.AddRange(researchBenches);
+            researchBuildings.AddRange(requiredResearchBuildings);
+            var researchBuildingsInGame = (from researchBuilding in researchBuildings where !defsToIgnore.Contains(researchBuilding.defName) && !changedDefNames.Contains(researchBuilding.defName) && researchBuilding.designationCategory != null select researchBuilding).ToList();
+
+            var affectedByFacilities = new HashSet<ThingDef>();
+            foreach (var researchBuilding in researchBuildingsInGame)
+            {
+                if (!researchBuilding.comps.Any())
                 {
-                    if (!researchBuilding.comps.Any())
+                    continue;
+                }
+
+                var affections = researchBuilding.GetCompProperties<CompProperties_AffectedByFacilities>();
+                if (affections == null || !affections.linkableFacilities.Any())
+                {
+                    continue;
+                }
+
+                foreach (var facility in affections.linkableFacilities)
+                {
+                    if (changedDefNames.Contains(facility.defName))
                     {
                         continue;
                     }
 
-                    var affections = researchBuilding.GetCompProperties<CompProperties_AffectedByFacilities>();
-                    if (affections == null || !affections.linkableFacilities.Any())
+                    if (facility.designationCategory == null)
                     {
                         continue;
                     }
 
-                    foreach (var facility in affections.linkableFacilities)
+                    var compProperties = facility.GetCompProperties<CompProperties_Facility>();
+                    if (compProperties?.statOffsets == null)
                     {
-                        if (changedDefNames.Contains(facility.defName))
-                        {
-                            continue;
-                        }
-
-                        if (facility.designationCategory == null)
-                        {
-                            continue;
-                        }
-
-                        var compProperties = facility.GetCompProperties<CompProperties_Facility>();
-                        if (compProperties?.statOffsets == null)
-                        {
-                            continue;
-                        }
-
-                        var found = false;
-                        foreach (var offset in compProperties.statOffsets)
-                        {
-                            if (offset.stat != StatDefOf.ResearchSpeed && offset.stat != StatDefOf.ResearchSpeedFactor)
-                            {
-                                continue;
-                            }
-
-                            found = true;
-                            break;
-                        }
-
-                        if (!found)
-                        {
-                            continue;
-                        }
-
-                        affectedByFacilities.Add(facility);
+                        continue;
                     }
-                }
 
-                foreach (var researchBuilding in researchBuildingsInGame)
-                {
-                    LogMessage($"Changing designation for building {researchBuilding.defName} from {researchBuilding.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(researchBuilding.defName);
-                    researchBuilding.designationCategory = designationCategory;
-                }
+                    var found = false;
+                    foreach (var offset in compProperties.statOffsets)
+                    {
+                        if (offset.stat != StatDefOf.ResearchSpeed && offset.stat != StatDefOf.ResearchSpeedFactor)
+                        {
+                            continue;
+                        }
 
-                foreach (var facility in affectedByFacilities)
-                {
-                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(facility.defName);
-                    facility.designationCategory = designationCategory;
-                }
+                        found = true;
+                        break;
+                    }
 
-                LogMessage($"Moved {affectedByFacilities.Count + researchBuildingsInGame.Count} research-buildings to the Research tab.", true);
+                    if (!found)
+                    {
+                        continue;
+                    }
+
+                    affectedByFacilities.Add(facility);
+                }
             }
-            else
+
+            foreach (var researchBuilding in researchBuildingsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for building {researchBuilding.defName} from {researchBuilding.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(researchBuilding.defName);
+                researchBuilding.designationCategory = designationCategory;
             }
+
+            foreach (var facility in affectedByFacilities)
+            {
+                LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(facility.defName);
+                facility.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {affectedByFacilities.Count + researchBuildingsInGame.Count} research-buildings to the Research tab.", true);
         }
 
         /// <summary>
@@ -518,78 +515,76 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortBedroomFurniture)
+            if (!TabSortingMod.instance.Settings.SortBedroomFurniture)
             {
-                var bedsInGame = (from bed in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(bed.defName) && !changedDefNames.Contains(bed.defName) && bed.designationCategory != null && bed.IsBed && (bed.building == null || !bed.building.bed_defaultMedical && bed.building.bed_humanlike) select bed).ToList();
-                var affectedByFacilities = new HashSet<ThingDef>();
-                foreach (var bed in bedsInGame)
+                return;
+            }
+
+            var bedsInGame = (from bed in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(bed.defName) && !changedDefNames.Contains(bed.defName) && bed.designationCategory != null && bed.IsBed && (bed.building == null || !bed.building.bed_defaultMedical && bed.building.bed_humanlike) select bed).ToList();
+            var affectedByFacilities = new HashSet<ThingDef>();
+            foreach (var bed in bedsInGame)
+            {
+                if (bed.comps.Count == 0)
                 {
-                    if (bed.comps.Count == 0)
+                    continue;
+                }
+
+                var affections = bed.GetCompProperties<CompProperties_AffectedByFacilities>();
+                if (affections?.linkableFacilities == null)
+                {
+                    continue;
+                }
+
+                foreach (var facility in affections.linkableFacilities)
+                {
+                    if (changedDefNames.Contains(facility.defName))
                     {
                         continue;
                     }
 
-                    var affections = bed.GetCompProperties<CompProperties_AffectedByFacilities>();
-                    if (affections?.linkableFacilities == null)
+                    if (facility.designationCategory == null)
                     {
                         continue;
                     }
 
-                    foreach (var facility in affections.linkableFacilities)
+                    var affectsStuff = false;
+                    var compProperties = facility.GetCompProperties<CompProperties_Facility>();
+                    if (compProperties?.statOffsets != null)
                     {
-                        if (changedDefNames.Contains(facility.defName))
+                        foreach (var offset in compProperties.statOffsets)
                         {
-                            continue;
-                        }
-
-                        if (facility.designationCategory == null)
-                        {
-                            continue;
-                        }
-
-                        var affectsStuff = false;
-                        var compProperties = facility.GetCompProperties<CompProperties_Facility>();
-                        if (compProperties?.statOffsets != null)
-                        {
-                            foreach (var offset in compProperties.statOffsets)
+                            if (offset.stat != StatDefOf.Comfort)
                             {
-                                if (offset.stat != StatDefOf.Comfort)
-                                {
-                                    continue;
-                                }
-
-                                affectsStuff = true;
-                                break;
+                                continue;
                             }
-                        }
 
-                        if (affectsStuff)
-                        {
-                            affectedByFacilities.Add(facility);
+                            affectsStuff = true;
+                            break;
                         }
                     }
-                }
 
-                foreach (var bed in bedsInGame)
-                {
-                    LogMessage($"Changing designation for bed {bed.defName} from {bed.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(bed.defName);
-                    bed.designationCategory = designationCategory;
+                    if (affectsStuff)
+                    {
+                        affectedByFacilities.Add(facility);
+                    }
                 }
-
-                foreach (var facility in affectedByFacilities)
-                {
-                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(facility.defName);
-                    facility.designationCategory = designationCategory;
-                }
-
-                LogMessage("Moved " + (affectedByFacilities.Count + bedsInGame.Count) + " bedroom furniture to the Bedroom tab.", true);
             }
-            else
+
+            foreach (var bed in bedsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for bed {bed.defName} from {bed.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(bed.defName);
+                bed.designationCategory = designationCategory;
             }
+
+            foreach (var facility in affectedByFacilities)
+            {
+                LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(facility.defName);
+                facility.designationCategory = designationCategory;
+            }
+
+            LogMessage("Moved " + (affectedByFacilities.Count + bedsInGame.Count) + " bedroom furniture to the Bedroom tab.", true);
         }
 
         /// <summary>
@@ -604,39 +599,37 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortDecorations)
+            if (!TabSortingMod.instance.Settings.SortDecorations)
             {
-                var rugsInGame = (from rug in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(rug.defName) && !changedDefNames.Contains(rug.defName) && rug.designationCategory != null && rug.altitudeLayer == AltitudeLayer.FloorEmplacement && !rug.clearBuildingArea && rug.passability == Traversability.Standable && rug.StatBaseDefined(StatDefOf.Beauty) && rug.GetStatValueAbstract(StatDefOf.Beauty) > 0 select rug).ToList();
-                var decorativePlantsInGame = (from decorativePlant in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(decorativePlant.defName) && !changedDefNames.Contains(decorativePlant.defName) && decorativePlant.designationCategory != null && decorativePlant.building != null && decorativePlant.building.sowTag == "Decorative" select decorativePlant).ToList();
-                var decorativeFurnitureInGame = (from decorativeFurniture in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(decorativeFurniture.defName) && !changedDefNames.Contains(decorativeFurniture.defName) && decorativeFurniture.designationCategory != null && decorativeFurniture.altitudeLayer == AltitudeLayer.BuildingOnTop && decorativeFurniture.StatBaseDefined(StatDefOf.Beauty) && decorativeFurniture.GetStatValueAbstract(StatDefOf.Beauty) > 0 && decorativeFurniture.GetCompProperties<CompProperties_Glower>() == null && !decorativeFurniture.neverMultiSelect && (decorativeFurniture.PlaceWorkers == null || !decorativeFurniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) && !decorativeFurniture.IsBed && !decorativeFurniture.IsTable select decorativeFurniture).ToList();
-
-                foreach (var rug in rugsInGame)
-                {
-                    LogMessage($"Changing designation for rug {rug.defName} from {rug.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(rug.defName);
-                    rug.designationCategory = designationCategory;
-                }
-
-                foreach (var planter in decorativePlantsInGame)
-                {
-                    LogMessage($"Changing designation for planter {planter.defName} from {planter.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(planter.defName);
-                    planter.designationCategory = designationCategory;
-                }
-
-                foreach (var furniture in decorativeFurnitureInGame)
-                {
-                    LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(furniture.defName);
-                    furniture.designationCategory = designationCategory;
-                }
-
-                LogMessage($"Moved {rugsInGame.Count + decorativePlantsInGame.Count + decorativeFurnitureInGame.Count} decorative items to the Decorations tab.", true);
+                return;
             }
-            else
+
+            var rugsInGame = (from rug in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(rug.defName) && !changedDefNames.Contains(rug.defName) && rug.designationCategory != null && rug.altitudeLayer == AltitudeLayer.FloorEmplacement && !rug.clearBuildingArea && rug.passability == Traversability.Standable && rug.StatBaseDefined(StatDefOf.Beauty) && rug.GetStatValueAbstract(StatDefOf.Beauty) > 0 select rug).ToList();
+            var decorativePlantsInGame = (from decorativePlant in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(decorativePlant.defName) && !changedDefNames.Contains(decorativePlant.defName) && decorativePlant.designationCategory != null && decorativePlant.building != null && decorativePlant.building.sowTag == "Decorative" select decorativePlant).ToList();
+            var decorativeFurnitureInGame = (from decorativeFurniture in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(decorativeFurniture.defName) && !changedDefNames.Contains(decorativeFurniture.defName) && decorativeFurniture.designationCategory != null && decorativeFurniture.altitudeLayer == AltitudeLayer.BuildingOnTop && decorativeFurniture.StatBaseDefined(StatDefOf.Beauty) && decorativeFurniture.GetStatValueAbstract(StatDefOf.Beauty) > 0 && decorativeFurniture.GetCompProperties<CompProperties_Glower>() == null && !decorativeFurniture.neverMultiSelect && (decorativeFurniture.PlaceWorkers == null || !decorativeFurniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) && !decorativeFurniture.IsBed && !decorativeFurniture.IsTable select decorativeFurniture).ToList();
+
+            foreach (var rug in rugsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for rug {rug.defName} from {rug.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(rug.defName);
+                rug.designationCategory = designationCategory;
             }
+
+            foreach (var planter in decorativePlantsInGame)
+            {
+                LogMessage($"Changing designation for planter {planter.defName} from {planter.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(planter.defName);
+                planter.designationCategory = designationCategory;
+            }
+
+            foreach (var furniture in decorativeFurnitureInGame)
+            {
+                LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(furniture.defName);
+                furniture.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {rugsInGame.Count + decorativePlantsInGame.Count + decorativeFurnitureInGame.Count} decorative items to the Decorations tab.", true);
         }
 
         /// <summary>
@@ -773,62 +766,60 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortHospitalFurniture)
+            if (!TabSortingMod.instance.Settings.SortHospitalFurniture)
             {
-                var hospitalBedsInGame = (from hoispitalBed in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(hoispitalBed.defName) && !changedDefNames.Contains(hoispitalBed.defName) && hoispitalBed.designationCategory != null && hoispitalBed.IsBed && hoispitalBed.building != null && hoispitalBed.building.bed_defaultMedical select hoispitalBed).ToList();
-                var affectedByFacilities = new HashSet<ThingDef>();
-                foreach (var hospitalBed in hospitalBedsInGame)
+                return;
+            }
+
+            var hospitalBedsInGame = (from hoispitalBed in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(hoispitalBed.defName) && !changedDefNames.Contains(hoispitalBed.defName) && hoispitalBed.designationCategory != null && hoispitalBed.IsBed && hoispitalBed.building != null && hoispitalBed.building.bed_defaultMedical select hoispitalBed).ToList();
+            var affectedByFacilities = new HashSet<ThingDef>();
+            foreach (var hospitalBed in hospitalBedsInGame)
+            {
+                if (hospitalBed.comps.Count == 0)
                 {
-                    if (hospitalBed.comps.Count == 0)
+                    continue;
+                }
+
+                var affections = hospitalBed.GetCompProperties<CompProperties_AffectedByFacilities>();
+                if (affections?.linkableFacilities == null)
+                {
+                    continue;
+                }
+
+                foreach (var facility in affections.linkableFacilities)
+                {
+                    if (changedDefNames.Contains(facility.defName))
                     {
                         continue;
                     }
 
-                    var affections = hospitalBed.GetCompProperties<CompProperties_AffectedByFacilities>();
-                    if (affections?.linkableFacilities == null)
+                    if (facility.designationCategory == null)
                     {
                         continue;
                     }
 
-                    foreach (var facility in affections.linkableFacilities)
+                    if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
                     {
-                        if (changedDefNames.Contains(facility.defName))
-                        {
-                            continue;
-                        }
-
-                        if (facility.designationCategory == null)
-                        {
-                            continue;
-                        }
-
-                        if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets where offset.stat == StatDefOf.SurgerySuccessChanceFactor || offset.stat == StatDefOf.MedicalTendQualityOffset || offset.stat == StatDefOf.ImmunityGainSpeedFactor select offset).ToList().Count > 0)
-                        {
-                            affectedByFacilities.Add(facility);
-                        }
+                        affectedByFacilities.Add(facility);
                     }
                 }
-
-                foreach (var hospitalBed in hospitalBedsInGame)
-                {
-                    LogMessage($"Changing designation for hospitalBed {hospitalBed.defName} from {hospitalBed.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(hospitalBed.defName);
-                    hospitalBed.designationCategory = designationCategory;
-                }
-
-                foreach (var facility in affectedByFacilities)
-                {
-                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(facility.defName);
-                    facility.designationCategory = designationCategory;
-                }
-
-                LogMessage($"Moved {affectedByFacilities.Count + hospitalBedsInGame.Count} hospital furniture to the Hospital tab.", true);
             }
-            else
+
+            foreach (var hospitalBed in hospitalBedsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for hospitalBed {hospitalBed.defName} from {hospitalBed.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(hospitalBed.defName);
+                hospitalBed.designationCategory = designationCategory;
             }
+
+            foreach (var facility in affectedByFacilities)
+            {
+                LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(facility.defName);
+                facility.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {affectedByFacilities.Count + hospitalBedsInGame.Count} hospital furniture to the Hospital tab.", true);
         }
 
         /// <summary>
@@ -843,24 +834,22 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortLights)
+            if (!TabSortingMod.instance.Settings.SortLights)
             {
-                var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
-
-                var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) && furniture.designationCategory != null && (furniture.category == ThingCategory.Building && (furniture.GetCompProperties<CompProperties_Power>() == null || furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || furniture.thingClass.Name == "Building_SunLamp")) && furniture.recipes == null && (furniture.placeWorkers == null || !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) && furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null && furniture.GetCompProperties<CompProperties_Battery>() == null && furniture.GetCompProperties<CompProperties_Glower>() != null && furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 && furniture.GetCompProperties<CompProperties_TempControl>() == null && (furniture.GetCompProperties<CompProperties_HeatPusher>() == null || furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < furniture.GetCompProperties<CompProperties_Glower>().glowRadius) && furniture.surfaceType != SurfaceType.Eat && furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy && furniture.thingClass.Name != "Building_TurretGun" && furniture.thingClass.Name != "Building_PlantGrower" && furniture.thingClass.Name != "Building_Heater" && (furniture.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) && (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell || furniture.label != null && (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) && (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"))) select furniture).ToList();
-                foreach (var furniture in lightsInGame)
-                {
-                    LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(furniture.defName);
-                    furniture.designationCategory = designationCategory;
-                }
-
-                LogMessage($"Moved {lightsInGame.Count} lights to the Lights tab.", true);
+                return;
             }
-            else
+
+            var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
+
+            var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) && furniture.designationCategory != null && (furniture.category == ThingCategory.Building && (furniture.GetCompProperties<CompProperties_Power>() == null || furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || furniture.thingClass.Name == "Building_SunLamp")) && furniture.recipes == null && (furniture.placeWorkers == null || !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) && furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null && furniture.GetCompProperties<CompProperties_Battery>() == null && furniture.GetCompProperties<CompProperties_Glower>() != null && furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 && furniture.GetCompProperties<CompProperties_TempControl>() == null && (furniture.GetCompProperties<CompProperties_HeatPusher>() == null || furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < furniture.GetCompProperties<CompProperties_Glower>().glowRadius) && furniture.surfaceType != SurfaceType.Eat && furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy && furniture.thingClass.Name != "Building_TurretGun" && furniture.thingClass.Name != "Building_PlantGrower" && furniture.thingClass.Name != "Building_Heater" && (furniture.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) && (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell || furniture.label != null && (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) && (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"))) select furniture).ToList();
+            foreach (var furniture in lightsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(furniture.defName);
+                furniture.designationCategory = designationCategory;
             }
+
+            LogMessage($"Moved {lightsInGame.Count} lights to the Lights tab.", true);
         }
 
         /// <summary>
@@ -893,11 +882,29 @@ namespace TabSorting
 
                 if (thingDefToSort != null)
                 {
-                    thingDefToSort.designationCategory = itemToSort.Value != "None" ? designationCategory : null;
+                    if (itemToSort.Value != "None")
+                    {
+                        thingDefToSort.designationCategory = designationCategory;
+                        LogMessage($"Manually moving {thingDefToSort.defName} to {designationCategory?.defName}");
+                    }
+                    else
+                    {
+                        thingDefToSort.designationCategory = null;
+                        LogMessage($"Manually hiding {thingDefToSort.defName}");
+                    }
                 }
                 else
                 {
-                    terrainDefToSort.designationCategory = itemToSort.Value != "None" ? designationCategory : null;
+                    if (itemToSort.Value != "None")
+                    {
+                        terrainDefToSort.designationCategory = designationCategory;
+                        LogMessage($"Manually moving {terrainDefToSort.defName} to {designationCategory?.defName}");
+                    }
+                    else
+                    {
+                        terrainDefToSort.designationCategory = null;
+                        LogMessage($"Manually hiding {terrainDefToSort.defName}");
+                    }
                 }
 
                 changedDefNames.Add(itemToSort.Key);
@@ -916,43 +923,37 @@ namespace TabSorting
         /// </summary>
         private static void SortStorage()
         {
-            if (TabSortingMod.instance.Settings.SortStorage)
+            if (!TabSortingMod.instance.Settings.SortStorage)
             {
-                var designationCategory = GetDesignationFromDatabase("LWM_DS_Storage");
-                if (designationCategory == null)
-                {
-                    designationCategory = GetDesignationFromDatabase("FurnitureStorage");
-                }
-
-                if (designationCategory == null)
-                {
-                    designationCategory = GetDesignationFromDatabase("StorageTab");
-                }
-                else
-                {
-                    RemoveEmptyDesignationCategoryDef(DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
-                }
-
-                if (designationCategory == null)
-                {
-                    Log.ErrorOnce("[TabSorting]: Cannot find the StorageTab-def, will not sort storage items.", "StorageTab".GetHashCode());
-                    return;
-                }
-
-                var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) && storage.designationCategory != null && storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass.Name != "Building_Grave" && (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))) select storage).ToList();
-                foreach (var storage in storageInGame)
-                {
-                    LogMessage($"Changing designation for storage {storage.defName} from {storage.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(storage.defName);
-                    storage.designationCategory = designationCategory;
-                }
-
-                LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);
+                return;
             }
-            else
+
+            var designationCategory = GetDesignationFromDatabase("LWM_DS_Storage");
+            if (designationCategory == null)
             {
-                RemoveEmptyDesignationCategoryDef(DefDatabase<DesignationCategoryDef>.GetNamed("StorageTab", false));
+                designationCategory = GetDesignationFromDatabase("FurnitureStorage");
             }
+
+            if (designationCategory == null)
+            {
+                designationCategory = GetDesignationFromDatabase("StorageTab");
+            }
+
+            if (designationCategory == null)
+            {
+                Log.ErrorOnce("[TabSorting]: Cannot find the StorageTab-def, will not sort storage items.", "StorageTab".GetHashCode());
+                return;
+            }
+
+            var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) && storage.designationCategory != null && storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass.Name != "Building_Grave" && (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))) select storage).ToList();
+            foreach (var storage in storageInGame)
+            {
+                LogMessage($"Changing designation for storage {storage.defName} from {storage.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(storage.defName);
+                storage.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);
         }
 
         /// <summary>
@@ -967,22 +968,20 @@ namespace TabSorting
                 return;
             }
 
-            if (TabSortingMod.instance.Settings.SortTablesAndChairs)
+            if (!TabSortingMod.instance.Settings.SortTablesAndChairs)
             {
-                var tableChairsInGame = (from table in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(table.defName) && !changedDefNames.Contains(table.defName) && table.designationCategory != null && (table.IsTable || table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table") || table.building != null && table.building.isSittable) select table).ToList();
-                foreach (var tableOrChair in tableChairsInGame)
-                {
-                    LogMessage($"Changing designation for tableOrChair {tableOrChair.defName} from {tableOrChair.designationCategory} to {designationCategory.defName}");
-                    changedDefNames.Add(tableOrChair.defName);
-                    tableOrChair.designationCategory = designationCategory;
-                }
+                return;
+            }
 
-                LogMessage($"Moved {tableChairsInGame.Count} tables and chairs to the Table/Chairs tab.", true);
-            }
-            else
+            var tableChairsInGame = (from table in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(table.defName) && !changedDefNames.Contains(table.defName) && table.designationCategory != null && (table.IsTable || table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table") || table.building != null && table.building.isSittable) select table).ToList();
+            foreach (var tableOrChair in tableChairsInGame)
             {
-                RemoveEmptyDesignationCategoryDef(designationCategory);
+                LogMessage($"Changing designation for tableOrChair {tableOrChair.defName} from {tableOrChair.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(tableOrChair.defName);
+                tableOrChair.designationCategory = designationCategory;
             }
+
+            LogMessage($"Moved {tableChairsInGame.Count} tables and chairs to the Table/Chairs tab.", true);
         }
 
         private static void LogMessage(string message, bool force = false)
