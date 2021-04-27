@@ -52,6 +52,8 @@ namespace TabSorting
 
         public bool SortTabs;
 
+        public bool VerboseLogging;
+
         public override void ExposeData()
         {
             base.ExposeData();
@@ -74,6 +76,7 @@ namespace TabSorting
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
             Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value, ref manualSortingKeys, ref manualSortingValues);
+            Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
         }
 
         public void ResetManualValues()

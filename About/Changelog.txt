@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.28.0 - Added an option for verbose logging, to help finding reported issues
+
+
 1.0.27.0 - Added a Research-tab
 
 

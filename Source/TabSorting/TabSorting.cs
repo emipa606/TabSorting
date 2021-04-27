@@ -1,6 +1,4 @@
-﻿// #define DEBUGGING
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -23,6 +21,7 @@ namespace TabSorting
 
         public static void DoTheSorting()
         {
+            LogMessage("Starting a new sorting-session");
             defsToIgnore = new List<string>();
             changedDefNames = new List<string>();
             if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
@@ -57,9 +56,7 @@ namespace TabSorting
             {
                 foreach (var mod in ignoreMods)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: " + mod.Name + " has " + mod.AllDefs.Count() + " definitions, adding to ignore.");
-#endif
+                    LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
                     foreach (var def in mod.AllDefs)
                     {
                         defsToIgnore.Add(def.defName);
@@ -113,13 +110,13 @@ namespace TabSorting
 
             SortHospitalFurniture();
 
-            SortDecorations();
-
             SortStorage();
 
             SortGarden();
 
             SortFences();
+
+            SortDecorations();
 
             var designationCategoriesToRemove = new List<DesignationCategoryDef>();
 
@@ -141,7 +138,7 @@ namespace TabSorting
             {
                 for (var i = designationCategoriesToRemove.Count - 1; i >= 0; i--)
                 {
-                    Log.Message("TabSorting: Removing " + designationCategoriesToRemove[i].defName + " since its empty now.");
+                    LogMessage($"Removing {designationCategoriesToRemove[i].defName} since its empty now.", true);
                     RemoveEmptyDesignationCategoryDef(designationCategoriesToRemove[i]);
                 }
             }
@@ -181,27 +178,21 @@ namespace TabSorting
                 return false;
             }
 
-#if DEBUGGING
-            Log.Message("TabSorting: Checking current defs in " + currentCategory.defName);
-#endif
+            LogMessage($"Checking current defs in {currentCategory.defName}");
             var thingsLeft = from td in DefDatabase<ThingDef>.AllDefsListForReading where td.designationCategory == currentCategory select td;
             if (thingsLeft.Count() != 0)
             {
                 return false;
             }
 
-#if DEBUGGING
-            Log.Message("TabSorting: Checking current terrainDefs in " + currentCategory.defName);
-#endif
+            LogMessage($"Checking current terrainDefs in {currentCategory.defName}");
             var moreThingsLeft = from tr in DefDatabase<TerrainDef>.AllDefsListForReading where tr.designationCategory == currentCategory select tr;
             if (moreThingsLeft.Count() != 0)
             {
                 return false;
             }
 
-#if DEBUGGING
-            Log.Message("TabSorting: Checking current specialDesignatorClasses in " + currentCategory.defName);
-#endif
+            LogMessage($"Checking current specialDesignatorClasses in {currentCategory.defName}");
             if (!currentCategory.specialDesignatorClasses.Any())
             {
                 return true;
@@ -214,7 +205,6 @@ namespace TabSorting
                     continue;
                 }
 
-                Log.Message(specialDesignatorClass.FullName);
                 return false;
             }
 
@@ -239,6 +229,7 @@ namespace TabSorting
 
         private static void RefreshArchitectMenu()
         {
+            LogMessage("Sorting-session done");
             if (Current.ProgramState != ProgramState.Playing)
             {
                 return;
@@ -258,6 +249,7 @@ namespace TabSorting
 
         private static void RestoreVanillaSorting()
         {
+            LogMessage("Restoring all things to vanilla sorting");
             foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
             {
                 var designation = GetDesignationFromDatabase(designationCategoryDef.defName);
@@ -306,17 +298,8 @@ namespace TabSorting
                 var foodCatagories = ThingCategoryDefOf.Foods.ThisAndChildCategoryDefs;
 
                 var foods = (from food in DefDatabase<ThingDef>.AllDefsListForReading where food.thingCategories != null && food.thingCategories.SharesElementWith(foodCatagories) select food).ToList();
-//#if DEBUGGING
-//                Log.Message("TabSorting: Found " + foods.Count + " foods: " + string.Join(",", foods));
-//#endif
                 var foodRecipies = (from recipe in DefDatabase<RecipeDef>.AllDefsListForReading where recipe.ProducedThingDef != null && foods.Contains(recipe.ProducedThingDef) select recipe).ToList();
-//#if DEBUGGING
-//                Log.Message("TabSorting: Found " + foodRecipies.Count + " recipies: " + string.Join(",", foodRecipies));
-//#endif
                 var recipeMakers = (from foodMaker in DefDatabase<ThingDef>.AllDefsListForReading where foodMaker.recipes != null && foodMaker.recipes.SharesElementWith(foodRecipies) select foodMaker).ToList();
-//#if DEBUGGING
-//                Log.Message("TabSorting: Found " + recipeMakers.Count + " recipemakers: " + string.Join(",", recipeMakers));
-//#endif
                 var foodMakers = new HashSet<ThingDef>();
                 foodMakers.AddRange(recipeMakers);
                 foreach (var thingDef in foods)
@@ -347,9 +330,7 @@ namespace TabSorting
                     foodMakers.AddRange(recipeDef.recipeUsers);
                 }
 
-#if DEBUGGING
-                Log.Message("TabSorting: Found " + foodMakers.Count + " food processing buildings");
-#endif
+                LogMessage($"Found {foodMakers.Count} food processing buildings");
 
                 var foodMakersInGame = (from foodMaker in foodMakers where !defsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) && foodMaker.designationCategory != null select foodMaker).ToList();
                 var affectedByFacilities = new HashSet<ThingDef>();
@@ -407,23 +388,19 @@ namespace TabSorting
 
                 foreach (var foodMaker in foodMakersInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for building " + foodMaker.defName + " from " + foodMaker.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for building {foodMaker.defName} from {foodMaker.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(foodMaker.defName);
                     foodMaker.designationCategory = designationCategory;
                 }
 
                 foreach (var facility in affectedByFacilities)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(facility.defName);
                     facility.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + foodMakersInGame.Count) + " kitchen furniture to the Kitchen tab.");
+                LogMessage($"Moved {affectedByFacilities.Count + foodMakersInGame.Count} kitchen furniture to the Kitchen tab.", true);
             }
             else
             {
@@ -449,9 +426,7 @@ namespace TabSorting
                 var requiredResearchBuildings = (from building in DefDatabase<ResearchProjectDef>.AllDefsListForReading where building.requiredResearchBuilding != null select building.requiredResearchBuilding).ToHashSet();
                 var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
 
-#if DEBUGGING
-                Log.Message("TabSorting: Found " + researchBenches.Count + " research-benches and " + requiredResearchBuildings.Count + " researchBuildings");
-#endif
+                LogMessage($"Found {researchBenches.Count} research-benches and {requiredResearchBuildings.Count} researchBuildings");
                 researchBuildings.AddRange(researchBenches);
                 researchBuildings.AddRange(requiredResearchBuildings);
                 var researchBuildingsInGame = (from researchBuilding in researchBuildings where !defsToIgnore.Contains(researchBuilding.defName) && !changedDefNames.Contains(researchBuilding.defName) && researchBuilding.designationCategory != null select researchBuilding).ToList();
@@ -511,23 +486,19 @@ namespace TabSorting
 
                 foreach (var researchBuilding in researchBuildingsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for building " + researchBuilding.defName + " from " + researchBuilding.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for building {researchBuilding.defName} from {researchBuilding.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(researchBuilding.defName);
                     researchBuilding.designationCategory = designationCategory;
                 }
 
                 foreach (var facility in affectedByFacilities)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(facility.defName);
                     facility.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + researchBuildingsInGame.Count) + " research-buildings to the Research tab.");
+                LogMessage($"Moved {affectedByFacilities.Count + researchBuildingsInGame.Count} research-buildings to the Research tab.", true);
             }
             else
             {
@@ -601,23 +572,19 @@ namespace TabSorting
 
                 foreach (var bed in bedsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for bed " + bed.defName + " from " + bed.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for bed {bed.defName} from {bed.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(bed.defName);
                     bed.designationCategory = designationCategory;
                 }
 
                 foreach (var facility in affectedByFacilities)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(facility.defName);
                     facility.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + bedsInGame.Count) + " bedroom furniture to the Bedroom tab.");
+                LogMessage("Moved " + (affectedByFacilities.Count + bedsInGame.Count) + " bedroom furniture to the Bedroom tab.", true);
             }
             else
             {
@@ -645,32 +612,26 @@ namespace TabSorting
 
                 foreach (var rug in rugsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for rug " + rug.defName + " from " + rug.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for rug {rug.defName} from {rug.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(rug.defName);
                     rug.designationCategory = designationCategory;
                 }
 
                 foreach (var planter in decorativePlantsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for planter " + planter.defName + " from " + planter.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for planter {planter.defName} from {planter.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(planter.defName);
                     planter.designationCategory = designationCategory;
                 }
 
                 foreach (var furniture in decorativeFurnitureInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for furniture " + furniture.defName + " from " + furniture.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(furniture.defName);
                     furniture.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + (rugsInGame.Count + decorativePlantsInGame.Count + decorativeFurnitureInGame.Count) + " decorative items to the Decorations tab.");
+                LogMessage($"Moved {rugsInGame.Count + decorativePlantsInGame.Count + decorativeFurnitureInGame.Count} decorative items to the Decorations tab.", true);
             }
             else
             {
@@ -701,23 +662,19 @@ namespace TabSorting
             var bridgesInGame = (from bridge in DefDatabase<TerrainDef>.AllDefsListForReading where !defsToIgnore.Contains(bridge.defName) && !changedDefNames.Contains(bridge.defName) && bridge.designationCategory != null && bridge.designationCategory.defName != "Structure" && bridge.destroyEffect != null && bridge.destroyEffect.defName.ToLower().Contains("bridge") select bridge).ToList();
             foreach (var doorOrWall in doorsAndWallsInGame)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: Changing designation for doorOrWall " + doorOrWall.defName + " from " + doorOrWall.designationCategory + " to " + designationCategory.defName);
-#endif
+                LogMessage($"Changing designation for doorOrWall {doorOrWall.defName} from {doorOrWall.designationCategory} to {designationCategory.defName}");
                 changedDefNames.Add(doorOrWall.defName);
                 doorOrWall.designationCategory = designationCategory;
             }
 
             foreach (var bridge in bridgesInGame)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: Changing designation for bridge " + bridge.defName + " from " + bridge.designationCategory + " to " + designationCategory.defName);
-#endif
+                LogMessage($"Changing designation for bridge {bridge.defName} from {bridge.designationCategory} to {designationCategory.defName}");
                 changedDefNames.Add(bridge.defName);
                 bridge.designationCategory = designationCategory;
             }
 
-            Log.Message("TabSorting: Moved " + doorsAndWallsInGame.Count + " bridges, doors and walls to the Structure tab.");
+            LogMessage($"Moved {doorsAndWallsInGame.Count} bridges, doors and walls to the Structure tab.", true);
         }
 
         /// <summary>
@@ -740,14 +697,12 @@ namespace TabSorting
             var fencesInGame = (from fence in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) && fence.designationCategory != null && fence.designationCategory.defName != "Fences" && ((fence.thingClass.Name == "Building_Door" || fence.thingClass.Name == "Building" && fence.graphicData != null && fence.graphicData.linkType == LinkDrawerType.Basic && fence.passability == Traversability.Impassable) && fence.fillPercent < 1f && fence.fillPercent > 0 || fence.label.ToLower().Contains("fence")) select fence).ToList();
             foreach (var fence in fencesInGame)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: Changing designation for fence " + fence.defName + " from " + fence.designationCategory + " to " + designationCategory.defName + " passability: " + fence.passability);
-#endif
+                LogMessage($"Changing designation for fence {fence.defName} from {fence.designationCategory} to {designationCategory.defName} passability: {fence.passability}");
                 changedDefNames.Add(fence.defName);
                 fence.designationCategory = designationCategory;
             }
 
-            Log.Message("TabSorting: Moved " + fencesInGame.Count + " fences to the Fences-tab.");
+            LogMessage($"Moved {fencesInGame.Count} fences to the Fences-tab.", true);
         }
 
         /// <summary>
@@ -770,14 +725,12 @@ namespace TabSorting
             var floorsInGame = (from floor in DefDatabase<TerrainDef>.AllDefsListForReading where !defsToIgnore.Contains(floor.defName) && !changedDefNames.Contains(floor.defName) && floor.designationCategory != null && floor.designationCategory.defName != "Floors" && floor.fertility == 0 && !floor.destroyBuildingsOnDestroyed select floor).ToList();
             foreach (var floor in floorsInGame)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: Changing designation for floor " + floor.defName + " from " + floor.designationCategory + " to " + designationCategory.defName);
-#endif
+                LogMessage($"Changing designation for floor {floor.defName} from {floor.designationCategory} to {designationCategory.defName}");
                 changedDefNames.Add(floor.defName);
                 floor.designationCategory = designationCategory;
             }
 
-            Log.Message("TabSorting: Moved " + floorsInGame.Count + " floors to the Floors tab.");
+            LogMessage($"Moved {floorsInGame.Count} floors to the Floors tab.", true);
         }
 
         /// <summary>
@@ -800,14 +753,12 @@ namespace TabSorting
             var gardenThingsInGame = (from gardenThing in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(gardenThing.defName) && !changedDefNames.Contains(gardenThing.defName) && gardenThing.designationCategory != null && gardenThing.designationCategory.defName != "GardenTools" && (gardenThing.thingClass.Name == "Building_SunLamp" || gardenThing.thingClass.Name == "Building_PlantGrower" && (gardenThing.building == null || gardenThing.building.sowTag != "Decorative") || gardenThing.label.ToLower().Contains("sprinkler") && !gardenThing.label.ToLower().Contains("fire")) select gardenThing).ToList();
             foreach (var gardenTool in gardenThingsInGame)
             {
-#if DEBUGGING
-                Log.Message("TabSorting: Changing designation for gardenTool " + gardenTool.defName + " from " + gardenTool.designationCategory + " to " + designationCategory.defName);
-#endif
+                LogMessage($"Changing designation for gardenTool {gardenTool.defName} from {gardenTool.designationCategory} to {designationCategory.defName}");
                 changedDefNames.Add(gardenTool.defName);
                 gardenTool.designationCategory = designationCategory;
             }
 
-            Log.Message("TabSorting: Moved " + gardenThingsInGame.Count + " garden-items to the Garden tab.");
+            LogMessage($"Moved {gardenThingsInGame.Count} garden-items to the Garden tab.", true);
         }
 
         /// <summary>
@@ -860,23 +811,19 @@ namespace TabSorting
 
                 foreach (var hospitalBed in hospitalBedsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for hospitalBed " + hospitalBed.defName + " from " + hospitalBed.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for hospitalBed {hospitalBed.defName} from {hospitalBed.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(hospitalBed.defName);
                     hospitalBed.designationCategory = designationCategory;
                 }
 
                 foreach (var facility in affectedByFacilities)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for facility " + facility.defName + " from " + facility.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for facility {facility.defName} from {facility.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(facility.defName);
                     facility.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + (affectedByFacilities.Count + hospitalBedsInGame.Count) + " hospital furniture to the Hospital tab.");
+                LogMessage($"Moved {affectedByFacilities.Count + hospitalBedsInGame.Count} hospital furniture to the Hospital tab.", true);
             }
             else
             {
@@ -903,14 +850,12 @@ namespace TabSorting
                 var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) && furniture.designationCategory != null && (furniture.category == ThingCategory.Building && (furniture.GetCompProperties<CompProperties_Power>() == null || furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) && (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 || furniture.thingClass.Name == "Building_SunLamp")) && furniture.recipes == null && (furniture.placeWorkers == null || !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) && furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null && furniture.GetCompProperties<CompProperties_Battery>() == null && furniture.GetCompProperties<CompProperties_Glower>() != null && furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 && furniture.GetCompProperties<CompProperties_TempControl>() == null && (furniture.GetCompProperties<CompProperties_HeatPusher>() == null || furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < furniture.GetCompProperties<CompProperties_Glower>().glowRadius) && furniture.surfaceType != SurfaceType.Eat && furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy && furniture.thingClass.Name != "Building_TurretGun" && furniture.thingClass.Name != "Building_PlantGrower" && furniture.thingClass.Name != "Building_Heater" && (furniture.thingClass.Name != "Building_SunLamp" || !gardenToolsExists) && (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell || furniture.label != null && (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) && (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"))) select furniture).ToList();
                 foreach (var furniture in lightsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for furniture " + furniture.defName + " from " + furniture.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(furniture.defName);
                     furniture.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + lightsInGame.Count + " lights to the Lights tab.");
+                LogMessage($"Moved {lightsInGame.Count} lights to the Lights tab.", true);
             }
             else
             {
@@ -963,7 +908,7 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.ManualSorting.Remove(defName);
             }
 
-            Log.Message("TabSorting: Moved " + TabSortingMod.instance.Settings.ManualSorting.Count + " items to manually designated categories.");
+            LogMessage($"Moved {TabSortingMod.instance.Settings.ManualSorting.Count} items to manually designated categories.", true);
         }
 
         /// <summary>
@@ -997,14 +942,12 @@ namespace TabSorting
                 var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) && storage.designationCategory != null && storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass.Name != "Building_Grave" && (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))) select storage).ToList();
                 foreach (var storage in storageInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for storage " + storage.defName + " from " + storage.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for storage {storage.defName} from {storage.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(storage.defName);
                     storage.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + storageInGame.Count + " storage-items to the Storage tab.");
+                LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);
             }
             else
             {
@@ -1029,18 +972,24 @@ namespace TabSorting
                 var tableChairsInGame = (from table in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(table.defName) && !changedDefNames.Contains(table.defName) && table.designationCategory != null && (table.IsTable || table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table") || table.building != null && table.building.isSittable) select table).ToList();
                 foreach (var tableOrChair in tableChairsInGame)
                 {
-#if DEBUGGING
-                    Log.Message("TabSorting: Changing designation for tableOrChair " + tableOrChair.defName + " from " + tableOrChair.designationCategory + " to " + designationCategory.defName);
-#endif
+                    LogMessage($"Changing designation for tableOrChair {tableOrChair.defName} from {tableOrChair.designationCategory} to {designationCategory.defName}");
                     changedDefNames.Add(tableOrChair.defName);
                     tableOrChair.designationCategory = designationCategory;
                 }
 
-                Log.Message("TabSorting: Moved " + tableChairsInGame.Count + " tables and chairs to the Table/Chairs tab.");
+                LogMessage($"Moved {tableChairsInGame.Count} tables and chairs to the Table/Chairs tab.", true);
             }
             else
             {
                 RemoveEmptyDesignationCategoryDef(designationCategory);
+            }
+        }
+
+        private static void LogMessage(string message, bool force = false)
+        {
+            if (TabSortingMod.instance.Settings.VerboseLogging || force)
+            {
+                Log.Message($"[TabSorting]: {message}");
             }
         }
     }

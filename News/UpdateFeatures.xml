@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>TabSorting</modNameReadable>
@@ -58,10 +58,10 @@ Feel free to still report any items that gets sorted wrong so I can improve on t
 It will default move any building that is used for producing anything categorised as food and any facility that is connected to it. Hope this will help those with large production-tabs!
 </content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>TabSorting_1_0_27_0</defName>
-		<assemblyVersion>1.0.27.0</assemblyVersion>
-		<content>Added an option to sort buildings into a Research-tab. It will move all research-buildings and affected facilities along with any building marked as required by any research-project to a separate research-tab.
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>TabSorting_1_0_27_0</defName>
+    <assemblyVersion>1.0.27.0</assemblyVersion>
+    <content>Added an option to sort buildings into a Research-tab. It will move all research-buildings and affected facilities along with any building marked as required by any research-project to a separate research-tab.
 </content>
-	</HugsLib.UpdateFeatureDef>
+  </HugsLib.UpdateFeatureDef>
 </Defs>

@@ -275,6 +275,7 @@ namespace TabSorting
                     var labelPoint = listing_Standard.Label("Manual sorting reset", -1F, "Reset all manually defined sortings");
                     listing_Standard.Gap();
                     listing_Standard.Label("NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.");
+                    listing_Standard.CheckboxLabeled("Enable verbose logging", ref Settings.VerboseLogging, "Shows verbose logging during sorting, for finding errors");
                     DrawButton(instance.Settings.ResetManualValues, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
                     listing_Standard.End();
                     break;
@@ -314,7 +315,7 @@ namespace TabSorting
                     var sortCategory = (from DesignationCategoryDef category in instance.Settings.VanillaCategoryMemory where category.defName == selectedDef select category).FirstOrDefault();
                     if (sortCategory == null)
                     {
-                        Log.Message("TabSorter: Could not find category, this should not happen.");
+                        Log.ErrorOnce($"TabSorter: Could not find category called {selectedDef}, this should not happen.", selectedDef.GetHashCode());
                         return;
                     }
 
@@ -327,8 +328,6 @@ namespace TabSorting
                     contentRect.height = ((allDefsInCategory.Count() + allTerrainInCategory.Count()) * 24f) + 40f;
                     listing_Options.BeginScrollView(frameRect, ref optionsScrollPosition, ref contentRect);
 
-                    // var listing_Standard = new Listing_Standard();
-                    // listing_Standard.Begin(scrollView);
                     GUI.contentColor = Color.green;
                     var contentPack = "Unloaded mod";
                     if (sortCategory.modContentPack?.Name != null)
@@ -339,10 +338,8 @@ namespace TabSorting
                     listing_Options.Label($"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
                     GUI.contentColor = Color.white;
 
-                    // Log.Message($"{sortCategory.defName} Fetching defs");
                     foreach (var thing in allDefsInCategory)
                     {
-                        // Log.Message($"Sorting {thing.defName}");
                         var currentPosition = listing_Options.Label(thing.label.CapitalizeFirst());
                         var buttonText = "Default";
                         if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(thing.defName))
@@ -356,7 +353,6 @@ namespace TabSorting
 
                     foreach (var terrain in allTerrainInCategory)
                     {
-                        // Log.Message($"Sorting {terrain.defName}");
                         var currentPosition = listing_Options.Label(terrain.label.CapitalizeFirst());
                         var buttonText = "Default";
                         if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(terrain.defName))
