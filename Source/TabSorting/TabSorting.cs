@@ -1099,11 +1099,7 @@ namespace TabSorting
                 return;
             }
 
-            var designationCategory = GetDesignationFromDatabase("LWM_DS_Storage");
-            if (designationCategory == null)
-            {
-                designationCategory = GetDesignationFromDatabase("FurnitureStorage");
-            }
+            var designationCategory = GetDesignationFromDatabase("FurnitureStorage");
 
             if (designationCategory == null)
             {
@@ -1132,6 +1128,14 @@ namespace TabSorting
                     $"Changing designation for storage {storage.defName} from {storage.designationCategory} to {designationCategory.defName}");
                 changedDefNames.Add(storage.defName);
                 storage.designationCategory = designationCategory;
+            }
+
+            var LWMTab = GetDesignationFromDatabase("LWM_DS_Storage");
+            if (LWMTab != null)
+            {
+                LogMessage(
+                    "Forcebly removing the LWM-storage tab since it causes issues otherwise. This will cause an error.");
+                RemoveEmptyDesignationCategoryDef(LWMTab);
             }
 
             LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);

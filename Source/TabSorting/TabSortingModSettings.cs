@@ -10,9 +10,11 @@ namespace TabSorting
     {
         public readonly List<DesignationCategoryDef> VanillaCategoryMemory = new List<DesignationCategoryDef>();
 
-        public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory = new Dictionary<Def, DesignationCategoryDef>();
+        public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory =
+            new Dictionary<Def, DesignationCategoryDef>();
 
-        public readonly Dictionary<DesignationCategoryDef, int> VanillaOrderMemory = new Dictionary<DesignationCategoryDef, int>();
+        public readonly Dictionary<DesignationCategoryDef, int> VanillaOrderMemory =
+            new Dictionary<DesignationCategoryDef, int>();
 
         private List<string> CategoriesToIgnore = new List<string>();
 
@@ -75,7 +77,8 @@ namespace TabSorting
             Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn");
 
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
-            Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value, ref manualSortingKeys, ref manualSortingValues);
+            Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value,
+                ref manualSortingKeys, ref manualSortingValues);
             Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
         }
 

@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.34.0 - Should work with LWM now, even if LWM will throw an error when its tab is gone.
+
+
 1.0.33.0 - Even more checks, hard to find all when your users are the testers
 
 
