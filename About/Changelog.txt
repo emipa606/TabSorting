@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.31.0 - Some things may not have a thingClass
+
+
 1.0.30.0 - More error-checks, hopefully catching furniture without comps
 
 

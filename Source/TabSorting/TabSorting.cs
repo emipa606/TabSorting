@@ -426,7 +426,7 @@ namespace TabSorting
 
             var researchBuildings = new HashSet<ThingDef>();
             var requiredResearchBuildings = (from researchProjectDef in DefDatabase<ResearchProjectDef>.AllDefsListForReading where researchProjectDef.requiredResearchBuilding != null select researchProjectDef.requiredResearchBuilding).ToHashSet();
-            var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
+            var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass != null && (building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench))) select building).ToList();
 
             LogMessage($"Found {researchBenches.Count} research-benches and {requiredResearchBuildings.Count} researchBuildings");
             researchBuildings.AddRange(researchBenches);
