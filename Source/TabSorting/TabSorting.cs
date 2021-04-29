@@ -425,7 +425,7 @@ namespace TabSorting
             }
 
             var researchBuildings = new HashSet<ThingDef>();
-            var requiredResearchBuildings = (from building in DefDatabase<ResearchProjectDef>.AllDefsListForReading where building.requiredResearchBuilding != null select building.requiredResearchBuilding).ToHashSet();
+            var requiredResearchBuildings = (from researchProjectDef in DefDatabase<ResearchProjectDef>.AllDefsListForReading where researchProjectDef.requiredResearchBuilding != null select researchProjectDef.requiredResearchBuilding).ToHashSet();
             var researchBenches = (from building in DefDatabase<ThingDef>.AllDefsListForReading where building.thingClass == typeof(Building_ResearchBench) || building.thingClass.IsInstanceOfType(typeof(Building_ResearchBench)) select building).ToList();
 
             LogMessage($"Found {researchBenches.Count} research-benches and {requiredResearchBuildings.Count} researchBuildings");
@@ -436,7 +436,7 @@ namespace TabSorting
             var affectedByFacilities = new HashSet<ThingDef>();
             foreach (var researchBuilding in researchBuildingsInGame)
             {
-                if (!researchBuilding.comps.Any())
+                if (researchBuilding.comps == null || !researchBuilding.comps.Any())
                 {
                     continue;
                 }
@@ -524,7 +524,7 @@ namespace TabSorting
             var affectedByFacilities = new HashSet<ThingDef>();
             foreach (var bed in bedsInGame)
             {
-                if (bed.comps.Count == 0)
+                if (bed.comps == null || !bed.comps.Any())
                 {
                     continue;
                 }

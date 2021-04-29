@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.30.0 - More error-checks, hopefully catching furniture without comps
+
+
 1.0.29.0 - Fixed an error connected to the dynamic sorting. Added version-number in settings
 
 
