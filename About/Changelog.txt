@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.32.0 - Another check to see that all buildings have a thingclass
+
+
 1.0.31.0 - Some things may not have a thingClass
 
 

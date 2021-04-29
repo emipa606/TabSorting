@@ -945,7 +945,7 @@ namespace TabSorting
                 return;
             }
 
-            var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) && storage.designationCategory != null && storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass.Name != "Building_Grave" && (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))) select storage).ToList();
+            var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) && storage.designationCategory != null && storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass != null && storage.thingClass.Name != "Building_Grave" && (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null && storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter))) select storage).ToList();
             foreach (var storage in storageInGame)
             {
                 LogMessage($"Changing designation for storage {storage.defName} from {storage.designationCategory} to {designationCategory.defName}");
