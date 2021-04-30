@@ -12,6 +12,8 @@ namespace TabSorting
     {
         private static List<string> changedDefNames;
 
+        private static List<string> tabsToIgnore;
+
         private static List<string> defsToIgnore;
 
         static TabSorting()
@@ -23,6 +25,7 @@ namespace TabSorting
         {
             LogMessage("Starting a new sorting-session");
             defsToIgnore = new List<string>();
+            tabsToIgnore = new List<string>();
             changedDefNames = new List<string>();
             if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
             {
@@ -78,6 +81,8 @@ namespace TabSorting
             defsToIgnore.Add("PRF_TypeTwoAssembler_II");
             defsToIgnore.Add("PRF_TypeTwoAssembler_III");
 
+            tabsToIgnore.Add("Planning");
+
             TabSortingMod.instance.Settings = TabSortingMod.instance.Settings ?? new TabSortingModSettings
             {
                 SortLights = true,
@@ -125,13 +130,10 @@ namespace TabSorting
 
             var designationCategoriesToRemove = new List<DesignationCategoryDef>();
 
-            foreach (var designationCategoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
+            foreach (var designationCategoryDef in from dd in DefDatabase<DesignationCategoryDef>.AllDefsListForReading
+                where !tabsToIgnore.Contains(dd.defName)
+                select dd)
             {
-                if (designationCategoryDef.defName.StartsWith("LWM_DS"))
-                {
-                    continue;
-                }
-
                 designationCategoryDef.ResolveReferences();
                 if (CheckEmptyDesignationCategoryDef(designationCategoryDef.defName))
                 {
@@ -156,7 +158,9 @@ namespace TabSorting
 
             var topValue = 800;
             var designationCategoryDefs =
-                from dd in DefDatabase<DesignationCategoryDef>.AllDefs orderby dd.label select dd;
+                from dd in DefDatabase<DesignationCategoryDef>.AllDefs
+                orderby dd.label
+                select dd;
             var steps = (int) Math.Floor((decimal) (topValue / designationCategoryDefs.Count()));
             foreach (var designationCategoryDef in designationCategoryDefs)
             {
@@ -1130,13 +1134,13 @@ namespace TabSorting
                 storage.designationCategory = designationCategory;
             }
 
-            var LWMTab = GetDesignationFromDatabase("LWM_DS_Storage");
-            if (LWMTab != null)
-            {
-                LogMessage(
-                    "Forcebly removing the LWM-storage tab since it causes issues otherwise. This will cause an error.");
-                RemoveEmptyDesignationCategoryDef(LWMTab);
-            }
+            //var LWMTab = GetDesignationFromDatabase("LWM_DS_Storage");
+            //if (LWMTab != null)
+            //{
+            //    LogMessage(
+            //        "Forcebly removing the LWM-storage tab since it causes issues otherwise. This will cause an error.");
+            //    RemoveEmptyDesignationCategoryDef(LWMTab);
+            //}
 
             LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);
         }

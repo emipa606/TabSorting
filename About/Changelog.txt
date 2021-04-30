@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.35.0 - Fixed support for Prison Labour and a warning about More Planning-mod
+
+
 1.0.34.0 - Should work with LWM now, even if LWM will throw an error when its tab is gone.
 
 

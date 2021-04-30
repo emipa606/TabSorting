@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Mlie;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -53,7 +54,8 @@ namespace TabSorting
             : base(content)
         {
             instance = this;
-            currentVersion = Mlie.VersionFromManifest.GetVersionFromModMetaData(ModLister.GetActiveModWithIdentifier("Mlie.TabSorting"));
+            currentVersion =
+                VersionFromManifest.GetVersionFromModMetaData(ModLister.GetActiveModWithIdentifier("Mlie.TabSorting"));
         }
 
         /// <summary>
@@ -100,7 +102,9 @@ namespace TabSorting
             {
                 noneCategoryMembers = new Dictionary<string, string>();
                 var thingsToRemove = new List<string>();
-                foreach (var item in from item in instance.Settings.ManualSorting where item.Value == "None" select item)
+                foreach (var item in from item in instance.Settings.ManualSorting
+                    where item.Value == "None"
+                    select item)
                 {
                     var hiddenThingDef = DefDatabase<ThingDef>.GetNamedSilentFail(item.Key);
                     var hiddenTerrainDef = DefDatabase<TerrainDef>.GetNamedSilentFail(item.Key);
@@ -144,8 +148,22 @@ namespace TabSorting
         public override void WriteSettings()
         {
             base.WriteSettings();
-            noneCategoryMembers = null;
-            TabSorting.DoTheSorting();
+            if (ModLister.GetActiveModWithIdentifier("com.github.alandariva.moreplanning") != null)
+            {
+                Find.WindowStack.Add(new Dialog_MessageBox(
+                    "The More Planning mod is loaded and will loose its colored designators if the sorting is redone after game-start. Do you want to resort the menu? If NO, only the settings will be saved and applied the next game-start.",
+                    "NO", null, "YES",
+                    delegate
+                    {
+                        noneCategoryMembers = null;
+                        TabSorting.DoTheSorting();
+                    }));
+            }
+            else
+            {
+                noneCategoryMembers = null;
+                TabSorting.DoTheSorting();
+            }
         }
 
         private static void DrawButton(Action action, string text, Vector2 pos)
@@ -174,7 +192,9 @@ namespace TabSorting
 
             var list = new List<FloatMenuOption> {new FloatMenuOption("Default", defaultAction)};
 
-            foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory orderby vanillaCategory.label select vanillaCategory)
+            foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory
+                orderby vanillaCategory.label
+                select vanillaCategory)
             {
                 void action()
                 {
@@ -249,37 +269,56 @@ namespace TabSorting
                 {
                     listing_Standard.Begin(frameRect);
                     listing_Standard.Gap();
-                    listing_Standard.CheckboxLabeled("Sort lights", ref Settings.SortLights, "Moves all lights to the Lights-tab");
-                    listing_Standard.CheckboxLabeled("Sort floors", ref Settings.SortFloors, "Moves all floors to the Floors-tab");
-                    listing_Standard.CheckboxLabeled("Sort walls & doors", ref Settings.SortDoorsAndWalls, "Moves all doors and walls to the Structure-tab");
-                    listing_Standard.CheckboxLabeled("Sort tables & chairs", ref Settings.SortTablesAndChairs, "Moves all tables and chairs the Table/Chairs-tab");
-                    listing_Standard.CheckboxLabeled("Sort bedroom furniture", ref Settings.SortBedroomFurniture, "Moves all bedroom-furniture to the Bedroom-tab");
-                    listing_Standard.CheckboxLabeled("Sort kitchen furniture", ref Settings.SortKitchenFurniture, "Moves all kitchen-furniture to the Kitchen-tab");
-                    listing_Standard.CheckboxLabeled("Sort hospital furniture", ref Settings.SortHospitalFurniture, "Moves all hospital-furniture to the Hospital-tab");
-                    listing_Standard.CheckboxLabeled("Sort research furniture", ref Settings.SortResearchFurniture, "Moves all research-furniture to the Research-tab");
-                    listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations, "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
-                    listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage, "Moves all storage to the Storage-tab");
+                    listing_Standard.CheckboxLabeled("Sort lights", ref Settings.SortLights,
+                        "Moves all lights to the Lights-tab");
+                    listing_Standard.CheckboxLabeled("Sort floors", ref Settings.SortFloors,
+                        "Moves all floors to the Floors-tab");
+                    listing_Standard.CheckboxLabeled("Sort walls & doors", ref Settings.SortDoorsAndWalls,
+                        "Moves all doors and walls to the Structure-tab");
+                    listing_Standard.CheckboxLabeled("Sort tables & chairs", ref Settings.SortTablesAndChairs,
+                        "Moves all tables and chairs the Table/Chairs-tab");
+                    listing_Standard.CheckboxLabeled("Sort bedroom furniture", ref Settings.SortBedroomFurniture,
+                        "Moves all bedroom-furniture to the Bedroom-tab");
+                    listing_Standard.CheckboxLabeled("Sort kitchen furniture", ref Settings.SortKitchenFurniture,
+                        "Moves all kitchen-furniture to the Kitchen-tab");
+                    listing_Standard.CheckboxLabeled("Sort hospital furniture", ref Settings.SortHospitalFurniture,
+                        "Moves all hospital-furniture to the Hospital-tab");
+                    listing_Standard.CheckboxLabeled("Sort research furniture", ref Settings.SortResearchFurniture,
+                        "Moves all research-furniture to the Research-tab");
+                    listing_Standard.CheckboxLabeled("Sort decorations", ref Settings.SortDecorations,
+                        "Moves all rugs, plantpots and other cosmetic items to the Decorations-tab");
+                    listing_Standard.CheckboxLabeled("Sort storage", ref Settings.SortStorage,
+                        "Moves all storage to the Storage-tab");
 
                     if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
                     {
-                        listing_Standard.CheckboxLabeled("Sort garden tools", ref Settings.SortGarden, "Moves all garden items to the Garden-tab from VGP Garden Tools");
+                        listing_Standard.CheckboxLabeled("Sort garden tools", ref Settings.SortGarden,
+                            "Moves all garden items to the Garden-tab from VGP Garden Tools");
                     }
 
                     if (DefDatabase<DesignationCategoryDef>.GetNamed("Fences", false) != null)
                     {
-                        listing_Standard.CheckboxLabeled("Sort fences", ref Settings.SortFences, "Moves all fences to the Fences-tab from Fences and Floors");
+                        listing_Standard.CheckboxLabeled("Sort fences", ref Settings.SortFences,
+                            "Moves all fences to the Fences-tab from Fences and Floors");
                     }
 
                     listing_Standard.Gap();
-                    listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs, "If a tab has no things left to build after sorting, remove the tab");
+                    listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs,
+                        "If a tab has no things left to build after sorting, remove the tab");
                     listing_Standard.Gap();
-                    listing_Standard.CheckboxLabeled("Sort all tabs alphabetically", ref Settings.SortTabs, "Puts all tabs in alphabetical order");
-                    listing_Standard.CheckboxLabeled("But skip Orders and Zone-tab", ref Settings.SkipBuiltIn, "Orders and Zone-tab will remain in the top if the menu");
-                    var labelPoint = listing_Standard.Label("Manual sorting reset", -1F, "Reset all manually defined sortings");
+                    listing_Standard.CheckboxLabeled("Sort all tabs alphabetically", ref Settings.SortTabs,
+                        "Puts all tabs in alphabetical order");
+                    listing_Standard.CheckboxLabeled("But skip Orders and Zone-tab", ref Settings.SkipBuiltIn,
+                        "Orders and Zone-tab will remain in the top if the menu");
+                    var labelPoint = listing_Standard.Label("Manual sorting reset", -1F,
+                        "Reset all manually defined sortings");
                     listing_Standard.Gap();
-                    listing_Standard.Label("NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.");
-                    listing_Standard.CheckboxLabeled("Enable verbose logging", ref Settings.VerboseLogging, "Shows verbose logging during sorting, for finding errors");
-                    DrawButton(instance.Settings.ResetManualValues, "Reset all", new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                    listing_Standard.Label(
+                        "NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.");
+                    listing_Standard.CheckboxLabeled("Enable verbose logging", ref Settings.VerboseLogging,
+                        "Shows verbose logging during sorting, for finding errors");
+                    DrawButton(instance.Settings.ResetManualValues, "Reset all",
+                        new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
                     if (currentVersion != null)
                     {
                         listing_Standard.Gap();
@@ -312,8 +351,12 @@ namespace TabSorting
                             buttonText = Settings.ManualSorting[item.defName];
                         }
 
-                        DrawButton(delegate { SetManualSortTarget(item.defName); }, buttonText, new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
-                        drawIcon(item, new Rect(new Vector2(currentPosition.position.x + buttonSpacer - iconSize, currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                        DrawButton(delegate { SetManualSortTarget(item.defName); }, buttonText,
+                            new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
+                        drawIcon(item,
+                            new Rect(
+                                new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
+                                    currentPosition.position.y), new Vector2(iconSize, iconSize)));
                     }
 
                     listing_Options.GapLine();
@@ -323,16 +366,27 @@ namespace TabSorting
 
                 default:
                 {
-                    var sortCategory = (from DesignationCategoryDef category in instance.Settings.VanillaCategoryMemory where category.defName == selectedDef select category).FirstOrDefault();
+                    var sortCategory =
+                        (from DesignationCategoryDef category in instance.Settings.VanillaCategoryMemory
+                            where category.defName == selectedDef
+                            select category).FirstOrDefault();
                     if (sortCategory == null)
                     {
-                        Log.ErrorOnce($"TabSorter: Could not find category called {selectedDef}, this should not happen.", selectedDef.GetHashCode());
+                        Log.ErrorOnce(
+                            $"TabSorter: Could not find category called {selectedDef}, this should not happen.",
+                            selectedDef.GetHashCode());
                         return;
                     }
 
-                    var allDefsInCategory = from thing in DefDatabase<ThingDef>.AllDefsListForReading where thing.designationCategory != null && thing.designationCategory == sortCategory orderby thing.label select thing;
+                    var allDefsInCategory = from thing in DefDatabase<ThingDef>.AllDefsListForReading
+                        where thing.designationCategory != null && thing.designationCategory == sortCategory
+                        orderby thing.label
+                        select thing;
 
-                    var allTerrainInCategory = from terrain in DefDatabase<TerrainDef>.AllDefsListForReading where terrain.designationCategory != null && terrain.designationCategory == sortCategory orderby terrain.label select terrain;
+                    var allTerrainInCategory = from terrain in DefDatabase<TerrainDef>.AllDefsListForReading
+                        where terrain.designationCategory != null && terrain.designationCategory == sortCategory
+                        orderby terrain.label
+                        select terrain;
 
                     contentRect.width -= 20;
 
@@ -346,7 +400,8 @@ namespace TabSorting
                         contentPack = sortCategory.modContentPack.Name;
                     }
 
-                    listing_Options.Label($"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
+                    listing_Options.Label(
+                        $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
                     GUI.contentColor = Color.white;
 
                     foreach (var thing in allDefsInCategory)
@@ -358,8 +413,12 @@ namespace TabSorting
                             buttonText = Settings.ManualSorting[thing.defName];
                         }
 
-                        DrawButton(delegate { SetManualSortTarget(thing.defName); }, buttonText, new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
-                        drawIcon(thing, new Rect(new Vector2(currentPosition.position.x + buttonSpacer - iconSize, currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                        DrawButton(delegate { SetManualSortTarget(thing.defName); }, buttonText,
+                            new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
+                        drawIcon(thing,
+                            new Rect(
+                                new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
+                                    currentPosition.position.y), new Vector2(iconSize, iconSize)));
                     }
 
                     foreach (var terrain in allTerrainInCategory)
@@ -371,8 +430,12 @@ namespace TabSorting
                             buttonText = Settings.ManualSorting[terrain.defName];
                         }
 
-                        DrawButton(delegate { SetManualSortTarget(terrain.defName); }, buttonText, new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
-                        drawIcon(terrain, new Rect(new Vector2(currentPosition.position.x + buttonSpacer - iconSize, currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                        DrawButton(delegate { SetManualSortTarget(terrain.defName); }, buttonText,
+                            new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
+                        drawIcon(terrain,
+                            new Rect(
+                                new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
+                                    currentPosition.position.y), new Vector2(iconSize, iconSize)));
                     }
 
                     listing_Options.GapLine();
@@ -409,7 +472,9 @@ namespace TabSorting
             listing_Standard.ListItemSelectable(null, Color.yellow);
             foreach (var categoryDef in categoryDefs)
             {
-                if (!listing_Standard.ListItemSelectable($"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow, selectedDef == categoryDef.defName))
+                if (!listing_Standard.ListItemSelectable(
+                    $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
+                    selectedDef == categoryDef.defName))
                 {
                     continue;
                 }
