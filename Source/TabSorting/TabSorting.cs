@@ -1109,7 +1109,12 @@ namespace TabSorting
                 return;
             }
 
-            var designationCategory = GetDesignationFromDatabase("FurnitureStorage");
+            var designationCategory = GetDesignationFromDatabase("LWM_DS_Storage");
+
+            if (designationCategory == null)
+            {
+                designationCategory = GetDesignationFromDatabase("FurnitureStorage");
+            }
 
             if (designationCategory == null)
             {

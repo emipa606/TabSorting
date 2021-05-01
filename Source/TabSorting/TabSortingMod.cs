@@ -148,6 +148,7 @@ namespace TabSorting
         public override void WriteSettings()
         {
             base.WriteSettings();
+            var dontSort = false;
             if (ModLister.GetActiveModWithIdentifier("com.github.alandariva.moreplanning") != null)
             {
                 Find.WindowStack.Add(new Dialog_MessageBox(
@@ -158,12 +159,23 @@ namespace TabSorting
                         noneCategoryMembers = null;
                         TabSorting.DoTheSorting();
                     }));
+                dontSort = true;
             }
-            else
+
+            if (settings.SortStorage && ModLister.GetActiveModWithIdentifier("LWM.DeepStorage") != null)
             {
-                noneCategoryMembers = null;
-                TabSorting.DoTheSorting();
+                Find.WindowStack.Add(new Dialog_MessageBox(
+                    "LWM's Deep Storage is active. It has its own logic for sorting storage-furniture. For compatibility, please turn OFF the following options in LWMs settings:\n\n- Always show storage categry?\n- Put (almost) ALL storage units here?",
+                    "OK"));
             }
+
+            if (dontSort)
+            {
+                return;
+            }
+
+            noneCategoryMembers = null;
+            TabSorting.DoTheSorting();
         }
 
         private static void DrawButton(Action action, string text, Vector2 pos)
