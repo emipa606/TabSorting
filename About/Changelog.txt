@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.36.0 - Should now remove empty tabs when Dubs Paint-mod is used as well
+
+
 1.0.35.0 - Fixed support for Prison Labour and a warning about More Planning-mod
 
 

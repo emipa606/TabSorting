@@ -16,6 +16,8 @@ namespace TabSorting
 
         private static List<string> defsToIgnore;
 
+        private static List<string> namespacesToIgnore;
+
         static TabSorting()
         {
             DoTheSorting();
@@ -27,6 +29,7 @@ namespace TabSorting
             defsToIgnore = new List<string>();
             tabsToIgnore = new List<string>();
             changedDefNames = new List<string>();
+            namespacesToIgnore = new List<string>();
             if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
             {
                 foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
@@ -82,6 +85,9 @@ namespace TabSorting
             defsToIgnore.Add("PRF_TypeTwoAssembler_III");
 
             tabsToIgnore.Add("Planning");
+
+            namespacesToIgnore.Add("RimWorld");
+            namespacesToIgnore.Add("DubRoss");
 
             TabSortingMod.instance.Settings = TabSortingMod.instance.Settings ?? new TabSortingModSettings
             {
@@ -216,7 +222,7 @@ namespace TabSorting
 
             foreach (var specialDesignatorClass in currentCategory.specialDesignatorClasses)
             {
-                if (specialDesignatorClass.Namespace == "RimWorld")
+                if (namespacesToIgnore.Contains(specialDesignatorClass.Namespace))
                 {
                     continue;
                 }
