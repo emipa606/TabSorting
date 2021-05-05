@@ -85,6 +85,7 @@ namespace TabSorting
             defsToIgnore.Add("PRF_TypeTwoAssembler_III");
 
             tabsToIgnore.Add("Planning");
+            tabsToIgnore.Add("Shapes");
 
             namespacesToIgnore.Add("RimWorld");
             namespacesToIgnore.Add("DubRoss");

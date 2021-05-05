@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.38.0 - Should now work with Designator Shapes-mod
+
+
 1.0.37.0 - Should work a bit better with LWM. At least it will show how the LWM settings need to be to not screw things up
 
 
