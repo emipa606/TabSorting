@@ -347,8 +347,8 @@ namespace TabSorting
                 {
                     contentRect.width -= 20;
 
-                    contentRect.height = (noneCategoryMembers.Count() * 24f) + 40f;
-                    listing_Options.BeginScrollView(frameRect, ref optionsScrollPosition, ref contentRect);
+                    contentRect.height = (noneCategoryMembers.Count * 24f) + 40f;
+                    BeginScrollView(ref listing_Options, frameRect, ref optionsScrollPosition, ref contentRect);
 
                     GUI.contentColor = Color.green;
                     listing_Options.Label("None (Hidden)");
@@ -372,7 +372,7 @@ namespace TabSorting
                     }
 
                     listing_Options.GapLine();
-                    listing_Options.EndScrollView(ref contentRect);
+                    EndScrollView(ref listing_Options, ref contentRect, frameRect.width, listing_Options.CurHeight);
                     break;
                 }
 
@@ -403,7 +403,7 @@ namespace TabSorting
                     contentRect.width -= 20;
 
                     contentRect.height = ((allDefsInCategory.Count() + allTerrainInCategory.Count()) * 24f) + 40f;
-                    listing_Options.BeginScrollView(frameRect, ref optionsScrollPosition, ref contentRect);
+                    BeginScrollView(ref listing_Options, frameRect, ref optionsScrollPosition, ref contentRect);
 
                     GUI.contentColor = Color.green;
                     var contentPack = "Unloaded mod";
@@ -451,7 +451,7 @@ namespace TabSorting
                     }
 
                     listing_Options.GapLine();
-                    listing_Options.EndScrollView(ref contentRect);
+                    EndScrollView(ref listing_Options, ref contentRect, frameRect.width, listing_Options.CurHeight);
                     break;
                 }
             }
@@ -475,7 +475,7 @@ namespace TabSorting
             var categoryDefs = instance.Settings.VanillaCategoryMemory;
 
             tabContentRect.height = (categoryDefs.Count * 22f) + 15;
-            listing_Standard.BeginScrollView(tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
+            BeginScrollView(ref listing_Standard, tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
             if (listing_Standard.ListItemSelectable("Settings", Color.yellow, selectedDef == "Settings"))
             {
                 selectedDef = selectedDef == "Settings" ? null : "Settings";
@@ -499,7 +499,23 @@ namespace TabSorting
                 selectedDef = selectedDef == "Hidden" ? null : "Hidden";
             }
 
-            listing_Standard.EndScrollView(ref tabContentRect);
+            EndScrollView(ref listing_Standard, ref tabContentRect, tabFrameRect.width, listing_Standard.CurHeight);
+        }
+
+        private static void BeginScrollView(ref Listing_Standard listingStandard, Rect rect, ref Vector2 scrollPosition,
+            ref Rect viewRect)
+        {
+            Widgets.BeginScrollView(rect, ref scrollPosition, viewRect);
+            rect.height = 100000f;
+            rect.width -= 20f;
+            listingStandard.Begin(rect.AtZero());
+        }
+
+        private void EndScrollView(ref Listing_Standard listingStandard, ref Rect viewRect, float width, float height)
+        {
+            viewRect = new Rect(0f, 0f, width, height);
+            Widgets.EndScrollView();
+            listingStandard.End();
         }
     }
 }

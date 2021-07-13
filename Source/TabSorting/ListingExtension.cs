@@ -8,7 +8,8 @@ namespace TabSorting
     [StaticConstructorOnStartup]
     public static class ListingExtension
     {
-        public static bool ListItemSelectable(this Listing lister, string header, Color hoverColor, bool selected = false)
+        public static bool ListItemSelectable(this Listing lister, string header, Color hoverColor,
+            bool selected = false)
         {
             var anchor = Text.Anchor;
             var color = GUI.color;

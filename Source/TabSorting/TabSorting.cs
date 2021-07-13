@@ -168,7 +168,7 @@ namespace TabSorting
                 from dd in DefDatabase<DesignationCategoryDef>.AllDefs
                 orderby dd.label
                 select dd;
-            var steps = (int) Math.Floor((decimal) (topValue / designationCategoryDefs.Count()));
+            var steps = (int) Math.Floor((decimal) ((float) topValue / designationCategoryDefs.Count()));
             foreach (var designationCategoryDef in designationCategoryDefs)
             {
                 topValue -= steps;
@@ -682,8 +682,7 @@ namespace TabSorting
             var decorativePlantsInGame = (from decorativePlant in DefDatabase<ThingDef>.AllDefsListForReading
                 where !defsToIgnore.Contains(decorativePlant.defName) &&
                       !changedDefNames.Contains(decorativePlant.defName) &&
-                      decorativePlant.designationCategory != null && decorativePlant.building != null &&
-                      decorativePlant.building.sowTag == "Decorative"
+                      decorativePlant.designationCategory != null && decorativePlant.building is {sowTag: "Decorative"}
                 select decorativePlant).ToList();
             var decorativeFurnitureInGame = (from decorativeFurniture in DefDatabase<ThingDef>.AllDefsListForReading
                 where !defsToIgnore.Contains(decorativeFurniture.defName) &&
@@ -802,9 +801,9 @@ namespace TabSorting
                 where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
                       fence.designationCategory != null && fence.designationCategory.defName != "Fences" &&
                       ((fence.thingClass?.Name == "Building_Door" || fence.thingClass?.Name == "Building" &&
-                              fence.graphicData?.linkType == LinkDrawerType.Basic &&
-                              fence.passability == Traversability.Impassable) && fence.fillPercent < 1f &&
-                          fence.fillPercent > 0 || fence.label.ToLower().Contains("fence"))
+                           fence.graphicData?.linkType == LinkDrawerType.Basic &&
+                           fence.passability == Traversability.Impassable) && fence.fillPercent is < 1f and > 0 ||
+                       fence.label.ToLower().Contains("fence"))
                 select fence).ToList();
             foreach (var fence in fencesInGame)
             {
@@ -909,8 +908,8 @@ namespace TabSorting
 
             var hospitalBedsInGame = (from hoispitalBed in DefDatabase<ThingDef>.AllDefsListForReading
                 where !defsToIgnore.Contains(hoispitalBed.defName) && !changedDefNames.Contains(hoispitalBed.defName) &&
-                      hoispitalBed.designationCategory != null && hoispitalBed.IsBed && hoispitalBed.building != null &&
-                      hoispitalBed.building.bed_defaultMedical
+                      hoispitalBed.designationCategory != null && hoispitalBed.IsBed && hoispitalBed.building is
+                          {bed_defaultMedical: true}
                 select hoispitalBed).ToList();
             var affectedByFacilities = new HashSet<ThingDef>();
             foreach (var hospitalBed in hospitalBedsInGame)
@@ -1180,7 +1179,7 @@ namespace TabSorting
                       table.designationCategory != null &&
                       (table.IsTable ||
                        table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table") ||
-                       table.building != null && table.building.isSittable)
+                       table.building is {isSittable: true})
                 select table).ToList();
             foreach (var tableOrChair in tableChairsInGame)
             {

@@ -23,7 +23,7 @@ Currently the mod supports the following sorting:
 
 Special case
 - All storage-containers to the Storage-tab
-  If https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage or https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896]LWM's Deep Storage is loaded their Storage-tab will be used instead.
+  If https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage or https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896]LWM&apos;s Deep Storage is loaded their Storage-tab will be used instead.
   
 
 Options dependent of other mods:
@@ -36,7 +36,7 @@ Other options:
 - Manual sorting - if some items gets in the wrong place, move them around.
 
 
-If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
+If you find any item that don&apos;t get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
 
 [table]
