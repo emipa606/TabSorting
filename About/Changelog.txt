@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.41.0 - Added Korean translation, thanks isty2e
+
+
 1.0.40.0 - Rebuild on the 1.3 binaries as some functions changed from the beta
 
 

@@ -1,29 +1,19 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <LanguageData>
-
   <LightsTab.label>조명</LightsTab.label>
   <LightsTab.description>조명 범주입니다.</LightsTab.description>
-
   <TableChairsTab.label>식탁/의자</TableChairsTab.label>
   <TableChairsTab.description>식탁과 의자입니다.</TableChairsTab.description>
-
   <BedroomTab.label>침실</BedroomTab.label>
   <BedroomTab.description>침실 가구입니다.</BedroomTab.description>
-
   <HospitalTab.label>병원</HospitalTab.label>
   <HospitalTab.description>병실 가구입니다.</HospitalTab.description>
-
   <DecorationTab.label>장식</DecorationTab.label>
   <DecorationTab.description>장식품입니다.</DecorationTab.description>
-
   <StorageTab.label>저장소</StorageTab.label>
   <StorageTab.description>저장용 선반 등입니다.</StorageTab.description>
-
   <KitchenTab.label>주방</KitchenTab.label>
   <KitchenTab.description>주방용 가구입니다.</KitchenTab.description>
-
   <ResearchTab.label>연구</ResearchTab.label>
   <ResearchTab.description>연구용 가구입니다.</ResearchTab.description>
-
-
 </LanguageData>
