@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <LightsTab.label>Beleuchtung</LightsTab.label>
+  <LightsTab.description>Die Kategorie Beleuchtung.</LightsTab.description>
+  <TableChairsTab.label>Tische/Stühle</TableChairsTab.label>
+  <TableChairsTab.description>Die Kategorie Tische/Stühle.</TableChairsTab.description>
+  <BedroomTab.label>Schlafzimmer</BedroomTab.label>
+  <BedroomTab.description>Die Kategorie Schlafzimmer.</BedroomTab.description>
+  <HospitalTab.label>Krankenhaus</HospitalTab.label>
+  <HospitalTab.description>Die Kategorie Krankenhaus.</HospitalTab.description>
+  <DecorationTab.label>Dekoration</DecorationTab.label>
+  <DecorationTab.description>Die Kategorie Dekoration.</DecorationTab.description>
+  <StorageTab.label>Lagerung</StorageTab.label>
+  <StorageTab.description>Die Kategorie Lagerung.</StorageTab.description>
+  <KitchenTab.label>Küche</KitchenTab.label>
+  <KitchenTab.description>Die Kategorie Küche.</KitchenTab.description>
+  <ResearchTab.label>Forschung</ResearchTab.label>
+  <ResearchTab.description>Die Kategorie Forschung.</ResearchTab.description>
+</LanguageData>
