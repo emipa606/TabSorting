@@ -16,8 +16,12 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <Reference Include="1SettingsHelper">
+      <HintPath>..\1SettingsHelper.dll</HintPath>
+    </Reference>
     <Reference Include="VersionFromManifest">
       <HintPath>..\VersionFromManifest.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>
+

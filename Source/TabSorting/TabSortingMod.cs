@@ -202,7 +202,7 @@ namespace TabSorting
                 instance.Settings.ManualSorting.Remove(defName);
             }
 
-            var list = new List<FloatMenuOption> {new FloatMenuOption("Default", defaultAction)};
+            var list = new List<FloatMenuOption> { new FloatMenuOption("Default", defaultAction) };
 
             foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory
                 orderby vanillaCategory.label
@@ -236,7 +236,7 @@ namespace TabSorting
             var textureColor = thing.uiIconColor;
             if (texture2D.width != texture2D.height)
             {
-                var ratio = (float) texture2D.width / texture2D.height;
+                var ratio = (float)texture2D.width / texture2D.height;
 
                 if (ratio < 1)
                 {

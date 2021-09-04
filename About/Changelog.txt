@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.43.0 - New version of 1SettingsHelper
+
+
 1.0.42.0 - Added german translation, thanks mrclrchtr
 
 

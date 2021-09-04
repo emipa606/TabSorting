@@ -1,6 +1,6 @@
 # TabSorting
 
-![Image](https://i.imgur.com/WAEzk68.png)
+![Image](https://i.imgur.com/buuPQel.png)
 
 Sort your stuff!
   
@@ -23,7 +23,7 @@ Currently the mod supports the following sorting:
 
 Special case
 - All storage-containers to the Storage-tab
-  If https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage or https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896]LWM&apos;s Deep Storage is loaded their Storage-tab will be used instead.
+  If https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage or https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896]LWM's Deep Storage is loaded their Storage-tab will be used instead.
   
 
 Options dependent of other mods:
@@ -36,7 +36,7 @@ Other options:
 - Manual sorting - if some items gets in the wrong place, move them around.
 
 
-If you find any item that don&apos;t get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
+If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
 
 
@@ -54,14 +54,14 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 Big thanks to https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100]SmashPhil for the help and coding examples when I made a better (good) version of the settings menu! 
 Also thanks to https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100]AUTOMATIC for the well structured code for the miniature icons from the Recipe Icons mod!
 
-![Image](https://i.imgur.com/pgjQLXV.png)
+![Image](https://i.imgur.com/O0IIlYj.png)
 
 Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my https://store.steampowered.com/wishlist/id/Mlie]Wishlist or buy me a cup of tea.
 
 https://ko-fi.com/G2G55DDYD]![Image](https://i.ibb.co/VWJJb3w/Support-Me-dark-2x.png)
 
 
-![Image](https://i.imgur.com/Rs6T6cr.png)
+![Image](https://i.imgur.com/PwoNOj4.png)
 
 
 
@@ -71,7 +71,6 @@ https://ko-fi.com/G2G55DDYD]![Image](https://i.ibb.co/VWJJb3w/Support-Me-dark-2x
 -  For best support, please use the Discord-channel for error-reporting.
 -  Do not report errors by making a discussion-thread, I get no notification of that.
 -  If you have the solution for a problem, please post it to the GitHub repository.
-
 
 
 
