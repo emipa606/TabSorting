@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.44.0 - Added load before rimfactory-tag
+
+
 1.0.43.0 - New version of 1SettingsHelper
 
 

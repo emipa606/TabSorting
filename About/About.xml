@@ -10,6 +10,9 @@
     <li>1.3</li>
   </supportedVersions>
   <modDependencies />
+  <loadBefore>
+    <li>spdskatr.projectrimfactory</li>
+  </loadBefore>
   <loadAfter>
     <li>Mlie.RemoveIndustrialStuff</li>
     <li>Mlie.RemoveSpacerStuff</li>
