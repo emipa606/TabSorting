@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -40,6 +41,8 @@ namespace TabSorting
         private static Vector2 tabsScrollPosition;
 
         private static string currentVersion;
+
+        private static string newTabName;
 
         /// <summary>
         ///     The private settings
@@ -216,6 +219,18 @@ namespace TabSorting
                 list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
             }
 
+            foreach (var sortOption in from manualCategory in instance.Settings.ManualCategoryMemory
+                orderby manualCategory.label
+                select manualCategory)
+            {
+                void action()
+                {
+                    instance.Settings.ManualSorting[defName] = sortOption.defName;
+                }
+
+                list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
+            }
+
             void noneAction()
             {
                 instance.Settings.ManualSorting[defName] = "None";
@@ -314,6 +329,12 @@ namespace TabSorting
                             "Moves all fences to the Fences-tab from Fences and Floors");
                     }
 
+                    if (DefDatabase<DesignationCategoryDef>.GetNamed("IdeologyTab", false) != null)
+                    {
+                        listing_Standard.CheckboxLabeled("Sort ideology", ref Settings.SortIdeologyFurniture,
+                            "Moves all Ideology related furniture to the Ideology-tab");
+                    }
+
                     listing_Standard.Gap();
                     listing_Standard.CheckboxLabeled("Remove empty tabs after sorting", ref Settings.RemoveEmptyTabs,
                         "If a tab has no things left to build after sorting, remove the tab");
@@ -376,12 +397,47 @@ namespace TabSorting
                     break;
                 }
 
+                case "CreateNew":
+                {
+                    listing_Standard.Begin(frameRect);
+                    listing_Standard.Gap();
+
+                    listing_Standard.Label("New tab-name");
+                    newTabName = listing_Standard.TextEntry(newTabName);
+                    var cleanTabName = Regex.Replace(newTabName, @"[^a-zA-Z]*", string.Empty);
+                    if (cleanTabName.Length > 0 && listing_Standard.ButtonText("Create"))
+                    {
+                        if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(cleanTabName) != null)
+                        {
+                            Find.WindowStack.Add(new Dialog_MessageBox(
+                                $"Tab named {newTabName} already exists!",
+                                "OK"));
+                            break;
+                        }
+
+                        var newTab = new DesignationCategoryDef
+                        {
+                            defName = cleanTabName,
+                            label = newTabName,
+                            generated = true
+                        };
+                        DefGenerator.AddImpliedDef(newTab);
+                        instance.Settings.ManualTabs[cleanTabName] = newTabName;
+                        instance.Settings.ManualCategoryMemory.Add(
+                            DefDatabase<DesignationCategoryDef>.GetNamed(cleanTabName));
+                        selectedDef = "Settings";
+                        newTabName = string.Empty;
+                        TabSorting.LogMessage(
+                            $"Current custom tabs: {string.Join(",", instance.Settings.ManualCategoryMemory)}");
+                    }
+
+                    listing_Standard.End();
+                    break;
+                }
+
                 default:
                 {
-                    var sortCategory =
-                        (from DesignationCategoryDef category in instance.Settings.VanillaCategoryMemory
-                            where category.defName == selectedDef
-                            select category).FirstOrDefault();
+                    var sortCategory = TabSorting.GetDesignationFromDatabase(selectedDef);
                     if (sortCategory == null)
                     {
                         Log.ErrorOnce(
@@ -407,14 +463,37 @@ namespace TabSorting
 
                     GUI.contentColor = Color.green;
                     var contentPack = "Unloaded mod";
+                    var manualTab = instance.Settings.ManualCategoryMemory.Contains(sortCategory);
                     if (sortCategory.modContentPack?.Name != null)
                     {
                         contentPack = sortCategory.modContentPack.Name;
                     }
 
-                    listing_Options.Label(
+                    if (manualTab)
+                    {
+                        contentPack = "Custom tab";
+                    }
+
+                    var headerRect = listing_Options.Label(
                         $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
                     GUI.contentColor = Color.white;
+
+                    if (manualTab)
+                    {
+                        if (Widgets.ButtonText(
+                            new Rect(headerRect.position + new Vector2(headerRect.width - buttonSize.x, 0), buttonSize),
+                            "Delete"))
+                        {
+                            Find.WindowStack.Add(new Dialog_MessageBox(
+                                "All items in this tab will be restored to their original tabs and this tab will be removed. Continue?",
+                                "NO", null, "YES",
+                                delegate
+                                {
+                                    selectedDef = "Settings";
+                                    TabSorting.RemoveManualTab(sortCategory);
+                                }));
+                        }
+                    }
 
                     foreach (var thing in allDefsInCategory)
                     {
@@ -473,8 +552,9 @@ namespace TabSorting
             tabContentRect.width -= 20;
 
             var categoryDefs = instance.Settings.VanillaCategoryMemory;
+            var manualDefs = instance.Settings.ManualCategoryMemory;
 
-            tabContentRect.height = (categoryDefs.Count * 22f) + 15;
+            tabContentRect.height = (categoryDefs.Count + manualDefs.Count + 5) * 22f;
             BeginScrollView(ref listing_Standard, tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
             if (listing_Standard.ListItemSelectable("Settings", Color.yellow, selectedDef == "Settings"))
             {
@@ -494,9 +574,35 @@ namespace TabSorting
                 selectedDef = selectedDef == categoryDef.defName ? null : categoryDef.defName;
             }
 
+            listing_Standard.ListItemSelectable(null, Color.yellow);
+            if (manualDefs.Any())
+            {
+                foreach (var categoryDef in manualDefs)
+                {
+                    if (!listing_Standard.ListItemSelectable(
+                        $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
+                        selectedDef == categoryDef.defName))
+                    {
+                        continue;
+                    }
+
+                    selectedDef = selectedDef == categoryDef.defName ? null : categoryDef.defName;
+                }
+
+                listing_Standard.ListItemSelectable(null, Color.yellow);
+            }
+
             if (listing_Standard.ListItemSelectable("None (Hidden)", Color.yellow, selectedDef == "Hidden"))
             {
                 selectedDef = selectedDef == "Hidden" ? null : "Hidden";
+            }
+
+            listing_Standard.ListItemSelectable(null, Color.yellow);
+
+            if (listing_Standard.ListItemSelectable("Create new tab", Color.yellow, selectedDef == "CreateNew"))
+            {
+                newTabName = string.Empty;
+                selectedDef = selectedDef == "CreateNew" ? null : "CreateNew";
             }
 
             EndScrollView(ref listing_Standard, ref tabContentRect, tabFrameRect.width, listing_Standard.CurHeight);

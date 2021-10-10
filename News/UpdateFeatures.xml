@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>TabSorting</modNameReadable>
@@ -64,4 +64,11 @@ It will default move any building that is used for producing anything categorise
     <content>Added an option to sort buildings into a Research-tab. It will move all research-buildings and affected facilities along with any building marked as required by any research-project to a separate research-tab.
 </content>
   </HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+		<defName>TabSorting_1_0_45_0</defName>
+		<assemblyVersion>1.0.45.0</assemblyVersion>
+		<content>In this version there is now an option to add custom tabs for sorting items in.
+There is also an option to sort Ideology specific furniture (mostly ritual-related) into an Ideology-tab.
+</content>
+	</HugsLib.UpdateFeatureDef>
 </Defs>

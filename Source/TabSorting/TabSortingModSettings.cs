@@ -17,12 +17,19 @@ namespace TabSorting
             new Dictionary<DesignationCategoryDef, int>();
 
         private List<string> CategoriesToIgnore = new List<string>();
+        public List<DesignationCategoryDef> ManualCategoryMemory = new List<DesignationCategoryDef>();
 
         public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
 
         private List<string> manualSortingKeys;
 
         private List<string> manualSortingValues;
+
+        public Dictionary<string, string> ManualTabs = new Dictionary<string, string>();
+
+        private List<string> manualTabsKeys;
+
+        private List<string> manualTabsValues;
 
         public bool RemoveEmptyTabs = true;
 
@@ -41,6 +48,8 @@ namespace TabSorting
         public bool SortGarden;
 
         public bool SortHospitalFurniture;
+
+        public bool SortIdeologyFurniture;
 
         public bool SortKitchenFurniture;
 
@@ -65,6 +74,7 @@ namespace TabSorting
             Scribe_Values.Look(ref SortTablesAndChairs, "SortTablesAndChairs");
             Scribe_Values.Look(ref SortBedroomFurniture, "SortBedroomFurniture");
             Scribe_Values.Look(ref SortHospitalFurniture, "SortHospitalFurniture");
+            Scribe_Values.Look(ref SortIdeologyFurniture, "SortIdeologyFurniture");
             Scribe_Values.Look(ref SortDecorations, "SortDecorations");
             Scribe_Values.Look(ref SortStorage, "SortStorage");
             Scribe_Values.Look(ref SortGarden, "SortGarden");
@@ -79,6 +89,8 @@ namespace TabSorting
             Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
             Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value,
                 ref manualSortingKeys, ref manualSortingValues);
+            Scribe_Collections.Look(ref ManualTabs, "ManualTabs", LookMode.Value, LookMode.Value,
+                ref manualTabsKeys, ref manualTabsValues);
             Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
         }
 

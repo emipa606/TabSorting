@@ -42,15 +42,6 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 
 - Added Korean translation, thanks isty2e 
 
-[table]
-    [tr]
-        [td]https://invite.gg/Mlie]![Image](https://i.imgur.com/zdzzBrc.png)
-[/td]
-        [td]https://github.com/emipa606/TabSorting]![Image](https://i.imgur.com/kTkpTOE.png)
-[/td]
-    [/tr]
-[/table]
-
 Big thanks to https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100]SmashPhil for the help and coding examples when I made a better (good) version of the settings menu! 
 Also thanks to https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100]AUTOMATIC for the well structured code for the miniature icons from the Recipe Icons mod!
 

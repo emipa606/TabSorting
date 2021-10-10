@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.45.0 - Added IdeologyTab, also added the possibility to add custom tabs
+
+
 1.0.44.0 - Added load before rimfactory-tag
 
 

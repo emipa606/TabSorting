@@ -23,6 +23,14 @@ namespace TabSorting
             DoTheSorting();
         }
 
+        public static void RemoveManualTab(DesignationCategoryDef manualTab)
+        {
+            TabSortingMod.instance.Settings.ManualSorting.RemoveAll(pair => pair.Value == manualTab.defName);
+            TabSortingMod.instance.Settings.ManualTabs.RemoveAll(pair => pair.Key == manualTab.defName);
+            TabSortingMod.instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == manualTab.defName);
+            RemoveEmptyDesignationCategoryDef(manualTab);
+        }
+
         public static void DoTheSorting()
         {
             LogMessage("Starting a new sorting-session");
@@ -37,6 +45,16 @@ namespace TabSorting
                     TabSortingMod.instance.Settings.VanillaCategoryMemory.Add(categoryDef);
                     TabSortingMod.instance.Settings.VanillaOrderMemory.Add(categoryDef, categoryDef.order);
                 }
+            }
+
+            if (TabSortingMod.instance.Settings.ManualTabs == null)
+            {
+                TabSortingMod.instance.Settings.ManualTabs = new Dictionary<string, string>();
+            }
+
+            if (TabSortingMod.instance.Settings.ManualCategoryMemory == null)
+            {
+                TabSortingMod.instance.Settings.ManualCategoryMemory = new List<DesignationCategoryDef>();
             }
 
             if (!TabSortingMod.instance.Settings.VanillaItemMemory.Any())
@@ -54,6 +72,28 @@ namespace TabSorting
             else
             {
                 RestoreVanillaSorting();
+            }
+
+            if (TabSortingMod.instance.Settings.ManualTabs.Any())
+            {
+                foreach (var manualTab in TabSortingMod.instance.Settings.ManualTabs)
+                {
+                    if (TabSortingMod.instance.Settings.ManualCategoryMemory.Any(def => def.defName == manualTab.Key))
+                    {
+                        continue;
+                    }
+
+                    var newTab = new DesignationCategoryDef
+                    {
+                        defName = manualTab.Key,
+                        label = manualTab.Value
+                    };
+
+                    LogMessage($"Recreating manual tab {manualTab.Key}");
+                    DefGenerator.AddImpliedDef(newTab);
+                    TabSortingMod.instance.Settings.ManualCategoryMemory.Add(
+                        DefDatabase<DesignationCategoryDef>.GetNamed(manualTab.Key));
+                }
             }
 
             TabSortingMod.instance.Settings.VanillaCategoryMemory.SortBy(def => def.label);
@@ -110,6 +150,8 @@ namespace TabSorting
             };
 
             SortManually();
+
+            SortIdeologyFurniture();
 
             SortLights();
 
@@ -192,7 +234,17 @@ namespace TabSorting
         private static bool CheckEmptyDesignationCategoryDef(string currentCategoryName)
         {
             var currentCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(currentCategoryName);
+            if (currentCategory == null)
+            {
+                return false;
+            }
+
             if (currentCategory.defName == "Orders" || currentCategory.defName == "Zone")
+            {
+                return false;
+            }
+
+            if (TabSortingMod.instance.Settings.ManualTabs.ContainsKey(currentCategory.defName))
             {
                 return false;
             }
@@ -234,8 +286,13 @@ namespace TabSorting
             return true;
         }
 
-        private static DesignationCategoryDef GetDesignationFromDatabase(string categoryString)
+        public static DesignationCategoryDef GetDesignationFromDatabase(string categoryString)
         {
+            if (TabSortingMod.instance.Settings.ManualTabs.ContainsKey(categoryString))
+            {
+                return TabSortingMod.instance.Settings.ManualCategoryMemory.First(def => def.defName == categoryString);
+            }
+
             if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any(def => def.defName == categoryString))
             {
                 return null;
@@ -245,13 +302,14 @@ namespace TabSorting
                 TabSortingMod.instance.Settings.VanillaCategoryMemory.First(def => def.defName == categoryString);
             if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(categoryString) == null)
             {
+                LogMessage($"Could not find tab {categoryString}, creating");
                 DefGenerator.AddImpliedDef(returnValue);
             }
 
             return returnValue;
         }
 
-        private static void RefreshArchitectMenu()
+        public static void RefreshArchitectMenu()
         {
             LogMessage("Sorting-session done");
             if (Current.ProgramState != ProgramState.Playing)
@@ -268,7 +326,7 @@ namespace TabSorting
         ///     Removes a (hopefully) empty category
         /// </summary>
         /// <param name="currentCategory"></param>
-        private static void RemoveEmptyDesignationCategoryDef(DesignationCategoryDef currentCategory)
+        public static void RemoveEmptyDesignationCategoryDef(DesignationCategoryDef currentCategory)
         {
             GenGeneric.InvokeStaticMethodOnGenericType(typeof(DefDatabase<>), typeof(DesignationCategoryDef), "Remove",
                 currentCategory);
@@ -306,6 +364,53 @@ namespace TabSorting
             {
                 designationCategoryDef.ResolveReferences();
             }
+        }
+
+        /// <summary>
+        ///     Sort Ideology furniture to the Ideology-tab if needed
+        /// </summary>
+        private static void SortIdeologyFurniture()
+        {
+            if (!ModLister.IdeologyInstalled)
+            {
+                return;
+            }
+
+            var designationCategory = GetDesignationFromDatabase("IdeologyTab");
+            if (designationCategory == null)
+            {
+                Log.ErrorOnce("[TabSorting]: Cannot find the IdeologyTab-def, will not sort Ideology items.",
+                    "IdeologyTab".GetHashCode());
+                return;
+            }
+
+            if (!TabSortingMod.instance.Settings.SortIdeologyFurniture)
+            {
+                return;
+            }
+
+            var ideologyFurnitureInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
+                where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
+                      furniture.designationCategory != null && furniture.designationCategory.defName != "IdeologyTab" &&
+                      (furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualPosition)) == true ||
+                       furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualSeat)) == true ||
+                       furniture.comps?.Any(properties => properties.compClass == typeof(CompRelicContainer)) == true ||
+                       furniture.comps?.Any(properties => properties is CompProperties_Lightball) == true ||
+                       furniture.comps?.Any(properties => properties is CompProperties_Loudspeaker) == true ||
+                       furniture.thingClass == typeof(Building_StylingStation) ||
+                       furniture.isAltar ||
+                       furniture.ideoBuildingNamerBase != null ||
+                       furniture.label?.ToLower().Contains("ritual") == true)
+                select furniture).ToList();
+            foreach (var furniture in ideologyFurnitureInGame)
+            {
+                LogMessage(
+                    $"Changing designation for fence {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
+                changedDefNames.Add(furniture.defName);
+                furniture.designationCategory = designationCategory;
+            }
+
+            LogMessage($"Moved {ideologyFurnitureInGame.Count} furniture to the Ideology-tab.", true);
         }
 
         /// <summary>
@@ -1193,7 +1298,7 @@ namespace TabSorting
             LogMessage($"Moved {tableChairsInGame.Count} tables and chairs to the Table/Chairs tab.", true);
         }
 
-        private static void LogMessage(string message, bool force = false)
+        public static void LogMessage(string message, bool force = false)
         {
             if (TabSortingMod.instance.Settings.VerboseLogging || force)
             {
