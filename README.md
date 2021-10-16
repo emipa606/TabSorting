@@ -19,7 +19,8 @@ Currently the mod supports the following sorting:
 - All tables and sittable furniture to a separate Tables/Chairs-tab
 - All decorative items to a separate Decorations-tab
 - All kitchen furniture and linkables to a separate Kitchen-tab
-- Add research furniture to a separate Research-tab
+- All research furniture to a separate Research-tab
+- All Ideology ritual-furniture to a separate Ideology-tab
 
 Special case
 - All storage-containers to the Storage-tab
@@ -34,6 +35,7 @@ Other options:
 - If a tab is empty after the sorting the mod can remove it
 - You can sort all tabs alphabetically, the Zones and Orders-tab can be skipped
 - Manual sorting - if some items gets in the wrong place, move them around.
+- Create new tabs to sort to
 
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.

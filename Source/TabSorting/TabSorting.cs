@@ -980,8 +980,8 @@ namespace TabSorting
                       (gardenThing.thingClass?.Name == "Building_SunLamp" ||
                        gardenThing.thingClass?.Name == "Building_PlantGrower" &&
                        gardenThing.building?.sowTag != "Decorative" ||
-                       gardenThing.label.ToLower().Contains("sprinkler") &&
-                       !gardenThing.label.ToLower().Contains("fire"))
+                       gardenThing.label?.ToLower().Contains("sprinkler") == true &&
+                       gardenThing.label?.ToLower().Contains("fire") == false)
                 select gardenThing).ToList();
             foreach (var gardenTool in gardenThingsInGame)
             {

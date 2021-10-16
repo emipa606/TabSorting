@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.46.0 - Hopefully fixed an issue with some mod that threw an error when sorting to the Garden-tab
+
+
 1.0.45.0 - Added IdeologyTab, also added the possibility to add custom tabs
 
 
