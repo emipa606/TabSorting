@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+
+  <LightsTab.label>Освещение</LightsTab.label>
+  <LightsTab.description>Осветительные приборы и приспособления.</LightsTab.description>
+
+  <TableChairsTab.label>Столы/cтулья</TableChairsTab.label>
+  <TableChairsTab.description>Всё, на чём сидят и за чем сидят.</TableChairsTab.description>
+
+  <BedroomTab.label>Спальня</BedroomTab.label>
+  <BedroomTab.description>Мебель для спален.</BedroomTab.description>
+
+  <HospitalTab.label>Больница</HospitalTab.label>
+  <HospitalTab.description>Больничное оборудование.</HospitalTab.description>
+
+  <DecorationTab.label>Декорации</DecorationTab.label>
+  <DecorationTab.description>Предметы для украшения.</DecorationTab.description>
+
+  <StorageTab.label>Хранение</StorageTab.label>
+  <StorageTab.description>Контейнеры для хранения.</StorageTab.description>
+
+  <KitchenTab.label>Кухня</KitchenTab.label>
+  <KitchenTab.description>Оборудование и приспособления для приготовления пищи.</KitchenTab.description>
+
+  <ResearchTab.label>Наука</ResearchTab.label>
+  <ResearchTab.description>Оборудование для исследований.</ResearchTab.description>
+
+  <IdeologyTab.label>Идеология</IdeologyTab.label>
+  <IdeologyTab.description>Предметы дополнения Ideology.</IdeologyTab.description>
+
+</LanguageData>
