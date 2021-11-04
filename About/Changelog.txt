@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.47.0 - Russian translation added, thanks Reiquard
+
+
 1.0.46.0 - Hopefully fixed an issue with some mod that threw an error when sorting to the Garden-tab
 
 
