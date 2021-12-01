@@ -1,0 +1,64 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<LanguageData>
+  <TabSorting.None>None</TabSorting.None>
+  <TabSorting.NoneHidden>None (Hidden)</TabSorting.NoneHidden>
+  <TabSorting.No>NO</TabSorting.No>
+  <TabSorting.Yes>YES</TabSorting.Yes>
+  <TabSorting.Ok>OK</TabSorting.Ok>
+  <TabSorting.Default>Default</TabSorting.Default>
+  <TabSorting.Settings>Settings</TabSorting.Settings>
+  <TabSorting.Hidden>Hidden</TabSorting.Hidden>
+  <TabSorting.NewTab>New tab-name</TabSorting.NewTab>
+  <TabSorting.CreateNew>Create new tab</TabSorting.CreateNew>
+  <TabSorting.Create>Create</TabSorting.Create>
+  <TabSorting.Delete>Delete</TabSorting.Delete>
+  <TabSorting.Exists>Tab named {0} already exists!</TabSorting.Exists>
+  <TabSorting.CurrentCustom>Current custom tabs: {0}</TabSorting.CurrentCustom>
+  <TabSorting.UnloadedMod>Unloaded mod</TabSorting.UnloadedMod>
+  <TabSorting.CustomTab>Custom tab</TabSorting.CustomTab>
+  <TabSorting.ResetOne>All items in this tab will be restored to their original tabs and this tab will be removed. Continue?</TabSorting.ResetOne>
+  <TabSorting.ResetAll>Reset all</TabSorting.ResetAll>
+  <TabSorting.GroupContaining>Group containing: \n{0}</TabSorting.GroupContaining>
+  <TabSorting.ModVersion>Installed mod-version: {0}</TabSorting.ModVersion>
+  <TabSorting.MorePlanning>The More Planning mod is loaded and will loose its colored designators if the sorting is redone after game-start. Do you want to resort the menu? If NO, only the settings will be saved and applied the next game-start.</TabSorting.MorePlanning>
+  <TabSorting.DeepStorage>LWM's Deep Storage is active. It has its own logic for sorting storage-furniture. For compatibility, please turn OFF the following options in LWMs settings:\n\n- Always show storage categry?\n- Put (almost) ALL storage units here?</TabSorting.DeepStorage>
+  <TabSorting.SortLights.Label>Sort lights</TabSorting.SortLights.Label>
+  <TabSorting.SortLights.Tooltip>Moves all lights to the Lights-tab</TabSorting.SortLights.Tooltip>
+  <TabSorting.SortFloors.Label>Sort floors</TabSorting.SortFloors.Label>
+  <TabSorting.SortFloors.Tooltip>Moves all floors to the Floors-tab</TabSorting.SortFloors.Tooltip>
+  <TabSorting.SortWallsDoors.Label>Sort walls and doors</TabSorting.SortWallsDoors.Label>
+  <TabSorting.SortWallsDoors.Tooltip>Moves all doors and walls to the Structure-tab</TabSorting.SortWallsDoors.Tooltip>
+  <TabSorting.SortTablesChairs.Label>Sort tables and chairs</TabSorting.SortTablesChairs.Label>
+  <TabSorting.SortTablesChairs.Tooltip>Moves all tables and chairs the Table/Chairs-tab</TabSorting.SortTablesChairs.Tooltip>
+  <TabSorting.SortBedroom.Label>Sort bedroom furniture</TabSorting.SortBedroom.Label>
+  <TabSorting.SortBedroom.Tooltip>Moves all bedroom-furniture to the Bedroom-tab</TabSorting.SortBedroom.Tooltip>
+  <TabSorting.SortKitchen.Label>Sort kitchen furniture</TabSorting.SortKitchen.Label>
+  <TabSorting.SortKitchen.Tooltip>Moves all kitchen-furniture to the Kitchen-tab</TabSorting.SortKitchen.Tooltip>
+  <TabSorting.SortHospital.Label>Sort hospital furniture</TabSorting.SortHospital.Label>
+  <TabSorting.SortHospital.Tooltip>Moves all hospital-furniture to the Hospital-tab</TabSorting.SortHospital.Tooltip>
+  <TabSorting.SortResearch.Label>Sort research furniture</TabSorting.SortResearch.Label>
+  <TabSorting.SortResearch.Tooltip>Moves all research-furniture to the Research-tab</TabSorting.SortResearch.Tooltip>
+  <TabSorting.SortDecoration.Label>Sort decorations</TabSorting.SortDecoration.Label>
+  <TabSorting.SortDecoration.Tooltip>Moves all rugs, plantpots and other cosmetic items to the Decorations-tab</TabSorting.SortDecoration.Tooltip>
+  <TabSorting.SortStorage.Label>Sort storage</TabSorting.SortStorage.Label>
+  <TabSorting.SortStorage.Tooltip>Moves all storage to the Storage-tab</TabSorting.SortStorage.Tooltip>
+  <TabSorting.SortGarden.Label>Sort garden tools</TabSorting.SortGarden.Label>
+  <TabSorting.SortGarden.Tooltip>Moves all garden items to the Garden-tab</TabSorting.SortGarden.Tooltip>
+  <TabSorting.SortFences.Label>Sort fences</TabSorting.SortFences.Label>
+  <TabSorting.SortFences.Tooltip>Moves all fences to the Fences-tab</TabSorting.SortFences.Tooltip>
+  <TabSorting.SortIdeology.Label>Sort ideology</TabSorting.SortIdeology.Label>
+  <TabSorting.SortIdeology.Tooltip>Moves all Ideology related furniture to the Ideology-tab</TabSorting.SortIdeology.Tooltip>
+  <TabSorting.RemoveEmpty.Label>Remove empty tabs after sorting</TabSorting.RemoveEmpty.Label>
+  <TabSorting.RemoveEmpty.Tooltip>If a tab has no things left to build after sorting, remove the tab</TabSorting.RemoveEmpty.Tooltip>
+  <TabSorting.GroupThings.Label>Group things that use the same designator dropdown</TabSorting.GroupThings.Label>
+  <TabSorting.GroupThings.Tooltip>Some items can use the same button, similar to when an item can be built with different materials. Enabling this option makes it possible to treat these as one item to move instead of individual items.</TabSorting.GroupThings.Tooltip>
+  <TabSorting.SortTabs.Label>Sort all tabs alphabetically</TabSorting.SortTabs.Label>
+  <TabSorting.SortTabs.Tooltip>Puts all tabs in alphabetical order</TabSorting.SortTabs.Tooltip>
+  <TabSorting.SkipZoneOrders.Label>But skip Orders and Zone-tab</TabSorting.SkipZoneOrders.Label>
+  <TabSorting.SkipZoneOrders.Tooltip>Orders and Zone-tab will remain in the top if the menu</TabSorting.SkipZoneOrders.Tooltip>
+  <TabSorting.ManualReset.Label>Manual sorting reset</TabSorting.ManualReset.Label>
+  <TabSorting.ManualReset.Tooltip>Reset all manually defined sortings</TabSorting.ManualReset.Tooltip>
+  <TabSorting.MapRunning.Label>NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.</TabSorting.MapRunning.Label>
+  <TabSorting.VerboseLogging.Label>Enable verbose logging</TabSorting.VerboseLogging.Label>
+  <TabSorting.VerboseLogging.Tooltip>Shows verbose logging during sorting, for finding errors</TabSorting.VerboseLogging.Tooltip>
+</LanguageData>

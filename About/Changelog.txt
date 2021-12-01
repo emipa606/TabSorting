@@ -1,5 +1,9 @@
 # Changelog for TabSorting
 
+1.0.48.0 - Added grouping option when sorting
+Opened all strings for translation
+
+
 1.0.47.0 - Russian translation added, thanks Reiquard
 
 
