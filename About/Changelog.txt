@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.0.49.0 - Fixed the scrollview, thanks Taranchuk for the simple solution!
+
+
 1.0.48.0 - Added grouping option when sorting
 Opened all strings for translation
 

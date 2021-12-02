@@ -295,15 +295,16 @@ internal class TabSortingMod : Mod
         var beforeColor = GUI.color;
         GUI.color = new Color(textureColor.r, textureColor.g, textureColor.b, GUI.color.a);
         GUI.DrawTexture(rect, texture2D);
-        if (instance.Settings.GroupSameDesignator && thing.designatorDropdown != null &&
-            designatorGroups[thing.designatorDropdown].Any())
+        GUI.color = beforeColor;
+        if (!instance.Settings.GroupSameDesignator || thing.designatorDropdown == null ||
+            !designatorGroups[thing.designatorDropdown].Any())
         {
-            var newRect = rect;
-            newRect.x -= newRect.width;
-            GUI.DrawTexture(newRect, plusTexture);
+            return;
         }
 
-        GUI.color = beforeColor;
+        var newRect = rect;
+        newRect.x -= newRect.width;
+        GUI.DrawTexture(newRect, plusTexture);
     }
 
     private void DrawOptions(Rect rect)
@@ -432,8 +433,8 @@ internal class TabSortingMod : Mod
                 contentRect.width -= 20;
 
                 contentRect.height = (noneCategoryMembers.Count * 24f) + 40f;
-                BeginScrollView(ref listing_Options, frameRect, ref optionsScrollPosition, ref contentRect);
-
+                Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
+                listing_Options.Begin(contentRect);
                 GUI.contentColor = Color.green;
                 listing_Options.Label("TabSorting.NoneHidden".Translate());
                 GUI.contentColor = Color.white;
@@ -456,7 +457,8 @@ internal class TabSortingMod : Mod
                 }
 
                 listing_Options.GapLine();
-                EndScrollView(ref listing_Options, ref contentRect, frameRect.width, listing_Options.CurHeight);
+                listing_Options.End();
+                Widgets.EndScrollView();
                 break;
             }
 
@@ -519,45 +521,6 @@ internal class TabSortingMod : Mod
                     orderby terrain.label
                     select terrain).ToList();
 
-                contentRect.width -= 20;
-
-                contentRect.height = ((allDefsInCategory.Count() + allTerrainInCategory.Count()) * 24f) + 40f;
-                BeginScrollView(ref listing_Options, frameRect, ref optionsScrollPosition, ref contentRect);
-
-                GUI.contentColor = Color.green;
-                var contentPack = "TabSorting.UnloadedMod".Translate();
-                var manualTab = instance.Settings.ManualCategoryMemory.Contains(sortCategory);
-                if (sortCategory.modContentPack?.Name != null)
-                {
-                    contentPack = sortCategory.modContentPack.Name;
-                }
-
-                if (manualTab)
-                {
-                    contentPack = "TabSorting.CustomTab".Translate();
-                }
-
-                var headerRect = listing_Options.Label(
-                    $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
-                GUI.contentColor = Color.white;
-
-                if (manualTab)
-                {
-                    if (Widgets.ButtonText(
-                            new Rect(headerRect.position + new Vector2(headerRect.width - buttonSize.x, 0), buttonSize),
-                            "TabSorting.Delete".Translate()))
-                    {
-                        Find.WindowStack.Add(new Dialog_MessageBox(
-                            "TabSorting.ResetOne".Translate(),
-                            "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
-                            delegate
-                            {
-                                selectedDef = "Settings";
-                                TabSorting.RemoveManualTab(sortCategory);
-                            }));
-                    }
-                }
-
                 designatorGroups = new Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>>();
                 if (instance.Settings.GroupSameDesignator)
                 {
@@ -601,6 +564,45 @@ internal class TabSortingMod : Mod
 
                     allDefsInCategory = tempAllDefsInCategory;
                     allTerrainInCategory = tempAllTerrainDefsInCategory;
+                }
+
+                contentRect.width -= 20;
+                contentRect.height = ((allDefsInCategory.Count() + allTerrainInCategory.Count()) * 24f) + 40f;
+                Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
+                listing_Options.Begin(contentRect);
+
+                GUI.contentColor = Color.green;
+                var contentPack = "TabSorting.UnloadedMod".Translate();
+                var manualTab = instance.Settings.ManualCategoryMemory.Contains(sortCategory);
+                if (sortCategory.modContentPack?.Name != null)
+                {
+                    contentPack = sortCategory.modContentPack.Name;
+                }
+
+                if (manualTab)
+                {
+                    contentPack = "TabSorting.CustomTab".Translate();
+                }
+
+                var headerRect = listing_Options.Label(
+                    $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
+                GUI.contentColor = Color.white;
+
+                if (manualTab)
+                {
+                    if (Widgets.ButtonText(
+                            new Rect(headerRect.position + new Vector2(headerRect.width - buttonSize.x, 0), buttonSize),
+                            "TabSorting.Delete".Translate()))
+                    {
+                        Find.WindowStack.Add(new Dialog_MessageBox(
+                            "TabSorting.ResetOne".Translate(),
+                            "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
+                            delegate
+                            {
+                                selectedDef = "Settings";
+                                TabSorting.RemoveManualTab(sortCategory);
+                            }));
+                    }
                 }
 
                 foreach (var thing in allDefsInCategory)
@@ -656,7 +658,8 @@ internal class TabSortingMod : Mod
                 }
 
                 listing_Options.GapLine();
-                EndScrollView(ref listing_Options, ref contentRect, frameRect.width, listing_Options.CurHeight);
+                listing_Options.End();
+                Widgets.EndScrollView();
                 break;
             }
         }
@@ -681,7 +684,8 @@ internal class TabSortingMod : Mod
         var manualDefs = instance.Settings.ManualCategoryMemory;
 
         tabContentRect.height = (categoryDefs.Count + manualDefs.Count + 5) * 22f;
-        BeginScrollView(ref listing_Standard, tabFrameRect, ref tabsScrollPosition, ref tabContentRect);
+        Widgets.BeginScrollView(tabFrameRect, ref tabsScrollPosition, tabContentRect);
+        listing_Standard.Begin(tabContentRect);
         if (listing_Standard.ListItemSelectable("TabSorting.Settings".Translate(), Color.yellow,
                 selectedDef == "Settings"))
         {
@@ -734,22 +738,7 @@ internal class TabSortingMod : Mod
             selectedDef = selectedDef == "CreateNew" ? null : "CreateNew";
         }
 
-        EndScrollView(ref listing_Standard, ref tabContentRect, tabFrameRect.width, listing_Standard.CurHeight);
-    }
-
-    private static void BeginScrollView(ref Listing_Standard listingStandard, Rect rect, ref Vector2 scrollPosition,
-        ref Rect viewRect)
-    {
-        Widgets.BeginScrollView(rect, ref scrollPosition, viewRect);
-        rect.height = 100000f;
-        rect.width -= 20f;
-        listingStandard.Begin(rect.AtZero());
-    }
-
-    private void EndScrollView(ref Listing_Standard listingStandard, ref Rect viewRect, float width, float height)
-    {
-        viewRect = new Rect(0f, 0f, width, height);
+        listing_Standard.End();
         Widgets.EndScrollView();
-        listingStandard.End();
     }
 }
