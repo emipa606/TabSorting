@@ -267,7 +267,7 @@ internal class TabSortingMod : Mod
         Find.WindowStack.Add(new FloatMenu(list));
     }
 
-    private void drawIcon(BuildableDef thing, Rect rect)
+    private void drawIcon(BuildableDef thing, Rect rect, string designatorTooltip = null)
     {
         if (thing == null || thing.uiIcon == BaseContent.BadTex)
         {
@@ -305,6 +305,10 @@ internal class TabSortingMod : Mod
         var newRect = rect;
         newRect.x -= newRect.width;
         GUI.DrawTexture(newRect, plusTexture);
+        if (!string.IsNullOrEmpty(designatorTooltip))
+        {
+            TooltipHandler.TipRegion(newRect, designatorTooltip);
+        }
     }
 
     private void DrawOptions(Rect rect)
@@ -441,7 +445,14 @@ internal class TabSortingMod : Mod
                 foreach (var hiddenItem in noneCategoryMembers)
                 {
                     var item = DefDatabase<BuildableDef>.GetNamedSilentFail(hiddenItem.Key);
-                    var currentPosition = listing_Options.Label(item.label.CapitalizeFirst());
+                    var toolTip = item.defName;
+                    if (!string.IsNullOrEmpty(item.modContentPack?.Name))
+                    {
+                        toolTip += $" ({item.modContentPack.Name})";
+                    }
+
+                    var currentPosition =
+                        listing_Options.Label(item.label.CapitalizeFirst(), -1f, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(item.defName))
                     {
@@ -607,16 +618,24 @@ internal class TabSortingMod : Mod
 
                 foreach (var thing in allDefsInCategory)
                 {
-                    var toolTip = string.Empty;
+                    var toolTip = thing.defName;
+                    var iconToolTip = string.Empty;
                     if (instance.Settings.GroupSameDesignator && thing.designatorDropdown != null &&
                         designatorGroups.ContainsKey(thing.designatorDropdown) &&
                         designatorGroups[thing.designatorDropdown].Any())
                     {
-                        toolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
+                        iconToolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
                             designatorGroups[thing.designatorDropdown].Select(def => def.LabelCap)));
                     }
 
-                    var currentPosition = listing_Options.Label(thing.LabelCap, -1f, toolTip);
+                    if (!string.IsNullOrEmpty(thing.modContentPack?.Name))
+                    {
+                        toolTip += $" ({thing.modContentPack.Name})";
+                    }
+
+                    var currentPosition = listing_Options.Label(thing.LabelCap);
+                    currentPosition.width /= 2;
+                    TooltipHandler.TipRegion(currentPosition, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(thing.defName))
                     {
@@ -628,21 +647,29 @@ internal class TabSortingMod : Mod
                     drawIcon(thing,
                         new Rect(
                             new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
-                                currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                                currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
                 }
 
                 foreach (var terrain in allTerrainInCategory)
                 {
-                    var toolTip = string.Empty;
+                    var toolTip = terrain.defName;
+                    var iconToolTip = string.Empty;
                     if (instance.Settings.GroupSameDesignator && terrain.designatorDropdown != null &&
                         designatorGroups.ContainsKey(terrain.designatorDropdown) &&
                         designatorGroups[terrain.designatorDropdown].Any())
                     {
-                        toolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
+                        iconToolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
                             designatorGroups[terrain.designatorDropdown].Select(def => def.LabelCap)));
                     }
 
-                    var currentPosition = listing_Options.Label(terrain.LabelCap, -1f, toolTip);
+                    if (!string.IsNullOrEmpty(terrain.modContentPack?.Name))
+                    {
+                        toolTip += $" ({terrain.modContentPack.Name})";
+                    }
+
+                    var currentPosition = listing_Options.Label(terrain.LabelCap);
+                    currentPosition.width /= 2;
+                    TooltipHandler.TipRegion(currentPosition, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(terrain.defName))
                     {
@@ -654,7 +681,7 @@ internal class TabSortingMod : Mod
                     drawIcon(terrain,
                         new Rect(
                             new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
-                                currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                                currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
                 }
 
                 listing_Options.GapLine();

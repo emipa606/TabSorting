@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.1 - Fixed some issues with the garden-tab. Better tooltips, showing defname and modname to better know where an item is from.
+
+
 1.0.50.0 - Updated VersionFromManifest-file to not get the 'loading is already in progress' error with some mods
 
 

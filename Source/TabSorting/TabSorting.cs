@@ -11,13 +11,41 @@ namespace TabSorting;
 [StaticConstructorOnStartup]
 public static class TabSorting
 {
+    private static readonly List<string> modIdsToIgnore = new List<string>
+    {
+        "atlas.androidtiers",
+        "dubwise.dubsbadhygiene",
+        "vanillaexpanded.vfepower",
+        "dismarzero.vgp.vgpgardentools",
+        "vanillaexpanded.vfepropsanddecor",
+        "kentington.saveourship2",
+        "flashpoint55.poweredfloorpanelmod"
+    };
+
+    private static readonly List<string> defsToIgnore = new List<string>
+    {
+        "FM_AIManager",
+        "PRF_MiniDroneColumn",
+        "PRF_RecipeDatabase",
+        "PRF_TypeOneAssembler_I",
+        "PRF_TypeTwoAssembler_I",
+        "PRF_TypeTwoAssembler_II",
+        "PRF_TypeTwoAssembler_III"
+    };
+
     private static List<string> changedDefNames;
 
-    private static List<string> tabsToIgnore;
+    private static List<string> tabsToIgnore = new List<string>
+    {
+        "Planning",
+        "Shapes"
+    };
 
-    private static List<string> defsToIgnore;
-
-    private static List<string> namespacesToIgnore;
+    private static List<string> namespacesToIgnore = new List<string>
+    {
+        "RimWorld",
+        "DubRoss"
+    };
 
     static TabSorting()
     {
@@ -36,7 +64,6 @@ public static class TabSorting
     public static void DoTheSorting()
     {
         LogMessage("Starting a new sorting-session");
-        defsToIgnore = new List<string>();
         tabsToIgnore = new List<string>();
         changedDefNames = new List<string>();
         namespacesToIgnore = new List<string>();
@@ -98,12 +125,10 @@ public static class TabSorting
             }
         }
 
+
         TabSortingMod.instance.Settings.VanillaCategoryMemory.SortBy(def => def.label);
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
-            where mod.PackageId == "atlas.androidtiers" || mod.PackageId == "dubwise.dubsbadhygiene" ||
-                  mod.PackageId == "vanillaexpanded.vfepower" ||
-                  mod.PackageId == "vanillaexpanded.vfepropsanddecor" ||
-                  mod.PackageId == "kentington.saveourship2" || mod.PackageId == "flashpoint55.poweredfloorpanelmod"
+            where modIdsToIgnore.Contains(mod.PackageId)
             select mod).ToList();
         if (ignoreMods.Count > 0)
         {
@@ -117,22 +142,8 @@ public static class TabSorting
             }
         }
 
-        // Static defs to ignore (not too many hopefully)
-        defsToIgnore.Add("FM_AIManager");
-        defsToIgnore.Add("PRF_MiniDroneColumn");
-        defsToIgnore.Add("PRF_RecipeDatabase");
-        defsToIgnore.Add("PRF_TypeOneAssembler_I");
-        defsToIgnore.Add("PRF_TypeTwoAssembler_I");
-        defsToIgnore.Add("PRF_TypeTwoAssembler_II");
-        defsToIgnore.Add("PRF_TypeTwoAssembler_III");
 
-        tabsToIgnore.Add("Planning");
-        tabsToIgnore.Add("Shapes");
-
-        namespacesToIgnore.Add("RimWorld");
-        namespacesToIgnore.Add("DubRoss");
-
-        TabSortingMod.instance.Settings = TabSortingMod.instance.Settings ?? new TabSortingModSettings
+        TabSortingMod.instance.Settings ??= new TabSortingModSettings
         {
             SortLights = true,
             SortFloors = false,
@@ -171,9 +182,9 @@ public static class TabSorting
 
         SortHospitalFurniture();
 
-        SortStorage();
-
         SortGarden();
+
+        SortStorage();
 
         SortFences();
 
@@ -909,6 +920,7 @@ public static class TabSorting
 
         var fencesInGame = (from fence in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
+                  !fence.IsFrame && !fence.IsBlueprint &&
                   fence.designationCategory != null && fence.designationCategory.defName != "Fences" &&
                   ((fence.thingClass?.Name == "Building_Door" || fence.thingClass?.Name == "Building" &&
                        fence.graphicData?.linkType == LinkDrawerType.Basic &&
@@ -981,9 +993,11 @@ public static class TabSorting
         var gardenThingsInGame = (from gardenThing in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(gardenThing.defName) && !changedDefNames.Contains(gardenThing.defName) &&
                   gardenThing.designationCategory?.defName != "GardenTools" &&
+                  !gardenThing.IsFrame && !gardenThing.IsBlueprint &&
                   (gardenThing.thingClass?.Name == "Building_SunLamp" ||
                    gardenThing.thingClass?.Name == "Building_PlantGrower" &&
                    gardenThing.building?.sowTag != "Decorative" ||
+                   gardenThing.label?.ToLower().Contains("sun lamp") == true ||
                    gardenThing.label?.ToLower().Contains("sprinkler") == true &&
                    gardenThing.label?.ToLower().Contains("fire") == false)
             select gardenThing).ToList();
@@ -1102,6 +1116,7 @@ public static class TabSorting
         var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
                   furniture.designationCategory != null &&
+                  !furniture.IsFrame && !furniture.IsBlueprint &&
                   (furniture.category == ThingCategory.Building &&
                    (furniture.GetCompProperties<CompProperties_Power>() == null ||
                     furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) &&
