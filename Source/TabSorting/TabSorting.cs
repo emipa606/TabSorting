@@ -35,13 +35,13 @@ public static class TabSorting
 
     private static List<string> changedDefNames;
 
-    private static List<string> tabsToIgnore = new List<string>
+    private static readonly List<string> tabsToIgnore = new List<string>
     {
         "Planning",
         "Shapes"
     };
 
-    private static List<string> namespacesToIgnore = new List<string>
+    private static readonly List<string> namespacesToIgnore = new List<string>
     {
         "RimWorld",
         "DubRoss"
@@ -50,6 +50,22 @@ public static class TabSorting
     static TabSorting()
     {
         TabSortingMod.plusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
+
+        var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
+            where modIdsToIgnore.Contains(mod.PackageId)
+            select mod).ToList();
+        if (ignoreMods.Count > 0)
+        {
+            foreach (var mod in ignoreMods)
+            {
+                LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
+                foreach (var def in mod.AllDefs)
+                {
+                    defsToIgnore.Add(def.defName);
+                }
+            }
+        }
+
         DoTheSorting();
     }
 
@@ -64,9 +80,7 @@ public static class TabSorting
     public static void DoTheSorting()
     {
         LogMessage("Starting a new sorting-session");
-        tabsToIgnore = new List<string>();
         changedDefNames = new List<string>();
-        namespacesToIgnore = new List<string>();
         if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
         {
             foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
@@ -127,21 +141,6 @@ public static class TabSorting
 
 
         TabSortingMod.instance.Settings.VanillaCategoryMemory.SortBy(def => def.label);
-        var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
-            where modIdsToIgnore.Contains(mod.PackageId)
-            select mod).ToList();
-        if (ignoreMods.Count > 0)
-        {
-            foreach (var mod in ignoreMods)
-            {
-                LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
-                foreach (var def in mod.AllDefs)
-                {
-                    defsToIgnore.Add(def.defName);
-                }
-            }
-        }
-
 
         TabSortingMod.instance.Settings ??= new TabSortingModSettings
         {
