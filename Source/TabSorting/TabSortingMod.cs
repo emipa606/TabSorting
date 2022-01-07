@@ -362,23 +362,35 @@ internal class TabSortingMod : Mod
                 listing_Standard.CheckboxLabeled("TabSorting.SortStorage.Label".Translate(), ref Settings.SortStorage,
                     "TabSorting.SortStorage.Tooltip".Translate());
 
-                if (DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null)
+                if (TabSorting.gardenToolsLoaded)
                 {
                     listing_Standard.CheckboxLabeled("TabSorting.SortGarden.Label".Translate(), ref Settings.SortGarden,
                         "TabSorting.SortGarden.Tooltip".Translate());
                 }
+                else
+                {
+                    Settings.SortGarden = false;
+                }
 
-                if (DefDatabase<DesignationCategoryDef>.GetNamed("Fences", false) != null)
+                if (TabSorting.fencesAndFloorsLoaded)
                 {
                     listing_Standard.CheckboxLabeled("TabSorting.SortFences.Label".Translate(), ref Settings.SortFences,
                         "TabSorting.SortFences.Tooltip".Translate());
                 }
+                else
+                {
+                    Settings.SortFences = false;
+                }
 
-                if (DefDatabase<DesignationCategoryDef>.GetNamed("IdeologyTab", false) != null)
+                if (ModLister.IdeologyInstalled)
                 {
                     listing_Standard.CheckboxLabeled("TabSorting.SortIdeology.Label".Translate(),
                         ref Settings.SortIdeologyFurniture,
                         "TabSorting.SortIdeology.Tooltip".Translate());
+                }
+                else
+                {
+                    Settings.SortIdeologyFurniture = false;
                 }
 
                 listing_Standard.Gap();

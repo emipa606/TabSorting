@@ -47,10 +47,16 @@ public static class TabSorting
         "DubRoss"
     };
 
+    public static readonly bool mintMenusLoaded;
+    public static readonly bool gardenToolsLoaded;
+    public static readonly bool fencesAndFloorsLoaded;
+
     static TabSorting()
     {
         TabSortingMod.plusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
-
+        mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus") != null;
+        gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
+        fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
             where modIdsToIgnore.Contains(mod.PackageId)
             select mod).ToList();
@@ -326,14 +332,36 @@ public static class TabSorting
     public static void RefreshArchitectMenu()
     {
         LogMessage("Sorting-session done");
+
+
         if (Current.ProgramState != ProgramState.Playing)
         {
             return;
         }
 
+
         MainButtonDefOf.Architect.tabWindowClass
             .GetMethod("CacheDesPanels", BindingFlags.Instance | BindingFlags.NonPublic)
             ?.Invoke(MainButtonDefOf.Architect.TabWindow, null);
+
+        if (!mintMenusLoaded)
+        {
+            return;
+        }
+
+        LogMessage("Recaching tabs in Dubs Mint Menus");
+        try
+        {
+            var mainMenuTab = DefDatabase<MainButtonDef>.GetNamed("MintMenus");
+            mainMenuTab.tabWindowClass.GetField("desPanelsCached", BindingFlags.Instance | BindingFlags.NonPublic)
+                ?.SetValue(mainMenuTab.TabWindow, null);
+        }
+        catch (Exception exception)
+        {
+            LogMessage(
+                $"Failed to update cache in Dubs Mint Menus, the new sort will not have effect.\n{exception}",
+                true);
+        }
     }
 
     /// <summary>
