@@ -7,15 +7,20 @@
   <TabSorting.Ok>OK</TabSorting.Ok>
   <TabSorting.Default>Default</TabSorting.Default>
   <TabSorting.Settings>Settings</TabSorting.Settings>
+  <TabSorting.TabSorting>Tab-sorting</TabSorting.TabSorting>
   <TabSorting.Hidden>Hidden</TabSorting.Hidden>
   <TabSorting.NewTab>New tab-name</TabSorting.NewTab>
   <TabSorting.CreateNew>Create new tab</TabSorting.CreateNew>
+  <TabSorting.Rename>Rename</TabSorting.Rename>
   <TabSorting.Create>Create</TabSorting.Create>
   <TabSorting.Delete>Delete</TabSorting.Delete>
   <TabSorting.Exists>Tab named {0} already exists!</TabSorting.Exists>
   <TabSorting.CurrentCustom>Current custom tabs: {0}</TabSorting.CurrentCustom>
   <TabSorting.UnloadedMod>Unloaded mod</TabSorting.UnloadedMod>
   <TabSorting.CustomTab>Custom tab</TabSorting.CustomTab>
+  <TabSorting.Reset>Reset</TabSorting.Reset>
+  <TabSorting.ResetTabsort>All tabs will revert back to their vanilla values.
+  Continue?</TabSorting.ResetTabsort>
   <TabSorting.ResetOne>All items in this tab will be restored to their original tabs and this tab will be removed. Continue?</TabSorting.ResetOne>
   <TabSorting.ResetAll>Reset all</TabSorting.ResetAll>
   <TabSorting.GroupContaining>Group containing: \n{0}</TabSorting.GroupContaining>

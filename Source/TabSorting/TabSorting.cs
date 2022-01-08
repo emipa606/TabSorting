@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -80,7 +81,21 @@ public static class TabSorting
         TabSortingMod.instance.Settings.ManualSorting.RemoveAll(pair => pair.Value == manualTab.defName);
         TabSortingMod.instance.Settings.ManualTabs.RemoveAll(pair => pair.Key == manualTab.defName);
         TabSortingMod.instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == manualTab.defName);
+        TabSortingMod.instance.Settings.ManualTabSorting.RemoveAll(pair => pair.Key == manualTab.defName);
         RemoveEmptyDesignationCategoryDef(manualTab);
+    }
+
+    public static void RecacheTheTabSorting()
+    {
+        foreach (var tabOrder in TabSortingMod.instance.Settings.VanillaOrderMemory)
+        {
+            TabSortingMod.instance.Settings.ManualTabSorting.Add(tabOrder.Key.defName, tabOrder.Value);
+        }
+
+        foreach (var settingsManualTab in TabSortingMod.instance.Settings.ManualTabs)
+        {
+            TabSortingMod.instance.Settings.ManualTabSorting.Add(settingsManualTab.Key, 1);
+        }
     }
 
     public static void DoTheSorting()
@@ -132,10 +147,27 @@ public static class TabSorting
                     continue;
                 }
 
+                var order = 1;
+                if (TabSortingMod.instance.Settings.ManualTabSorting == null)
+                {
+                    TabSortingMod.instance.Settings.ManualTabSorting = new Dictionary<string, int>();
+                }
+
+                if (TabSortingMod.instance.Settings.ManualTabSorting.ContainsKey(manualTab.Key))
+                {
+                    order = TabSortingMod.instance.Settings.ManualTabSorting[manualTab.Key];
+                }
+
+                while (DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Any(def => def.order == order))
+                {
+                    order++;
+                }
+
                 var newTab = new DesignationCategoryDef
                 {
                     defName = manualTab.Key,
-                    label = manualTab.Value
+                    label = manualTab.Value,
+                    order = order
                 };
 
                 LogMessage($"Recreating manual tab {manualTab.Key}");
@@ -145,6 +177,18 @@ public static class TabSorting
             }
         }
 
+        if (TabSortingMod.instance.Settings.ManualTabSorting == null)
+        {
+            TabSortingMod.instance.Settings.ManualTabSorting = new Dictionary<string, int>();
+        }
+
+        if (!TabSortingMod.instance.Settings.ManualTabSorting.Any())
+        {
+            foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
+            {
+                TabSortingMod.instance.Settings.ManualTabSorting[categoryDef.defName] = categoryDef.order;
+            }
+        }
 
         TabSortingMod.instance.Settings.VanillaCategoryMemory.SortBy(def => def.label);
 
@@ -219,6 +263,17 @@ public static class TabSorting
 
         if (!TabSortingMod.instance.Settings.SortTabs)
         {
+            foreach (var tabSortInfo in TabSortingMod.instance.Settings.ManualTabSorting)
+            {
+                var tab = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(tabSortInfo.Key);
+                if (tab == null)
+                {
+                    continue;
+                }
+
+                tab.order = tabSortInfo.Value;
+            }
+
             RefreshArchitectMenu();
             return;
         }
@@ -1350,5 +1405,17 @@ public static class TabSorting
         {
             Log.Message($"[TabSorting]: {message}");
         }
+    }
+
+    public static string ValidateTabName(string tabName, bool justTheLabel = false)
+    {
+        var cleanTabName = Regex.Replace(tabName, @"[^a-zA-Z]*", string.Empty);
+        var currentDesignations = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
+        if (currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName))
+        {
+            return null;
+        }
+
+        return cleanTabName;
     }
 }

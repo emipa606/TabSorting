@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.4 - Added manual tab renaming and and manual sorting of tabs
+
+
 1.3.3 - [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1446523594]Dubs Mint Menus[/url] should now reflect changes to tabs even when a map is active. Also fixed an issue with some mod-options not showing.
 
 

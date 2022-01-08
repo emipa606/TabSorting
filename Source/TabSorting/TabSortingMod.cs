@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Mlie;
 using RimWorld;
 using UnityEngine;
@@ -444,6 +443,73 @@ internal class TabSortingMod : Mod
                 break;
             }
 
+            case "TabSorting":
+            {
+                contentRect.width -= 20;
+
+                var sortedTabDefs = DefDatabase<DesignationCategoryDef>.AllDefsListForReading
+                    .OrderByDescending(def => def.order)
+                    .ToList();
+                contentRect.height = (sortedTabDefs.Count + 3) * 25f;
+                Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
+                listing_Options.Begin(contentRect);
+                GUI.contentColor = Color.green;
+                listing_Options.Label("TabSorting.TabSorting".Translate());
+                GUI.contentColor = Color.white;
+                if (Widgets.ButtonText(
+                        new Rect(contentRect.position + new Vector2(contentRect.width - buttonSize.x, 0), buttonSize),
+                        "TabSorting.Reset".Translate()))
+                {
+                    Find.WindowStack.Add(new Dialog_MessageBox(
+                        "TabSorting.ResetTabsort".Translate(),
+                        "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
+                        delegate { instance.Settings.ResetManualSortingValues(); }));
+                }
+
+                var num = 50f;
+                for (var i = 0; i < sortedTabDefs.Count; i++)
+                {
+                    var currentDef = sortedTabDefs[i];
+                    if (i > 0)
+                    {
+                        var rect2 = new Rect(0f, num, 12f, 12f);
+                        if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
+                        {
+                            (currentDef.order, sortedTabDefs[i - 1].order) =
+                                (sortedTabDefs[i - 1].order, currentDef.order);
+                            instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
+                            instance.Settings.ManualTabSorting[sortedTabDefs[i - 1].defName] =
+                                sortedTabDefs[i - 1].order;
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                        }
+                    }
+
+                    if (i < sortedTabDefs.Count - 1)
+                    {
+                        var rect3 = new Rect(0f, num + 12f, 12f, 12f);
+                        if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
+                        {
+                            (currentDef.order, sortedTabDefs[i + 1].order) =
+                                (sortedTabDefs[i + 1].order, currentDef.order);
+                            instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
+                            instance.Settings.ManualTabSorting[sortedTabDefs[i + 1].defName] =
+                                sortedTabDefs[i + 1].order;
+                            SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+                        }
+                    }
+
+                    Widgets.Label(new Rect(20f, num, contentRect.width - 20f, 25f),
+                        $"{currentDef.LabelCap} ({currentDef.defName})");
+
+                    num += 25f;
+                }
+
+                Widgets.DrawLineHorizontal(0, num, contentRect.width);
+                listing_Options.End();
+                Widgets.EndScrollView();
+                break;
+            }
+
             case "Hidden":
             {
                 contentRect.width -= 20;
@@ -492,10 +558,10 @@ internal class TabSortingMod : Mod
 
                 listing_Standard.Label("TabSorting.NewTab".Translate());
                 newTabName = listing_Standard.TextEntry(newTabName);
-                var cleanTabName = Regex.Replace(newTabName, @"[^a-zA-Z]*", string.Empty);
-                if (cleanTabName.Length > 0 && listing_Standard.ButtonText("TabSorting.Create".Translate()))
+                if (newTabName.Length > 0 && listing_Standard.ButtonText("TabSorting.Create".Translate()))
                 {
-                    if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(cleanTabName) != null)
+                    var cleanTabName = TabSorting.ValidateTabName(newTabName);
+                    if (string.IsNullOrEmpty(cleanTabName))
                     {
                         Find.WindowStack.Add(new Dialog_MessageBox(
                             "TabSorting.Exists".Translate(newTabName),
@@ -503,11 +569,18 @@ internal class TabSortingMod : Mod
                         break;
                     }
 
+                    var order = 1;
+                    while (DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Any(def => def.order == order))
+                    {
+                        order++;
+                    }
+
                     var newTab = new DesignationCategoryDef
                     {
                         defName = cleanTabName,
                         label = newTabName,
-                        generated = true
+                        generated = true,
+                        order = order
                     };
                     DefGenerator.AddImpliedDef(newTab);
                     instance.Settings.ManualTabs[cleanTabName] = newTabName;
@@ -626,8 +699,17 @@ internal class TabSortingMod : Mod
                                 TabSorting.RemoveManualTab(sortCategory);
                             }));
                     }
+
+                    if (Widgets.ButtonText(
+                            new Rect(headerRect.position + new Vector2(headerRect.width - (buttonSize.x * 2), 0),
+                                buttonSize),
+                            "TabSorting.Rename".Translate()))
+                    {
+                        Find.WindowStack.Add(new Dialog_RenameTab(sortCategory));
+                    }
                 }
 
+                listing_Options.Gap(5f);
                 foreach (var thing in allDefsInCategory)
                 {
                     var toolTip = thing.defName;
@@ -731,6 +813,23 @@ internal class TabSortingMod : Mod
             selectedDef = selectedDef == "Settings" ? null : "Settings";
         }
 
+
+        if (listing_Standard.ListItemSelectable("TabSorting.CreateNew".Translate(), Color.yellow,
+                selectedDef == "CreateNew"))
+        {
+            newTabName = string.Empty;
+            selectedDef = selectedDef == "CreateNew" ? null : "CreateNew";
+        }
+
+        if (!instance.Settings.SortTabs)
+        {
+            if (listing_Standard.ListItemSelectable("TabSorting.TabSorting".Translate(), Color.yellow,
+                    selectedDef == "TabSorting"))
+            {
+                selectedDef = selectedDef == "TabSorting" ? null : "TabSorting";
+            }
+        }
+
         listing_Standard.ListItemSelectable(null, Color.yellow);
         foreach (var categoryDef in categoryDefs)
         {
@@ -766,15 +865,6 @@ internal class TabSortingMod : Mod
                 selectedDef == "Hidden"))
         {
             selectedDef = selectedDef == "Hidden" ? null : "Hidden";
-        }
-
-        listing_Standard.ListItemSelectable(null, Color.yellow);
-
-        if (listing_Standard.ListItemSelectable("TabSorting.CreateNew".Translate(), Color.yellow,
-                selectedDef == "CreateNew"))
-        {
-            newTabName = string.Empty;
-            selectedDef = selectedDef == "CreateNew" ? null : "CreateNew";
         }
 
         listing_Standard.End();

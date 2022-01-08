@@ -30,6 +30,12 @@ internal class TabSortingModSettings : ModSettings
 
     private List<string> manualTabsKeys;
 
+    public Dictionary<string, int> ManualTabSorting = new Dictionary<string, int>();
+
+    private List<string> manualTabSortingKeys;
+
+    private List<int> manualTabSortingValues;
+
     private List<string> manualTabsValues;
 
     public bool RemoveEmptyTabs = true;
@@ -93,6 +99,8 @@ internal class TabSortingModSettings : ModSettings
             ref manualSortingKeys, ref manualSortingValues);
         Scribe_Collections.Look(ref ManualTabs, "ManualTabs", LookMode.Value, LookMode.Value,
             ref manualTabsKeys, ref manualTabsValues);
+        Scribe_Collections.Look(ref ManualTabSorting, "ManualTabSorting", LookMode.Value, LookMode.Value,
+            ref manualTabSortingKeys, ref manualTabSortingValues);
         Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
     }
 
@@ -101,6 +109,15 @@ internal class TabSortingModSettings : ModSettings
         manualSortingKeys = new List<string>();
         manualSortingValues = new List<string>();
         ManualSorting = new Dictionary<string, string>();
+        TabSorting.DoTheSorting();
+    }
+
+    public void ResetManualSortingValues()
+    {
+        manualTabSortingKeys = new List<string>();
+        manualTabSortingValues = new List<int>();
+        ManualTabSorting = new Dictionary<string, int>();
+        TabSorting.RecacheTheTabSorting();
         TabSorting.DoTheSorting();
     }
 }

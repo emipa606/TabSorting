@@ -26,7 +26,6 @@ Special case
 - All storage-containers to the Storage-tab
   If https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage or https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896]LWM's Deep Storage is loaded their Storage-tab will be used instead.
   
-
 Options dependent of other mods:
 - All garden-tools to the Garden Tools-tab of https://steamcommunity.com/sharedfiles/filedetails/?id=2007063961]VGP Garden Tools
 - All fences the Fences-tab of https://steamcommunity.com/sharedfiles/filedetails/?id=2012420113]Fences and Floors
