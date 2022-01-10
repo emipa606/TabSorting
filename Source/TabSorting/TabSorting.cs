@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -51,6 +52,8 @@ public static class TabSorting
     public static readonly bool mintMenusLoaded;
     public static readonly bool gardenToolsLoaded;
     public static readonly bool fencesAndFloorsLoaded;
+    public static readonly bool architectIconsLoaded;
+    public static readonly Dictionary<string, Texture2D> iconsCache;
 
     static TabSorting()
     {
@@ -58,6 +61,7 @@ public static class TabSorting
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus") != null;
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
+        architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
             where modIdsToIgnore.Contains(mod.PackageId)
             select mod).ToList();
@@ -74,6 +78,56 @@ public static class TabSorting
         }
 
         DoTheSorting();
+
+        if (!architectIconsLoaded)
+        {
+            return;
+        }
+
+        iconsCache = new Dictionary<string, Texture2D>();
+        var architectCustomPath = Path.Combine(GenFilePaths.SaveDataFolderPath, "ArchitectIcons");
+        var customImages = Directory.GetFiles(architectCustomPath, "*.png");
+        foreach (var image in customImages)
+        {
+            var texture = new Texture2D((int)TabSortingMod.tabIconSize.x, (int)TabSortingMod.tabIconSize.y);
+            texture.LoadImage(File.ReadAllBytes(image));
+            iconsCache[Path.GetFileNameWithoutExtension(image)] = texture;
+        }
+
+        foreach (var image in ContentFinder<Texture2D>.GetAllInFolder("UI/ArchitectIcons"))
+        {
+            iconsCache[Path.GetFileNameWithoutExtension(image.name)] = image;
+        }
+
+        foreach (var image in ContentFinder<Texture2D>.GetAllInFolder("UI/ArchitectIcons/Default"))
+        {
+            iconsCache[Path.GetFileNameWithoutExtension(image.name)] = image;
+        }
+
+        LogMessage($"Found {iconsCache.Count} icons in ArchitectIcons to choose from.", true);
+    }
+
+    public static string GetCustomTabIcon(string tabName)
+    {
+        if (TabSortingMod.instance.Settings.ManualTabIcons == null ||
+            !TabSortingMod.instance.Settings.ManualTabIcons.Any())
+        {
+            return tabName;
+        }
+
+        if (!TabSortingMod.instance.Settings.ManualTabIcons.ContainsKey(tabName))
+        {
+            return tabName;
+        }
+
+        if (iconsCache.ContainsKey(TabSortingMod.instance.Settings.ManualTabIcons[tabName]))
+        {
+            return TabSortingMod.instance.Settings.ManualTabIcons[tabName];
+        }
+
+        TabSortingMod.instance.Settings.ManualTabIcons.Remove(tabName);
+
+        return tabName;
     }
 
     public static void RemoveManualTab(DesignationCategoryDef manualTab)
@@ -82,6 +136,7 @@ public static class TabSorting
         TabSortingMod.instance.Settings.ManualTabs.RemoveAll(pair => pair.Key == manualTab.defName);
         TabSortingMod.instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == manualTab.defName);
         TabSortingMod.instance.Settings.ManualTabSorting.RemoveAll(pair => pair.Key == manualTab.defName);
+        TabSortingMod.instance.Settings.ManualTabIcons.RemoveAll(pair => pair.Key == manualTab.defName);
         RemoveEmptyDesignationCategoryDef(manualTab);
     }
 

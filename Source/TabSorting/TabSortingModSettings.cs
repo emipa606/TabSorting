@@ -26,6 +26,12 @@ internal class TabSortingModSettings : ModSettings
 
     private List<string> manualSortingValues;
 
+    public Dictionary<string, string> ManualTabIcons = new Dictionary<string, string>();
+
+    private List<string> manualTabIconsKeys;
+
+    private List<string> manualTabIconsValues;
+
     public Dictionary<string, string> ManualTabs = new Dictionary<string, string>();
 
     private List<string> manualTabsKeys;
@@ -35,6 +41,7 @@ internal class TabSortingModSettings : ModSettings
     private List<string> manualTabSortingKeys;
 
     private List<int> manualTabSortingValues;
+
 
     private List<string> manualTabsValues;
 
@@ -101,6 +108,8 @@ internal class TabSortingModSettings : ModSettings
             ref manualTabsKeys, ref manualTabsValues);
         Scribe_Collections.Look(ref ManualTabSorting, "ManualTabSorting", LookMode.Value, LookMode.Value,
             ref manualTabSortingKeys, ref manualTabSortingValues);
+        Scribe_Collections.Look(ref ManualTabIcons, "ManualTabIcons", LookMode.Value, LookMode.Value,
+            ref manualTabIconsKeys, ref manualTabIconsValues);
         Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
     }
 

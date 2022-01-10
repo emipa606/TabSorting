@@ -71,10 +71,16 @@ It will default move any building that is used for producing anything categorise
 There is also an option to sort Ideology specific furniture (mostly ritual-related) into an Ideology-tab.
 </content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>TabSorting_1_3_4</defName>
-		<assemblyVersion>1.3.4</assemblyVersion>
-		<content>Its now possible to sort tabs manually. Just turn off automatic sorting in the options and you can reorder the tabs manually. 
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>TabSorting_1_3_4</defName>
+    <assemblyVersion>1.3.4</assemblyVersion>
+    <content>Its now possible to sort tabs manually. Just turn off automatic sorting in the options and you can reorder the tabs manually. 
 Its now also possible to rename custom tabs without having to remove and recreate them.</content>
+  </HugsLib.UpdateFeatureDef>
+	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+		<defName>TabSorting_1_3_5</defName>
+		<assemblyVersion>1.3.5</assemblyVersion>
+		<content>For those of you that use the Architect Icons-mod there it is now possible to select what icons each tab should use.
+Be sure to also add the Optional Icons for Architect Icons-mod to get lots of icons to choose from!</content>
 	</HugsLib.UpdateFeatureDef>
 </Defs>

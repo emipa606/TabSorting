@@ -8,10 +8,12 @@
   <TabSorting.Default>Default</TabSorting.Default>
   <TabSorting.Settings>Settings</TabSorting.Settings>
   <TabSorting.TabSorting>Tab-sorting</TabSorting.TabSorting>
+  <TabSorting.ChooseTabIcon>Choose Tab-icon</TabSorting.ChooseTabIcon>
   <TabSorting.Hidden>Hidden</TabSorting.Hidden>
   <TabSorting.NewTab>New tab-name</TabSorting.NewTab>
   <TabSorting.CreateNew>Create new tab</TabSorting.CreateNew>
   <TabSorting.Rename>Rename</TabSorting.Rename>
+  <TabSorting.Edit>Edit</TabSorting.Edit>
   <TabSorting.Create>Create</TabSorting.Create>
   <TabSorting.Delete>Delete</TabSorting.Delete>
   <TabSorting.Exists>Tab named {0} already exists!</TabSorting.Exists>

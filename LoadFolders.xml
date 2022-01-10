@@ -3,17 +3,18 @@
   <v1.1>
     <li>/</li>
     <li>1.1</li>
-    <li IfModActive="avius.prisonlabor">PrisonLabour</li>
+    <li IfModActive="avius.prisonlabor">PrisonLabour/1.1</li>
   </v1.1>
   <v1.2>
     <li>/</li>
     <li>1.2</li>
-    <li IfModActive="avius.prisonlabor">PrisonLabour</li>
+    <li IfModActive="avius.prisonlabor">PrisonLabour/1.2</li>
   </v1.2>
   <v1.3>
     <li>/</li>
     <li>1.3</li>
-    <li IfModActive="avius.prisonlabor">PrisonLabour</li>
+    <li IfModActive="avius.prisonlabor">PrisonLabour/1.3</li>
+    <li IfModActive="com.bymarcin.ArchitectIcons">ArchitectIcons/1.3</li>
     <li IfModActive="Ludeon.Rimworld.Ideology">Ideology</li>
   </v1.3>
 </loadFolders>

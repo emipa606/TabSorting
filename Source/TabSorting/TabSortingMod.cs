@@ -17,7 +17,10 @@ internal class TabSortingMod : Mod
     /// </summary>
     public static TabSortingMod instance;
 
-    private static readonly Vector2 buttonSize = new Vector2(120f, 25f);
+    public static readonly Vector2 buttonSize = new Vector2(120f, 25f);
+
+    public static readonly Vector2 tabIconSize = new Vector2(16f, 16f);
+    private static readonly Vector2 tabIconContainer = new Vector2(20f, 20f);
 
     private static readonly int buttonSpacer = 300;
 
@@ -35,7 +38,7 @@ internal class TabSortingMod : Mod
 
     private static float rightSideWidth;
 
-    private static string selectedDef = "Settings";
+    public static string selectedDef = "Settings";
 
     private static Vector2 tabsScrollPosition;
 
@@ -46,6 +49,7 @@ internal class TabSortingMod : Mod
     public static Texture2D plusTexture;
 
     private static Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>> designatorGroups;
+
 
     /// <summary>
     ///     The private settings
@@ -683,11 +687,27 @@ internal class TabSortingMod : Mod
                 var headerRect = listing_Options.Label(
                     $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
                 GUI.contentColor = Color.white;
+                var architechMargin = 0f;
+                if (TabSorting.architectIconsLoaded)
+                {
+                    architechMargin = tabIconContainer.x;
+                    var tabIconRect =
+                        new Rect(
+                            headerRect.position + new Vector2(headerRect.width - tabIconContainer.x, 0),
+                            tabIconContainer);
+                    if (ListingExtension.TabIconSelectable(tabIconRect, TabSorting.GetCustomTabIcon(selectedDef),
+                            "TabSorting.Edit".Translate()))
+                    {
+                        Find.WindowStack.Add(new Dialog_ChooseTabIcon(selectedDef));
+                    }
+                }
 
                 if (manualTab)
                 {
                     if (Widgets.ButtonText(
-                            new Rect(headerRect.position + new Vector2(headerRect.width - buttonSize.x, 0), buttonSize),
+                            new Rect(
+                                headerRect.position + new Vector2(headerRect.width - buttonSize.x - architechMargin, 0),
+                                buttonSize),
                             "TabSorting.Delete".Translate()))
                     {
                         Find.WindowStack.Add(new Dialog_MessageBox(
@@ -701,7 +721,9 @@ internal class TabSortingMod : Mod
                     }
 
                     if (Widgets.ButtonText(
-                            new Rect(headerRect.position + new Vector2(headerRect.width - (buttonSize.x * 2), 0),
+                            new Rect(
+                                headerRect.position +
+                                new Vector2(headerRect.width - (buttonSize.x * 2) - architechMargin, 0),
                                 buttonSize),
                             "TabSorting.Rename".Translate()))
                     {
@@ -835,7 +857,7 @@ internal class TabSortingMod : Mod
         {
             if (!listing_Standard.ListItemSelectable(
                     $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
-                    selectedDef == categoryDef.defName))
+                    selectedDef == categoryDef.defName, categoryDef.defName))
             {
                 continue;
             }
@@ -850,7 +872,7 @@ internal class TabSortingMod : Mod
             {
                 if (!listing_Standard.ListItemSelectable(
                         $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
-                        selectedDef == categoryDef.defName))
+                        selectedDef == categoryDef.defName, categoryDef.defName))
                 {
                     continue;
                 }

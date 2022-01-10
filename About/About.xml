@@ -50,6 +50,7 @@ Options dependent of other mods:
 Other options:
 - If a tab is empty after the sorting the mod can remove it
 - You can sort all tabs alphabetically, the Zones and Orders-tab can be skipped
+- You can also sort the tabs manually
 - Items that use the same button can be moved all at once, for example stuffed floors
 - Manual sorting - if some items gets in the wrong place, move them around.
 - Create new tabs to sort to
