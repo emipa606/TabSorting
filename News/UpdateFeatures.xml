@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
   <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
     <modNameReadable>TabSorting</modNameReadable>
@@ -77,10 +77,10 @@ There is also an option to sort Ideology specific furniture (mostly ritual-relat
     <content>Its now possible to sort tabs manually. Just turn off automatic sorting in the options and you can reorder the tabs manually. 
 Its now also possible to rename custom tabs without having to remove and recreate them.</content>
   </HugsLib.UpdateFeatureDef>
-	<HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
-		<defName>TabSorting_1_3_5</defName>
-		<assemblyVersion>1.3.5</assemblyVersion>
-		<content>For those of you that use the Architect Icons-mod there it is now possible to select what icons each tab should use.
+  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+    <defName>TabSorting_1_3_5</defName>
+    <assemblyVersion>1.3.5</assemblyVersion>
+    <content>For those of you that use the Architect Icons-mod it is now possible to select what icons each tab should use.
 Be sure to also add the Optional Icons for Architect Icons-mod to get lots of icons to choose from!</content>
-	</HugsLib.UpdateFeatureDef>
+  </HugsLib.UpdateFeatureDef>
 </Defs>

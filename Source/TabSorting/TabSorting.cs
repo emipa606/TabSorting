@@ -86,12 +86,15 @@ public static class TabSorting
 
         iconsCache = new Dictionary<string, Texture2D>();
         var architectCustomPath = Path.Combine(GenFilePaths.SaveDataFolderPath, "ArchitectIcons");
-        var customImages = Directory.GetFiles(architectCustomPath, "*.png");
-        foreach (var image in customImages)
+        if (Directory.Exists(architectCustomPath))
         {
-            var texture = new Texture2D((int)TabSortingMod.tabIconSize.x, (int)TabSortingMod.tabIconSize.y);
-            texture.LoadImage(File.ReadAllBytes(image));
-            iconsCache[Path.GetFileNameWithoutExtension(image)] = texture;
+            var customImages = Directory.GetFiles(architectCustomPath, "*.png");
+            foreach (var image in customImages)
+            {
+                var texture = new Texture2D((int)TabSortingMod.tabIconSize.x, (int)TabSortingMod.tabIconSize.y);
+                texture.LoadImage(File.ReadAllBytes(image));
+                iconsCache[Path.GetFileNameWithoutExtension(image)] = texture;
+            }
         }
 
         foreach (var image in ContentFinder<Texture2D>.GetAllInFolder("UI/ArchitectIcons"))

@@ -37,7 +37,7 @@ Other options:
 - Items that use the same button can be moved all at once, for example stuffed floors
 - Manual sorting - if some items gets in the wrong place, move them around.
 - Create new tabs to sort to
-
+- Added support for marcin212's https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067]Architect Icons
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
