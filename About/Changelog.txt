@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.7 - Added search-box in options for filtering long lists of items
+
+
 1.3.6 - Should not cause issues if no custom folder for architect icons exists
 
 

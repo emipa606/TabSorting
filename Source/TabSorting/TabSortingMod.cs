@@ -21,6 +21,7 @@ internal class TabSortingMod : Mod
 
     public static readonly Vector2 tabIconSize = new Vector2(16f, 16f);
     private static readonly Vector2 tabIconContainer = new Vector2(20f, 20f);
+    private static readonly Vector2 searchSize = new Vector2(200f, 25f);
 
     private static readonly int buttonSpacer = 300;
 
@@ -47,6 +48,8 @@ internal class TabSortingMod : Mod
     private static string newTabName;
 
     public static Texture2D plusTexture;
+
+    private static string searchText = "";
 
     private static Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>> designatorGroups;
 
@@ -666,10 +669,20 @@ internal class TabSortingMod : Mod
                     allTerrainInCategory = tempAllTerrainDefsInCategory;
                 }
 
-                contentRect.width -= 20;
-                contentRect.height = ((allDefsInCategory.Count() + allTerrainInCategory.Count()) * 24f) + 40f;
-                Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
-                listing_Options.Begin(contentRect);
+                var architechMargin = 0f;
+                if (TabSorting.architectIconsLoaded)
+                {
+                    architechMargin = tabIconContainer.x;
+                    var tabIconRect =
+                        new Rect(
+                            frameRect.position + new Vector2(frameRect.width - tabIconContainer.x, 0),
+                            tabIconContainer);
+                    if (ListingExtension.TabIconSelectable(tabIconRect, TabSorting.GetCustomTabIcon(selectedDef),
+                            "TabSorting.Edit".Translate()))
+                    {
+                        Find.WindowStack.Add(new Dialog_ChooseTabIcon(selectedDef));
+                    }
+                }
 
                 GUI.contentColor = Color.green;
                 var contentPack = "TabSorting.UnloadedMod".Translate();
@@ -684,29 +697,40 @@ internal class TabSortingMod : Mod
                     contentPack = "TabSorting.CustomTab".Translate();
                 }
 
-                var headerRect = listing_Options.Label(
-                    $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}");
                 GUI.contentColor = Color.white;
-                var architechMargin = 0f;
-                if (TabSorting.architectIconsLoaded)
-                {
-                    architechMargin = tabIconContainer.x;
-                    var tabIconRect =
-                        new Rect(
-                            headerRect.position + new Vector2(headerRect.width - tabIconContainer.x, 0),
-                            tabIconContainer);
-                    if (ListingExtension.TabIconSelectable(tabIconRect, TabSorting.GetCustomTabIcon(selectedDef),
-                            "TabSorting.Edit".Translate()))
-                    {
-                        Find.WindowStack.Add(new Dialog_ChooseTabIcon(selectedDef));
-                    }
-                }
+                var frameTitle = $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}";
+                Widgets.Label(
+                    new Rect(frameRect.position,
+                        new Vector2(frameRect.width - buttonSize.x, buttonSize.y)),
+                    frameTitle);
+                Text.Font = GameFont.Small;
 
+                searchText =
+                    Widgets.TextField(
+                        new Rect(
+                            frameRect.position + new Vector2(frameRect.width - searchSize.x, 0) -
+                            new Vector2(architechMargin, 0), searchSize),
+                        searchText);
+                TooltipHandler.TipRegion(new Rect(frameRect.position + new Vector2(frameRect.width - searchSize.x, 0) -
+                                                  new Vector2(architechMargin, 0),
+                    searchSize), "TabSorting.Search".Translate());
+                var extraRowSpace = buttonSize.y * 1.5f;
                 if (manualTab)
                 {
                     if (Widgets.ButtonText(
                             new Rect(
-                                headerRect.position + new Vector2(headerRect.width - buttonSize.x - architechMargin, 0),
+                                frameRect.position +
+                                new Vector2(0, buttonSize.y),
+                                buttonSize),
+                            "TabSorting.Rename".Translate()))
+                    {
+                        Find.WindowStack.Add(new Dialog_RenameTab(sortCategory));
+                    }
+
+                    if (Widgets.ButtonText(
+                            new Rect(
+                                frameRect.position + new Vector2(buttonSize.x,
+                                    buttonSize.y),
                                 buttonSize),
                             "TabSorting.Delete".Translate()))
                     {
@@ -720,19 +744,35 @@ internal class TabSortingMod : Mod
                             }));
                     }
 
-                    if (Widgets.ButtonText(
-                            new Rect(
-                                headerRect.position +
-                                new Vector2(headerRect.width - (buttonSize.x * 2) - architechMargin, 0),
-                                buttonSize),
-                            "TabSorting.Rename".Translate()))
-                    {
-                        Find.WindowStack.Add(new Dialog_RenameTab(sortCategory));
-                    }
+                    extraRowSpace += buttonSize.y;
                 }
 
+                Widgets.DrawLineHorizontal(frameRect.position.x,
+                    frameRect.position.y + extraRowSpace - (buttonSize.y / 3), frameRect.width);
+                var viewRect = frameRect;
+                viewRect.height -= extraRowSpace;
+                viewRect.y += extraRowSpace;
+                contentRect.width -= 20;
+                var allCurrentDefsInCategory = allDefsInCategory;
+                var allCurrentTerrainInCategory = allTerrainInCategory;
+
+                if (!string.IsNullOrEmpty(searchText))
+                {
+                    allCurrentDefsInCategory = allDefsInCategory.Where(def =>
+                        def.label.ToLower().Contains(searchText.ToLower()) ||
+                        def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
+                    allCurrentTerrainInCategory = allTerrainInCategory.Where(def =>
+                        def.label.ToLower().Contains(searchText.ToLower()) ||
+                        def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
+                }
+
+                contentRect.height = ((allCurrentDefsInCategory.Count() + allCurrentTerrainInCategory.Count()) * 24f) +
+                                     40f;
+                Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
+                listing_Options.Begin(contentRect);
+
                 listing_Options.Gap(5f);
-                foreach (var thing in allDefsInCategory)
+                foreach (var thing in allCurrentDefsInCategory)
                 {
                     var toolTip = thing.defName;
                     var iconToolTip = string.Empty;
@@ -766,7 +806,7 @@ internal class TabSortingMod : Mod
                                 currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
                 }
 
-                foreach (var terrain in allTerrainInCategory)
+                foreach (var terrain in allCurrentTerrainInCategory)
                 {
                     var toolTip = terrain.defName;
                     var iconToolTip = string.Empty;
