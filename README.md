@@ -2,6 +2,14 @@
 
 ![Image](https://i.imgur.com/buuPQel.png)
 
+
+**NOTICE**
+
+Not sure how much more time I will put on this mod seeing the scope of the  https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924]Vanilla UI Expanded
+I may add compatibility for the autosort but the general Ui of that mod is more refined and worked on by more than one person (that do not have a few houndred mods to support). 
+
+—-
+
 Sort your stuff!
   
 This mod can sort furniture/structures into appropriate tabs.

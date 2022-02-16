@@ -52,6 +52,7 @@ internal class TabSortingModSettings : ModSettings
     public bool SortBedroomFurniture;
 
     public bool SortDecorations;
+    public bool SortDoors;
 
     public bool SortDoorsAndWalls;
 
@@ -85,6 +86,7 @@ internal class TabSortingModSettings : ModSettings
         Scribe_Values.Look(ref SortLights, "SortLights", true);
         Scribe_Values.Look(ref SortFloors, "SortFloors");
         Scribe_Values.Look(ref SortDoorsAndWalls, "SortDoorsAndWalls");
+        Scribe_Values.Look(ref SortDoors, "SortDoors");
         Scribe_Values.Look(ref SortTablesAndChairs, "SortTablesAndChairs");
         Scribe_Values.Look(ref SortBedroomFurniture, "SortBedroomFurniture");
         Scribe_Values.Look(ref SortHospitalFurniture, "SortHospitalFurniture");

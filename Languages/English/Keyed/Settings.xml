@@ -22,6 +22,8 @@
   <TabSorting.UnloadedMod>Unloaded mod</TabSorting.UnloadedMod>
   <TabSorting.CustomTab>Custom tab</TabSorting.CustomTab>
   <TabSorting.Reset>Reset</TabSorting.Reset>
+  <TabSorting.VanillaUI.Label>Vanilla UI Expanded mod is loaded, some settings not available. Restart is needed to apply the main sorting</TabSorting.VanillaUI.Label>
+  <TabSorting.VanillaUI.Tooltip>Vanilla UI Expanded has a more user-friendly UI for organizing tabs. The main sorting functions of this mod is still available but manual designations or sorting of the tabs themselves will not be applied.</TabSorting.VanillaUI.Tooltip>
   <TabSorting.ResetTabsort>All tabs will revert back to their vanilla values.
   Continue?</TabSorting.ResetTabsort>
   <TabSorting.ResetOne>All items in this tab will be restored to their original tabs and this tab will be removed. Continue?</TabSorting.ResetOne>
@@ -36,6 +38,8 @@
   <TabSorting.SortFloors.Tooltip>Moves all floors to the Floors-tab</TabSorting.SortFloors.Tooltip>
   <TabSorting.SortWallsDoors.Label>Sort walls and doors</TabSorting.SortWallsDoors.Label>
   <TabSorting.SortWallsDoors.Tooltip>Moves all doors and walls to the Structure-tab</TabSorting.SortWallsDoors.Tooltip>
+  <TabSorting.SortDoors.Label>   Sort doors separatly</TabSorting.SortDoors.Label>
+  <TabSorting.SortDoors.Tooltip>Moves all doors to the Doors-tab</TabSorting.SortDoors.Tooltip>
   <TabSorting.SortTablesChairs.Label>Sort tables and chairs</TabSorting.SortTablesChairs.Label>
   <TabSorting.SortTablesChairs.Tooltip>Moves all tables and chairs the Table/Chairs-tab</TabSorting.SortTablesChairs.Tooltip>
   <TabSorting.SortBedroom.Label>Sort bedroom furniture</TabSorting.SortBedroom.Label>
@@ -62,7 +66,7 @@
   <TabSorting.GroupThings.Tooltip>Some items can use the same button, similar to when an item can be built with different materials. Enabling this option makes it possible to treat these as one item to move instead of individual items.</TabSorting.GroupThings.Tooltip>
   <TabSorting.SortTabs.Label>Sort all tabs alphabetically</TabSorting.SortTabs.Label>
   <TabSorting.SortTabs.Tooltip>Puts all tabs in alphabetical order</TabSorting.SortTabs.Tooltip>
-  <TabSorting.SkipZoneOrders.Label>But skip Orders and Zone-tab</TabSorting.SkipZoneOrders.Label>
+  <TabSorting.SkipZoneOrders.Label>   But skip Orders and Zone-tab</TabSorting.SkipZoneOrders.Label>
   <TabSorting.SkipZoneOrders.Tooltip>Orders and Zone-tab will remain in the top if the menu</TabSorting.SkipZoneOrders.Tooltip>
   <TabSorting.ManualReset.Label>Manual sorting reset</TabSorting.ManualReset.Label>
   <TabSorting.ManualReset.Tooltip>Reset all manually defined sortings</TabSorting.ManualReset.Tooltip>

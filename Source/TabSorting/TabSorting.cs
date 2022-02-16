@@ -53,6 +53,7 @@ public static class TabSorting
     public static readonly bool gardenToolsLoaded;
     public static readonly bool fencesAndFloorsLoaded;
     public static readonly bool architectIconsLoaded;
+    public static readonly bool vanillaUILoaded;
     public static readonly Dictionary<string, Texture2D> iconsCache;
 
     static TabSorting()
@@ -62,6 +63,7 @@ public static class TabSorting
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
+        vanillaUILoaded = ModLister.GetActiveModWithIdentifier("vanillaexpanded.ui") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
             where modIdsToIgnore.Contains(mod.PackageId)
             select mod).ToList();
@@ -196,7 +198,7 @@ public static class TabSorting
             RestoreVanillaSorting();
         }
 
-        if (TabSortingMod.instance.Settings.ManualTabs.Any())
+        if (!vanillaUILoaded && TabSortingMod.instance.Settings.ManualTabs.Any())
         {
             foreach (var manualTab in TabSortingMod.instance.Settings.ManualTabs)
             {
@@ -255,6 +257,7 @@ public static class TabSorting
             SortLights = true,
             SortFloors = false,
             SortDoorsAndWalls = false,
+            SortDoors = false,
             SortBedroomFurniture = false,
             SortHospitalFurniture = false,
             SortKitchenFurniture = false,
@@ -317,6 +320,11 @@ public static class TabSorting
                 LogMessage($"Removing {designationCategoriesToRemove[i].defName} since its empty now.", true);
                 RemoveEmptyDesignationCategoryDef(designationCategoriesToRemove[i]);
             }
+        }
+
+        if (vanillaUILoaded)
+        {
+            return;
         }
 
         if (!TabSortingMod.instance.Settings.SortTabs)
@@ -447,7 +455,7 @@ public static class TabSorting
         LogMessage("Sorting-session done");
 
 
-        if (Current.ProgramState != ProgramState.Playing)
+        if (vanillaUILoaded || Current.ProgramState != ProgramState.Playing)
         {
             return;
         }
@@ -1006,12 +1014,22 @@ public static class TabSorting
             return;
         }
 
+        var doorCategory = GetDesignationFromDatabase("DoorTab");
+        if (doorCategory == null)
+        {
+            Log.ErrorOnce("[TabSorting]: Cannot find the DoorTab-def, will not sort doors.",
+                "DoorTab".GetHashCode());
+            return;
+        }
+
         var staticStructureDefs = new List<string> { "GL_DoorFrame" };
 
         var doorsAndWallsInGame = (from doorOrWall in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(doorOrWall.defName) && !changedDefNames.Contains(doorOrWall.defName) &&
                   (doorOrWall.designationCategory != null &&
-                   doorOrWall.designationCategory.defName != "Structure" &&
+                   (doorOrWall.designationCategory.defName != "Structure" ||
+                    TabSortingMod.instance.Settings.SortDoors && (doorOrWall.IsDoor ||
+                                                                  staticStructureDefs.Contains(doorOrWall.defName))) &&
                    (doorOrWall.fillPercent == 1f || doorOrWall.label.ToLower().Contains("column")) &&
                    (doorOrWall.holdsRoof || doorOrWall.IsDoor) ||
                    staticStructureDefs.Contains(doorOrWall.defName))
@@ -1021,12 +1039,26 @@ public static class TabSorting
                   bridge.designationCategory != null && bridge.designationCategory.defName != "Structure" &&
                   bridge.destroyEffect != null && bridge.destroyEffect.defName.ToLower().Contains("bridge")
             select bridge).ToList();
+        var nonDoors = 0;
+        var doors = 0;
         foreach (var doorOrWall in doorsAndWallsInGame)
         {
+            if (TabSortingMod.instance.Settings.SortDoors && (doorOrWall.IsDoor ||
+                                                              staticStructureDefs.Contains(doorOrWall.defName)))
+            {
+                LogMessage(
+                    $"Changing designation for doorOrWall {doorOrWall.defName} from {doorOrWall.designationCategory} to {doorCategory.defName}");
+                changedDefNames.Add(doorOrWall.defName);
+                doorOrWall.designationCategory = doorCategory;
+                doors++;
+                continue;
+            }
+
             LogMessage(
                 $"Changing designation for doorOrWall {doorOrWall.defName} from {doorOrWall.designationCategory} to {designationCategory.defName}");
             changedDefNames.Add(doorOrWall.defName);
             doorOrWall.designationCategory = designationCategory;
+            nonDoors++;
         }
 
         foreach (var bridge in bridgesInGame)
@@ -1035,6 +1067,13 @@ public static class TabSorting
                 $"Changing designation for bridge {bridge.defName} from {bridge.designationCategory} to {designationCategory.defName}");
             changedDefNames.Add(bridge.defName);
             bridge.designationCategory = designationCategory;
+            nonDoors++;
+        }
+
+        if (TabSortingMod.instance.Settings.SortDoors)
+        {
+            LogMessage($"Moved {nonDoors} bridges and walls to the Structure tab and {doors} to the Doors tab.", true);
+            return;
         }
 
         LogMessage($"Moved {doorsAndWallsInGame.Count} bridges, doors and walls to the Structure tab.", true);
@@ -1300,7 +1339,7 @@ public static class TabSorting
     /// </summary>
     private static void SortManually()
     {
-        if (TabSortingMod.instance.Settings.ManualSorting == null ||
+        if (vanillaUILoaded || TabSortingMod.instance.Settings.ManualSorting == null ||
             TabSortingMod.instance.Settings.ManualSorting.Count == 0)
         {
             return;

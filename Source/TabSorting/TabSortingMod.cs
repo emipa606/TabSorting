@@ -347,6 +347,17 @@ internal class TabSortingMod : Mod
                 listing_Standard.CheckboxLabeled("TabSorting.SortWallsDoors.Label".Translate(),
                     ref Settings.SortDoorsAndWalls,
                     "TabSorting.SortWallsDoors.Tooltip".Translate());
+                if (Settings.SortDoorsAndWalls)
+                {
+                    listing_Standard.CheckboxLabeled("TabSorting.SortDoors.Label".Translate(),
+                        ref Settings.SortDoors,
+                        "TabSorting.SortDoors.Tooltip".Translate());
+                }
+                else
+                {
+                    Settings.SortDoors = false;
+                }
+
                 listing_Standard.CheckboxLabeled("TabSorting.SortTablesChairs.Label".Translate(),
                     ref Settings.SortTablesAndChairs,
                     "TabSorting.SortTablesChairs.Tooltip".Translate());

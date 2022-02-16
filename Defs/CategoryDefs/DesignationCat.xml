@@ -80,4 +80,14 @@
       <li>Designator_Deconstruct</li>
     </specialDesignatorClasses>
   </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>DoorTab</defName>
+    <label>Doors</label>
+    <description>Doors</description>
+    <order>433</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
 </Defs>
