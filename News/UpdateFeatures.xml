@@ -1,43 +1,43 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Defs>
-  <HugsLib.UpdateFeatureDef Abstract="true" Name="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef Abstract="true" Name="TabSorting_UpdateFeatureBase">
     <modNameReadable>TabSorting</modNameReadable>
     <linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2138635288</linkUrl>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_3_0</defName>
     <assemblyVersion>1.0.3.0</assemblyVersion>
     <content>Added support for a Decorations-tab. If selected in the settings this tab will contain all decorative items, such as plant-pots, rugs, drapes and other items that only gives beauty.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_5_0</defName>
     <assemblyVersion>1.0.5.0</assemblyVersion>
     <content>It is now possible to sort all gardening-related tools into the Gardening-tools tab added by the VGP Garden Tools-mod.
 If that mod is not loaded the Sun-lamps now gets sorted in the Lights-tab instead.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_6_0</defName>
     <assemblyVersion>1.0.6.0</assemblyVersion>
     <content>There is now possible to sort all tabs in alphabetical order. You can choose to skip the built-in tabs of Orders and Zones
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_8_0</defName>
     <assemblyVersion>1.0.8.0</assemblyVersion>
     <content>There is now an option to sort fences into the Fences-tab created by the mod Fences and Floors.
 If this mod is loaded the option to sort is available in the mod-options. It might not be 100% accurate since its pretty hard to define a search for all types of fence so please report any errors!
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_10_0</defName>
     <assemblyVersion>1.0.10.0</assemblyVersion>
     <content>It is now possible to sort all hospital related furniture in to its own tab. 
 All beds that defaults as hospital beds and all furniture that can be linked to those beds and has medically improvments will be sorted to the Hospital-tab if selected.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_15_0</defName>
     <assemblyVersion>1.0.15.0</assemblyVersion>
     <content>Added the possibility to manually sort items. You can move things around however you wish, even hide them if you want!
@@ -45,39 +45,39 @@ The gui for it might not be optimally made but it gets the job done :)
 Feel free to still report any items that gets sorted wrong so I can improve on the general sorting.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_23_0</defName>
     <assemblyVersion>1.0.23.0</assemblyVersion>
     <content>The sorting is now redone when changing mod-settings so there is no longer a need for restarting the game when resorting items. Hope this may be of help!
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_26_0</defName>
     <assemblyVersion>1.0.26.0</assemblyVersion>
     <content>There is now an option to sort kitchen-related furniture into its own tab. 
 It will default move any building that is used for producing anything categorised as food and any facility that is connected to it. Hope this will help those with large production-tabs!
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_27_0</defName>
     <assemblyVersion>1.0.27.0</assemblyVersion>
     <content>Added an option to sort buildings into a Research-tab. It will move all research-buildings and affected facilities along with any building marked as required by any research-project to a separate research-tab.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_0_45_0</defName>
     <assemblyVersion>1.0.45.0</assemblyVersion>
     <content>In this version there is now an option to add custom tabs for sorting items in.
 There is also an option to sort Ideology specific furniture (mostly ritual-related) into an Ideology-tab.
 </content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_3_4</defName>
     <assemblyVersion>1.3.4</assemblyVersion>
     <content>Its now possible to sort tabs manually. Just turn off automatic sorting in the options and you can reorder the tabs manually. 
 Its now also possible to rename custom tabs without having to remove and recreate them.</content>
   </HugsLib.UpdateFeatureDef>
-  <HugsLib.UpdateFeatureDef ParentName="UpdateFeatureBase">
+  <HugsLib.UpdateFeatureDef ParentName="TabSorting_UpdateFeatureBase">
     <defName>TabSorting_1_3_5</defName>
     <assemblyVersion>1.3.5</assemblyVersion>
     <content>For those of you that use the Architect Icons-mod it is now possible to select what icons each tab should use.
