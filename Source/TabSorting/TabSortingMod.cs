@@ -481,7 +481,7 @@ internal class TabSortingMod : Mod
                     Find.WindowStack.Add(new Dialog_MessageBox(
                         "TabSorting.ResetTabsort".Translate(),
                         "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
-                        delegate { instance.Settings.ResetManualSortingValues(); }));
+                        delegate { instance.Settings.ResetManualTabSortingValues(); }));
                 }
 
                 var num = 50f;
@@ -512,6 +512,73 @@ internal class TabSortingMod : Mod
                             instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
                             instance.Settings.ManualTabSorting[sortedTabDefs[i + 1].defName] =
                                 sortedTabDefs[i + 1].order;
+                            SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+                        }
+                    }
+
+                    Widgets.Label(new Rect(20f, num, contentRect.width - 20f, 25f),
+                        $"{currentDef.LabelCap} ({currentDef.defName})");
+
+                    num += 25f;
+                }
+
+                Widgets.DrawLineHorizontal(0, num, contentRect.width);
+                listing_Options.End();
+                Widgets.EndScrollView();
+                break;
+            }
+
+            case "ButtonSorting":
+            {
+                contentRect.width -= 20;
+
+                var buttonDefs = DefDatabase<MainButtonDef>.AllDefsListForReading
+                    .OrderBy(def => def.order)
+                    .ToList();
+                contentRect.height = (buttonDefs.Count + 3) * 25f;
+                Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
+                listing_Options.Begin(contentRect);
+                GUI.contentColor = Color.green;
+                listing_Options.Label("TabSorting.ButtonSorting".Translate());
+                GUI.contentColor = Color.white;
+                if (Widgets.ButtonText(
+                        new Rect(contentRect.position + new Vector2(contentRect.width - buttonSize.x, 0), buttonSize),
+                        "TabSorting.Reset".Translate()))
+                {
+                    Find.WindowStack.Add(new Dialog_MessageBox(
+                        "TabSorting.ResetButtonsort".Translate(),
+                        "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
+                        delegate { instance.Settings.ResetManualButtonSortingValues(); }));
+                }
+
+                var num = 50f;
+                for (var i = 0; i < buttonDefs.Count; i++)
+                {
+                    var currentDef = buttonDefs[i];
+                    if (i > 0)
+                    {
+                        var rect2 = new Rect(0f, num, 12f, 12f);
+                        if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
+                        {
+                            (currentDef.order, buttonDefs[i - 1].order) =
+                                (buttonDefs[i - 1].order, currentDef.order);
+                            instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
+                            instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] =
+                                buttonDefs[i - 1].order;
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                        }
+                    }
+
+                    if (i < buttonDefs.Count - 1)
+                    {
+                        var rect3 = new Rect(0f, num + 12f, 12f, 12f);
+                        if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
+                        {
+                            (currentDef.order, buttonDefs[i + 1].order) =
+                                (buttonDefs[i + 1].order, currentDef.order);
+                            instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
+                            instance.Settings.ManualButtonSorting[buttonDefs[i + 1].defName] =
+                                buttonDefs[i + 1].order;
                             SoundDefOf.Tick_Low.PlayOneShotOnCamera();
                         }
                     }
@@ -901,6 +968,12 @@ internal class TabSortingMod : Mod
             {
                 selectedDef = selectedDef == "TabSorting" ? null : "TabSorting";
             }
+        }
+
+        if (listing_Standard.ListItemSelectable("TabSorting.ButtonSorting".Translate(), Color.yellow,
+                selectedDef == "ButtonSorting"))
+        {
+            selectedDef = selectedDef == "ButtonSorting" ? null : "ButtonSorting";
         }
 
         listing_Standard.ListItemSelectable(null, Color.yellow);

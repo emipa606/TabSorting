@@ -9,6 +9,7 @@
   <TabSorting.Settings>Settings</TabSorting.Settings>
   <TabSorting.Search>Filter list</TabSorting.Search>
   <TabSorting.TabSorting>Tab-sorting</TabSorting.TabSorting>
+  <TabSorting.ButtonSorting>Button-sorting</TabSorting.ButtonSorting>
   <TabSorting.ChooseTabIcon>Choose Tab-icon</TabSorting.ChooseTabIcon>
   <TabSorting.Hidden>Hidden</TabSorting.Hidden>
   <TabSorting.NewTab>New tab-name</TabSorting.NewTab>
@@ -26,6 +27,8 @@
   <TabSorting.VanillaUI.Tooltip>Vanilla UI Expanded has a more user-friendly UI for organizing tabs. The main sorting functions of this mod is still available but manual designations or sorting of the tabs themselves will not be applied.</TabSorting.VanillaUI.Tooltip>
   <TabSorting.ResetTabsort>All tabs will revert back to their vanilla values.
   Continue?</TabSorting.ResetTabsort>
+  <TabSorting.ResetButtonsort>All Buttons will revert back to their vanilla values.
+  Continue?</TabSorting.ResetButtonsort>
   <TabSorting.ResetOne>All items in this tab will be restored to their original tabs and this tab will be removed. Continue?</TabSorting.ResetOne>
   <TabSorting.ResetAll>Reset all</TabSorting.ResetAll>
   <TabSorting.GroupContaining>Group containing: \n{0}</TabSorting.GroupContaining>

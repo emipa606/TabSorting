@@ -147,7 +147,7 @@ public static class TabSorting
 
     public static void RecacheTheTabSorting()
     {
-        foreach (var tabOrder in TabSortingMod.instance.Settings.VanillaOrderMemory)
+        foreach (var tabOrder in TabSortingMod.instance.Settings.VanillaTabOrderMemory)
         {
             TabSortingMod.instance.Settings.ManualTabSorting.Add(tabOrder.Key.defName, tabOrder.Value);
         }
@@ -155,6 +155,14 @@ public static class TabSorting
         foreach (var settingsManualTab in TabSortingMod.instance.Settings.ManualTabs)
         {
             TabSortingMod.instance.Settings.ManualTabSorting.Add(settingsManualTab.Key, 1);
+        }
+    }
+
+    public static void RecacheTheButtonSorting()
+    {
+        foreach (var buttonOrder in TabSortingMod.instance.Settings.VanillaButtonOrderMemory)
+        {
+            TabSortingMod.instance.Settings.ManualButtonSorting.Add(buttonOrder.Key.defName, buttonOrder.Value);
         }
     }
 
@@ -167,7 +175,15 @@ public static class TabSorting
             foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
             {
                 TabSortingMod.instance.Settings.VanillaCategoryMemory.Add(categoryDef);
-                TabSortingMod.instance.Settings.VanillaOrderMemory.Add(categoryDef, categoryDef.order);
+                TabSortingMod.instance.Settings.VanillaTabOrderMemory.Add(categoryDef, categoryDef.order);
+            }
+        }
+
+        if (!TabSortingMod.instance.Settings.VanillaButtonOrderMemory.Any())
+        {
+            foreach (var buttonDef in DefDatabase<MainButtonDef>.AllDefsListForReading)
+            {
+                TabSortingMod.instance.Settings.VanillaButtonOrderMemory.Add(buttonDef, buttonDef.order);
             }
         }
 
@@ -250,6 +266,19 @@ public static class TabSorting
             }
         }
 
+        if (TabSortingMod.instance.Settings.ManualButtonSorting == null)
+        {
+            TabSortingMod.instance.Settings.ManualButtonSorting = new Dictionary<string, int>();
+        }
+
+        if (!TabSortingMod.instance.Settings.ManualButtonSorting.Any())
+        {
+            foreach (var buttonDef in DefDatabase<MainButtonDef>.AllDefsListForReading)
+            {
+                TabSortingMod.instance.Settings.ManualButtonSorting[buttonDef.defName] = buttonDef.order;
+            }
+        }
+
         TabSortingMod.instance.Settings.VanillaCategoryMemory.SortBy(def => def.label);
 
         TabSortingMod.instance.Settings ??= new TabSortingModSettings
@@ -320,6 +349,26 @@ public static class TabSorting
                 LogMessage($"Removing {designationCategoriesToRemove[i].defName} since its empty now.", true);
                 RemoveEmptyDesignationCategoryDef(designationCategoriesToRemove[i]);
             }
+        }
+
+        foreach (var buttonSortInfo in TabSortingMod.instance.Settings.ManualButtonSorting)
+        {
+            var buttonDef = DefDatabase<MainButtonDef>.GetNamedSilentFail(buttonSortInfo.Key);
+            if (buttonDef == null)
+            {
+                continue;
+            }
+
+            buttonDef.order = buttonSortInfo.Value;
+        }
+
+        if (Current.Game != null)
+        {
+            var mainRoot = Find.MainButtonsRoot;
+            var prop = mainRoot.GetType().GetField("allButtonsInOrder", BindingFlags.NonPublic | BindingFlags.Instance);
+            prop.SetValue(mainRoot, (from x in DefDatabase<MainButtonDef>.AllDefs
+                orderby x.order
+                select x).ToList());
         }
 
         if (vanillaUILoaded)
@@ -503,7 +552,7 @@ public static class TabSorting
             var designation = GetDesignationFromDatabase(designationCategoryDef.defName);
             if (designation != null)
             {
-                designation.order = TabSortingMod.instance.Settings.VanillaOrderMemory[designationCategoryDef];
+                designation.order = TabSortingMod.instance.Settings.VanillaTabOrderMemory[designationCategoryDef];
             }
         }
 

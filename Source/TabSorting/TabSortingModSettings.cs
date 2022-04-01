@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using RimWorld;
 using Verse;
 
 namespace TabSorting;
@@ -8,16 +9,25 @@ namespace TabSorting;
 /// </summary>
 internal class TabSortingModSettings : ModSettings
 {
+    public readonly Dictionary<MainButtonDef, int> VanillaButtonOrderMemory =
+        new Dictionary<MainButtonDef, int>();
+
     public readonly List<DesignationCategoryDef> VanillaCategoryMemory = new List<DesignationCategoryDef>();
 
     public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory =
         new Dictionary<Def, DesignationCategoryDef>();
 
-    public readonly Dictionary<DesignationCategoryDef, int> VanillaOrderMemory =
+    public readonly Dictionary<DesignationCategoryDef, int> VanillaTabOrderMemory =
         new Dictionary<DesignationCategoryDef, int>();
 
     private List<string> CategoriesToIgnore = new List<string>();
     public bool GroupSameDesignator;
+
+    public Dictionary<string, int> ManualButtonSorting = new Dictionary<string, int>();
+
+    private List<string> manualButtonSortingKeys;
+
+    private List<int> manualButtonSortingValues;
     public List<DesignationCategoryDef> ManualCategoryMemory = new List<DesignationCategoryDef>();
 
     public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
@@ -41,7 +51,6 @@ internal class TabSortingModSettings : ModSettings
     private List<string> manualTabSortingKeys;
 
     private List<int> manualTabSortingValues;
-
 
     private List<string> manualTabsValues;
 
@@ -110,6 +119,8 @@ internal class TabSortingModSettings : ModSettings
             ref manualTabsKeys, ref manualTabsValues);
         Scribe_Collections.Look(ref ManualTabSorting, "ManualTabSorting", LookMode.Value, LookMode.Value,
             ref manualTabSortingKeys, ref manualTabSortingValues);
+        Scribe_Collections.Look(ref ManualButtonSorting, "ManualButtonSorting", LookMode.Value, LookMode.Value,
+            ref manualButtonSortingKeys, ref manualButtonSortingValues);
         Scribe_Collections.Look(ref ManualTabIcons, "ManualTabIcons", LookMode.Value, LookMode.Value,
             ref manualTabIconsKeys, ref manualTabIconsValues);
         Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
@@ -123,12 +134,21 @@ internal class TabSortingModSettings : ModSettings
         TabSorting.DoTheSorting();
     }
 
-    public void ResetManualSortingValues()
+    public void ResetManualTabSortingValues()
     {
         manualTabSortingKeys = new List<string>();
         manualTabSortingValues = new List<int>();
         ManualTabSorting = new Dictionary<string, int>();
         TabSorting.RecacheTheTabSorting();
+        TabSorting.DoTheSorting();
+    }
+
+    public void ResetManualButtonSortingValues()
+    {
+        manualButtonSortingKeys = new List<string>();
+        manualButtonSortingValues = new List<int>();
+        ManualButtonSorting = new Dictionary<string, int>();
+        TabSorting.RecacheTheButtonSorting();
         TabSorting.DoTheSorting();
     }
 }
