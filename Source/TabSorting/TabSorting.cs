@@ -13,7 +13,7 @@ namespace TabSorting;
 [StaticConstructorOnStartup]
 public static class TabSorting
 {
-    private static readonly List<string> modIdsToIgnore = new List<string>
+    private static readonly HashSet<string> modIdsToIgnore = new HashSet<string>
     {
         "atlas.androidtiers",
         "dubwise.dubsbadhygiene",
@@ -24,7 +24,7 @@ public static class TabSorting
         "flashpoint55.poweredfloorpanelmod"
     };
 
-    private static readonly List<string> defsToIgnore = new List<string>
+    private static readonly HashSet<string> defsToIgnore = new HashSet<string>
     {
         "FM_AIManager",
         "PRF_MiniDroneColumn",
@@ -35,15 +35,15 @@ public static class TabSorting
         "PRF_TypeTwoAssembler_III"
     };
 
-    private static List<string> changedDefNames;
+    private static HashSet<string> changedDefNames;
 
-    private static readonly List<string> tabsToIgnore = new List<string>
+    private static readonly HashSet<string> tabsToIgnore = new HashSet<string>
     {
         "Planning",
         "Shapes"
     };
 
-    private static readonly List<string> namespacesToIgnore = new List<string>
+    private static readonly HashSet<string> namespacesToIgnore = new HashSet<string>
     {
         "RimWorld",
         "DubRoss"
@@ -65,8 +65,8 @@ public static class TabSorting
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
         vanillaUILoaded = ModLister.GetActiveModWithIdentifier("vanillaexpanded.ui") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
-            where modIdsToIgnore.Contains(mod.PackageId)
-            select mod).ToList();
+                          where modIdsToIgnore.Contains(mod.PackageId)
+                          select mod).ToList();
         if (ignoreMods.Count > 0)
         {
             foreach (var mod in ignoreMods)
@@ -169,7 +169,7 @@ public static class TabSorting
     public static void DoTheSorting()
     {
         LogMessage("Starting a new sorting-session");
-        changedDefNames = new List<string>();
+        changedDefNames = new HashSet<string>();
         if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
         {
             foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
@@ -336,7 +336,7 @@ public static class TabSorting
                  select dd)
         {
             designationCategoryDef.ResolveReferences();
-            if (CheckEmptyDesignationCategoryDef(designationCategoryDef.defName))
+            if (CheckEmptyDesignationCategoryDef(designationCategoryDef))
             {
                 designationCategoriesToRemove.Add(designationCategoryDef);
             }
@@ -419,9 +419,8 @@ public static class TabSorting
     ///     Removes the category if there are none
     /// </summary>
     /// <param name="currentCategoryName">The category to check</param>
-    private static bool CheckEmptyDesignationCategoryDef(string currentCategoryName)
+    private static bool CheckEmptyDesignationCategoryDef(DesignationCategoryDef currentCategory)
     {
-        var currentCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(currentCategoryName);
         if (currentCategory == null)
         {
             return false;
@@ -467,7 +466,6 @@ public static class TabSorting
             {
                 continue;
             }
-
             return false;
         }
 
@@ -1341,37 +1339,49 @@ public static class TabSorting
 
         var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
 
-        var lightsInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
+        Predicate<ThingDef> lightValidator = delegate (ThingDef furniture)
+        {
+            if (!defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
                   furniture.designationCategory != null &&
-                  !furniture.IsFrame && !furniture.IsBlueprint &&
-                  (furniture.category == ThingCategory.Building &&
-                   (furniture.GetCompProperties<CompProperties_Power>() == null ||
-                    furniture.GetCompProperties<CompProperties_Power>().compClass != typeof(CompPowerPlant) &&
-                    (furniture.GetCompProperties<CompProperties_Power>().basePowerConsumption < 2000 ||
-                     furniture.thingClass?.Name == "Building_SunLamp")) && furniture.recipes == null &&
-                   (furniture.placeWorkers == null ||
-                    !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))) &&
-                   furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
-                   furniture.GetCompProperties<CompProperties_Battery>() == null &&
-                   furniture.GetCompProperties<CompProperties_Glower>() != null &&
-                   furniture.GetCompProperties<CompProperties_Glower>().glowRadius >= 3 &&
-                   furniture.GetCompProperties<CompProperties_TempControl>() == null &&
-                   (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
-                    furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond <
-                    furniture.GetCompProperties<CompProperties_Glower>().glowRadius) &&
-                   furniture.surfaceType != SurfaceType.Eat &&
-                   furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
-                   furniture.thingClass?.Name != "Building_TurretGun" &&
-                   furniture.thingClass?.Name != "Building_PlantGrower" &&
-                   furniture.thingClass?.Name != "Building_Heater" &&
-                   (furniture.thingClass?.Name != "Building_SunLamp" || !gardenToolsExists) &&
-                   (furniture.inspectorTabs == null ||
-                    !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell ||
-                   furniture.label != null &&
-                   (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
-                   (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp")))
-            select furniture).ToList();
+                  !furniture.IsFrame && !furniture.IsBlueprint && furniture.category == ThingCategory.Building)
+            {
+                var compGlower = furniture.GetCompProperties<CompProperties_Glower>();
+                if (compGlower != null && compGlower.glowRadius >= 3)
+                {
+                    var compPower = furniture.GetCompProperties<CompProperties_Power>();
+                    if (compPower == null || compPower.compClass != typeof(CompPowerPlant) && (compPower.basePowerConsumption < 2000 ||
+                         furniture.thingClass?.Name == "Building_SunLamp"))
+                    {
+                        if (furniture.recipes == null && (furniture.placeWorkers == null ||
+                            !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))))
+                        {
+                            if (furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
+                                furniture.GetCompProperties<CompProperties_Battery>() == null &&
+                                furniture.GetCompProperties<CompProperties_TempControl>() == null &&
+                                (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
+                                 furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < compGlower.glowRadius) &&
+                                furniture.surfaceType != SurfaceType.Eat &&
+                                furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
+                                furniture.thingClass?.Name != "Building_TurretGun" &&
+                                furniture.thingClass?.Name != "Building_PlantGrower" &&
+                                furniture.thingClass?.Name != "Building_Heater" &&
+                                (furniture.thingClass?.Name != "Building_SunLamp" || !gardenToolsExists) &&
+                                (furniture.inspectorTabs == null ||
+                                 !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell ||
+                                furniture.label != null &&
+                                (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
+                                (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp")))
+                            {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+            return false;
+        };
+
+        var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(x => lightValidator(x)).ToList();
         foreach (var furniture in lightsInGame)
         {
             LogMessage(
