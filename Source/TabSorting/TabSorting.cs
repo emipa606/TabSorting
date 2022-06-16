@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using HarmonyLib;
 using RimWorld;
 using UnityEngine;
 using Verse;
@@ -53,7 +54,6 @@ public static class TabSorting
     public static readonly bool gardenToolsLoaded;
     public static readonly bool fencesAndFloorsLoaded;
     public static readonly bool architectIconsLoaded;
-    public static readonly bool vanillaUILoaded;
     public static readonly Dictionary<string, Texture2D> iconsCache;
 
     static TabSorting()
@@ -63,7 +63,6 @@ public static class TabSorting
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
-        vanillaUILoaded = ModLister.GetActiveModWithIdentifier("vanillaexpanded.ui") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
                           where modIdsToIgnore.Contains(mod.PackageId)
                           select mod).ToList();
@@ -214,7 +213,7 @@ public static class TabSorting
             RestoreVanillaSorting();
         }
 
-        if (!vanillaUILoaded && TabSortingMod.instance.Settings.ManualTabs.Any())
+        if (TabSortingMod.instance.Settings.ManualTabs.Any())
         {
             foreach (var manualTab in TabSortingMod.instance.Settings.ManualTabs)
             {
@@ -371,11 +370,6 @@ public static class TabSorting
                 select x).ToList());
         }
 
-        if (vanillaUILoaded)
-        {
-            return;
-        }
-
         if (!TabSortingMod.instance.Settings.SortTabs)
         {
             foreach (var tabSortInfo in TabSortingMod.instance.Settings.ManualTabSorting)
@@ -502,7 +496,7 @@ public static class TabSorting
         LogMessage("Sorting-session done");
 
 
-        if (vanillaUILoaded || Current.ProgramState != ProgramState.Playing)
+        if (Current.ProgramState != ProgramState.Playing)
         {
             return;
         }
@@ -1148,7 +1142,7 @@ public static class TabSorting
             where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
                   !fence.IsFrame && !fence.IsBlueprint &&
                   fence.designationCategory != null && fence.designationCategory.defName != "Fences" &&
-                  ((fence.thingClass?.Name == "Building_Door" || fence.thingClass?.Name == "Building" &&
+                  ((fence.thingClass.IsDerivedFrom(typeof(Building_Door)) || fence.thingClass.IsDerivedFrom(typeof(Building)) &&
                        fence.graphicData?.linkType == LinkDrawerType.Basic &&
                        fence.passability == Traversability.Impassable) && fence.fillPercent is < 1f and > 0 ||
                    fence.label.ToLower().Contains("fence"))
@@ -1163,7 +1157,15 @@ public static class TabSorting
 
         LogMessage($"Moved {fencesInGame.Count} fences to the Fences-tab.", true);
     }
-
+    
+    public static bool IsDerivedFrom(this Type thingClass, Type baseClass)
+    {
+        if (thingClass == null)
+        {
+            return false;
+        }
+        return baseClass.IsAssignableFrom(thingClass);
+    }
     /// <summary>
     ///     Sorts all floors to the Floors-tab
     /// </summary>
@@ -1220,8 +1222,8 @@ public static class TabSorting
             where !defsToIgnore.Contains(gardenThing.defName) && !changedDefNames.Contains(gardenThing.defName) &&
                   gardenThing.designationCategory?.defName != "GardenTools" &&
                   !gardenThing.IsFrame && !gardenThing.IsBlueprint &&
-                  (gardenThing.thingClass?.Name == "Building_SunLamp" ||
-                   gardenThing.thingClass?.Name == "Building_PlantGrower" &&
+                  (gardenThing.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) ||
+                   gardenThing.thingClass.IsDerivedFrom(typeof(Building_PlantGrower)) &&
                    gardenThing.building?.sowTag != "Decorative" ||
                    gardenThing.label?.ToLower().Contains("sun lamp") == true ||
                    gardenThing.label?.ToLower().Contains("sprinkler") == true &&
@@ -1350,7 +1352,7 @@ public static class TabSorting
                 {
                     var compPower = furniture.GetCompProperties<CompProperties_Power>();
                     if (compPower == null || compPower.compClass != typeof(CompPowerPlant) && (compPower.basePowerConsumption < 2000 ||
-                         furniture.thingClass?.Name == "Building_SunLamp"))
+                         furniture.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp"))))
                     {
                         if (furniture.recipes == null && (furniture.placeWorkers == null ||
                             !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))))
@@ -1362,10 +1364,10 @@ public static class TabSorting
                                  furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < compGlower.glowRadius) &&
                                 furniture.surfaceType != SurfaceType.Eat &&
                                 furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
-                                furniture.thingClass?.Name != "Building_TurretGun" &&
-                                furniture.thingClass?.Name != "Building_PlantGrower" &&
-                                furniture.thingClass?.Name != "Building_Heater" &&
-                                (furniture.thingClass?.Name != "Building_SunLamp" || !gardenToolsExists) &&
+                                furniture.thingClass.IsDerivedFrom(typeof(Building_TurretGun)) is false &&
+                                furniture.thingClass.IsDerivedFrom(typeof(Building_PlantGrower)) is false &&
+                                furniture.thingClass.IsDerivedFrom(typeof(Building_Heater)) is false &&
+                                (furniture.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) is false || !gardenToolsExists) &&
                                 (furniture.inspectorTabs == null ||
                                  !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell ||
                                 furniture.label != null &&
@@ -1398,7 +1400,7 @@ public static class TabSorting
     /// </summary>
     private static void SortManually()
     {
-        if (vanillaUILoaded || TabSortingMod.instance.Settings.ManualSorting == null ||
+        if (TabSortingMod.instance.Settings.ManualSorting == null ||
             TabSortingMod.instance.Settings.ManualSorting.Count == 0)
         {
             return;
@@ -1495,10 +1497,10 @@ public static class TabSorting
             where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) &&
                   storage.designationCategory != null &&
                   storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass != null &&
-                  storage.thingClass?.Name != "Building_Grave" &&
-                  (storage.thingClass.Name == "Building_Storage" || storage.inspectorTabs != null &&
-                      storage.inspectorTabs.Contains(typeof(ITab_Storage))) && (storage.placeWorkers == null ||
-                      !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
+                  storage.thingClass.IsDerivedFrom(typeof(Building_Grave)) is false &&
+                  (storage.thingClass.IsDerivedFrom(typeof(Building_Storage)) || storage.inspectorTabs != null &&
+                      storage.inspectorTabs.Contains(typeof(ITab_Storage)))
+                && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
             select storage).ToList();
         foreach (var storage in storageInGame)
         {

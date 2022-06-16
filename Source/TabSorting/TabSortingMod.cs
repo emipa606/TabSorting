@@ -205,14 +205,17 @@ internal class TabSortingMod : Mod
         action();
     }
 
-    private static void SetManualSortTarget(Def def)
+    private static void SetManualSortTarget(List<Def> defs)
     {
-        var defNames = new List<string> { def.defName };
-        if (instance.Settings.GroupSameDesignator && designatorGroups.Any(pair => pair.Value.Contains(def)))
+        var defNames = defs.Select(x => x.defName).ToList();
+        foreach (var def in defs)
         {
-            foreach (var designatorDef in designatorGroups.First(pair => pair.Value.Contains(def)).Value)
+            if (instance.Settings.GroupSameDesignator && designatorGroups.Any(pair => pair.Value.Contains(def)))
             {
-                defNames.Add(designatorDef.defName);
+                foreach (var designatorDef in designatorGroups.First(pair => pair.Value.Contains(def)).Value)
+                {
+                    defNames.Add(designatorDef.defName);
+                }
             }
         }
 
@@ -622,7 +625,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[item.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(item); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget(new List<Def> { item }); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(item,
                         new Rect(
@@ -845,11 +848,21 @@ internal class TabSortingMod : Mod
                 }
 
                 contentRect.height = ((allCurrentDefsInCategory.Count() + allCurrentTerrainInCategory.Count()) * 24f) +
-                                     40f;
+                                     40f + 24f;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
                 listing_Options.Begin(contentRect);
 
                 listing_Options.Gap(5f);
+
+                var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
+                Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
+                if (Widgets.ButtonText(new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y), 
+                    "TabSorting.Select".Translate()))
+                {
+                    SetManualSortTarget(allCurrentDefsInCategory.Cast<Def>().Concat(allCurrentTerrainInCategory).ToList());
+                }
+                listing_Options.Gap(24f);
+
                 foreach (var thing in allCurrentDefsInCategory)
                 {
                     var toolTip = thing.defName;
@@ -876,7 +889,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[thing.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(thing); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget(new List<Def> { thing }); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(thing,
                         new Rect(
@@ -910,7 +923,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[terrain.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(terrain); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget(new List<Def> { terrain }); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(terrain,
                         new Rect(
