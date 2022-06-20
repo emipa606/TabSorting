@@ -9,11 +9,19 @@
     <li>1.2</li>
     <li>1.3</li>
   </supportedVersions>
-  <modDependencies />
+  <modDependencies>
+    <li>
+      <packageId>brrainz.harmony</packageId>
+      <displayName>Harmony</displayName>
+      <steamWorkshopUrl>steam://url/CommunityFilePage/2009463077</steamWorkshopUrl>
+      <downloadUrl>https://github.com/pardeike/HarmonyRimWorld/releases/latest</downloadUrl>
+    </li>
+  </modDependencies>
   <loadBefore>
     <li>spdskatr.projectrimfactory</li>
   </loadBefore>
   <loadAfter>
+    <li>brrainz.harmony</li>
     <li>Mlie.RemoveIndustrialStuff</li>
     <li>Mlie.RemoveSpacerStuff</li>
     <li>Mlie.LordoftheRimsTheThirdAge</li>
@@ -25,7 +33,7 @@
 Not sure how much more time I will put on this mod seeing the scope of the [url= https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924]Vanilla UI Expanded[/url]
 I may add compatibility for the autosort but the general Ui of that mod is more refined and worked on by more than one person (that do not have a few houndred mods to support). 
 
-—-
+—
 
 Sort your stuff!
   
@@ -63,6 +71,7 @@ Other options:
 - Manual sorting - if some items gets in the wrong place, move them around.
 - Create new tabs to sort to
 - Added support for marcin212's [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067]Architect Icons[/url]
+- Sort the main buttons
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
@@ -74,6 +83,10 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
     [tr]
         [td][url=https://invite.gg/Mlie][img]https://i.imgur.com/zdzzBrc.png[/img][/url][/td]
         [td][url=https://github.com/emipa606/TabSorting][img]https://i.imgur.com/kTkpTOE.png[/img][/url][/td]
+    [/tr]
+    [tr]
+        [td][img]https://i.imgur.com/WjDSfUn.png[/img][/td]
+        [td][img]https://i.imgur.com/h5VwTNL.png[/img][/td]
     [/tr]
 [/table]
 
@@ -94,5 +107,6 @@ Since modding is just a hobby for me I expect no donations to keep modding. If y
 [*] Do not report errors by making a discussion-thread, I get no notification of that.
 [*] If you have the solution for a problem, please post it to the GitHub repository.
 [/list]
+
 </description>
 </ModMetaData>

@@ -8,7 +8,7 @@
 Not sure how much more time I will put on this mod seeing the scope of the  https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924]Vanilla UI Expanded
 I may add compatibility for the autosort but the general Ui of that mod is more refined and worked on by more than one person (that do not have a few houndred mods to support). 
 
-—-
+—
 
 Sort your stuff!
   
@@ -46,6 +46,7 @@ Other options:
 - Manual sorting - if some items gets in the wrong place, move them around.
 - Create new tabs to sort to
 - Added support for marcin212's https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067]Architect Icons
+- Sort the main buttons
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
@@ -73,6 +74,7 @@ https://ko-fi.com/G2G55DDYD]![Image](https://i.imgur.com/Utx6OIH.png)
 -  For best support, please use the Discord-channel for error-reporting.
 -  Do not report errors by making a discussion-thread, I get no notification of that.
 -  If you have the solution for a problem, please post it to the GitHub repository.
+
 
 
 

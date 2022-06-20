@@ -66,7 +66,7 @@ public static class ListingExtension
         }
 
         GUI.DrawTexture(rect.ContractedBy((rect.width - TabSortingMod.tabIconSize.x) / 2),
-            TabSorting.iconsCache[currentIconName]);
+            TabSorting.iconsCache?[currentIconName]);
 
         if (!selectable)
         {

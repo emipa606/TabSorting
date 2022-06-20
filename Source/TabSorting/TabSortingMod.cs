@@ -37,8 +37,6 @@ internal class TabSortingMod : Mod
 
     private static Vector2 optionsScrollPosition;
 
-    private static float rightSideWidth;
-
     public static string selectedDef = "Settings";
 
     private static Vector2 tabsScrollPosition;
@@ -142,7 +140,6 @@ internal class TabSortingMod : Mod
 
         var rect2 = rect.ContractedBy(1);
         leftSideWidth = rect2.ContractedBy(10).width / 3;
-        rightSideWidth = rect2.width - leftSideWidth;
 
         listing_Standard = new Listing_Standard();
 
@@ -210,12 +207,14 @@ internal class TabSortingMod : Mod
         var defNames = defs.Select(x => x.defName).ToList();
         foreach (var def in defs)
         {
-            if (instance.Settings.GroupSameDesignator && designatorGroups.Any(pair => pair.Value.Contains(def)))
+            if (!instance.Settings.GroupSameDesignator || !designatorGroups.Any(pair => pair.Value.Contains(def)))
             {
-                foreach (var designatorDef in designatorGroups.First(pair => pair.Value.Contains(def)).Value)
-                {
-                    defNames.Add(designatorDef.defName);
-                }
+                continue;
+            }
+
+            foreach (var designatorDef in designatorGroups.First(pair => pair.Value.Contains(def)).Value)
+            {
+                defNames.Add(designatorDef.defName);
             }
         }
 
@@ -847,21 +846,27 @@ internal class TabSortingMod : Mod
                         def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
                 }
 
-                contentRect.height = ((allCurrentDefsInCategory.Count() + allCurrentTerrainInCategory.Count()) * 24f) +
+                contentRect.height = ((allCurrentDefsInCategory.Count + allCurrentTerrainInCategory.Count) * 24f) +
                                      40f + 24f;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
                 listing_Options.Begin(contentRect);
 
                 listing_Options.Gap(5f);
 
-                var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
-                Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
-                if (Widgets.ButtonText(new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y), 
-                    "TabSorting.Select".Translate()))
+                if (allCurrentDefsInCategory.Any() || allCurrentTerrainInCategory.Any())
                 {
-                    SetManualSortTarget(allCurrentDefsInCategory.Cast<Def>().Concat(allCurrentTerrainInCategory).ToList());
+                    var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
+                    Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
+                    if (Widgets.ButtonText(
+                            new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y),
+                            "TabSorting.Select".Translate()))
+                    {
+                        SetManualSortTarget(allCurrentDefsInCategory.Cast<Def>().Concat(allCurrentTerrainInCategory)
+                            .ToList());
+                    }
+
+                    listing_Options.Gap(24f);
                 }
-                listing_Options.Gap(24f);
 
                 foreach (var thing in allCurrentDefsInCategory)
                 {

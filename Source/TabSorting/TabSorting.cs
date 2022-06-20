@@ -64,8 +64,8 @@ public static class TabSorting
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
-                          where modIdsToIgnore.Contains(mod.PackageId)
-                          select mod).ToList();
+            where modIdsToIgnore.Contains(mod.PackageId)
+            select mod).ToList();
         if (ignoreMods.Count > 0)
         {
             foreach (var mod in ignoreMods)
@@ -412,7 +412,6 @@ public static class TabSorting
     ///     Goes through all items and checks if there are any references to the selected category
     ///     Removes the category if there are none
     /// </summary>
-    /// <param name="currentCategoryName">The category to check</param>
     private static bool CheckEmptyDesignationCategoryDef(DesignationCategoryDef currentCategory)
     {
         if (currentCategory == null)
@@ -460,6 +459,7 @@ public static class TabSorting
             {
                 continue;
             }
+
             return false;
         }
 
@@ -1142,9 +1142,10 @@ public static class TabSorting
             where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
                   !fence.IsFrame && !fence.IsBlueprint &&
                   fence.designationCategory != null && fence.designationCategory.defName != "Fences" &&
-                  ((fence.thingClass.IsDerivedFrom(typeof(Building_Door)) || fence.thingClass.IsDerivedFrom(typeof(Building)) &&
-                       fence.graphicData?.linkType == LinkDrawerType.Basic &&
-                       fence.passability == Traversability.Impassable) && fence.fillPercent is < 1f and > 0 ||
+                  ((fence.thingClass.IsDerivedFrom(typeof(Building_Door)) ||
+                    fence.thingClass.IsDerivedFrom(typeof(Building)) &&
+                    fence.graphicData?.linkType == LinkDrawerType.Basic &&
+                    fence.passability == Traversability.Impassable) && fence.fillPercent is < 1f and > 0 ||
                    fence.label.ToLower().Contains("fence"))
             select fence).ToList();
         foreach (var fence in fencesInGame)
@@ -1157,15 +1158,17 @@ public static class TabSorting
 
         LogMessage($"Moved {fencesInGame.Count} fences to the Fences-tab.", true);
     }
-    
+
     public static bool IsDerivedFrom(this Type thingClass, Type baseClass)
     {
         if (thingClass == null)
         {
             return false;
         }
+
         return baseClass.IsAssignableFrom(thingClass);
     }
+
     /// <summary>
     ///     Sorts all floors to the Floors-tab
     /// </summary>
@@ -1341,49 +1344,61 @@ public static class TabSorting
 
         var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
 
-        Predicate<ThingDef> lightValidator = delegate (ThingDef furniture)
+        bool LightValidator(ThingDef furniture)
         {
-            if (!defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
-                  furniture.designationCategory != null &&
-                  !furniture.IsFrame && !furniture.IsBlueprint && furniture.category == ThingCategory.Building)
+            if (defsToIgnore.Contains(furniture.defName) || changedDefNames.Contains(furniture.defName) ||
+                furniture.designationCategory == null || furniture.IsFrame || furniture.IsBlueprint ||
+                furniture.category != ThingCategory.Building)
             {
-                var compGlower = furniture.GetCompProperties<CompProperties_Glower>();
-                if (compGlower != null && compGlower.glowRadius >= 3)
-                {
-                    var compPower = furniture.GetCompProperties<CompProperties_Power>();
-                    if (compPower == null || compPower.compClass != typeof(CompPowerPlant) && (compPower.basePowerConsumption < 2000 ||
-                         furniture.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp"))))
-                    {
-                        if (furniture.recipes == null && (furniture.placeWorkers == null ||
-                            !furniture.placeWorkers.Contains(typeof(PlaceWorker_ShowFacilitiesConnections))))
-                        {
-                            if (furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
-                                furniture.GetCompProperties<CompProperties_Battery>() == null &&
-                                furniture.GetCompProperties<CompProperties_TempControl>() == null &&
-                                (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
-                                 furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < compGlower.glowRadius) &&
-                                furniture.surfaceType != SurfaceType.Eat &&
-                                furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
-                                furniture.thingClass.IsDerivedFrom(typeof(Building_TurretGun)) is false &&
-                                furniture.thingClass.IsDerivedFrom(typeof(Building_PlantGrower)) is false &&
-                                furniture.thingClass.IsDerivedFrom(typeof(Building_Heater)) is false &&
-                                (furniture.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) is false || !gardenToolsExists) &&
-                                (furniture.inspectorTabs == null ||
-                                 !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) && !furniture.hasInteractionCell ||
-                                furniture.label != null &&
-                                (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
-                                (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp")))
-                            {
-                                return true;
-                            }
-                        }
-                    }
-                }
+                return false;
             }
-            return false;
-        };
 
-        var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(x => lightValidator(x)).ToList();
+            var compGlower = furniture.GetCompProperties<CompProperties_Glower>();
+            if (compGlower == null || !(compGlower.glowRadius >= 3))
+            {
+                return false;
+            }
+
+            var compPower = furniture.GetCompProperties<CompProperties_Power>();
+            if (compPower != null && (compPower.compClass == typeof(CompPowerPlant) ||
+                                      !(compPower.basePowerConsumption < 2000) &&
+                                      !furniture.thingClass.IsDerivedFrom(
+                                          AccessTools.TypeByName("RimWorld.Building_SunLamp"))))
+            {
+                return false;
+            }
+
+            if (furniture.recipes != null || furniture.placeWorkers != null &&
+                furniture.placeWorkers.Contains(
+                    typeof(PlaceWorker_ShowFacilitiesConnections)))
+            {
+                return false;
+            }
+
+            if (furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
+                furniture.GetCompProperties<CompProperties_Battery>() == null &&
+                furniture.GetCompProperties<CompProperties_TempControl>() == null &&
+                (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
+                 furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < compGlower.glowRadius) &&
+                furniture.surfaceType != SurfaceType.Eat &&
+                furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
+                furniture.thingClass.IsDerivedFrom(typeof(Building_TurretGun)) is false &&
+                furniture.thingClass.IsDerivedFrom(typeof(Building_PlantGrower)) is false &&
+                furniture.thingClass.IsDerivedFrom(typeof(Building_Heater)) is false &&
+                (furniture.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) is false ||
+                 !gardenToolsExists) &&
+                (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) &&
+                !furniture.hasInteractionCell || furniture.label != null &&
+                (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
+                (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp")))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(LightValidator).ToList();
         foreach (var furniture in lightsInGame)
         {
             LogMessage(
@@ -1500,7 +1515,8 @@ public static class TabSorting
                   storage.thingClass.IsDerivedFrom(typeof(Building_Grave)) is false &&
                   (storage.thingClass.IsDerivedFrom(typeof(Building_Storage)) || storage.inspectorTabs != null &&
                       storage.inspectorTabs.Contains(typeof(ITab_Storage)))
-                && (storage.placeWorkers == null || !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
+                  && (storage.placeWorkers == null ||
+                      !storage.placeWorkers.Contains(typeof(PlaceWorker_NextToHopperAccepter)))
             select storage).ToList();
         foreach (var storage in storageInGame)
         {

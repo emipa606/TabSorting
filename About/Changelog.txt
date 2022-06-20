@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.11 - Performance updates and added 'Move all'-feature by Taranchuk.
+
+
 1.3.10 - Added sorting of the main buttons
 
 
