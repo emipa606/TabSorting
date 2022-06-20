@@ -76,4 +76,6 @@
   <TabSorting.MapRunning.Label>NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.</TabSorting.MapRunning.Label>
   <TabSorting.VerboseLogging.Label>Enable verbose logging</TabSorting.VerboseLogging.Label>
   <TabSorting.VerboseLogging.Tooltip>Shows verbose logging during sorting, for finding errors</TabSorting.VerboseLogging.Tooltip>
+  <TabSorting.MoveEverything>Move everything</TabSorting.MoveEverything>
+  <TabSorting.Select>Select</TabSorting.Select>
 </LanguageData>
