@@ -58,6 +58,9 @@ public static class TabSorting
 
     static TabSorting()
     {
+        var harmony = new Harmony("Mlie.TabSorting");
+        harmony.PatchAll(Assembly.GetExecutingAssembly());
+
         TabSortingMod.plusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus") != null;
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
