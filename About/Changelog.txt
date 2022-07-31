@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.13 - Fixed hospital linkables that uses a custom effect. Thanks rain for the discovery!
+
+
 1.3.12 - Fixed Kitchen room role worker, thank you slippycheeze!
 
 

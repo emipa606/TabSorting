@@ -53,8 +53,8 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 
 - Added Korean translation, thanks isty2e 
 - Added Russian translation, thanks Reiquard
-
-Thanks to some performace updates and the "Move all"-feature by Taranchuk
+- Thanks to some performace updates and the "Move all"-feature by Taranchuk
+- Kitchen room role worker fix by slippycheeze
 
 Big thanks to https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100]SmashPhil for the help and coding examples when I made a better (good) version of the settings menu! 
 Also thanks to https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100]AUTOMATIC for the well structured code for the miniature icons from the Recipe Icons mod!

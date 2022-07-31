@@ -1295,11 +1295,15 @@ public static class TabSorting
                     continue;
                 }
 
-                if ((from offset in facility.GetCompProperties<CompProperties_Facility>().statOffsets
-                        where offset.stat == StatDefOf.SurgerySuccessChanceFactor ||
-                              offset.stat == StatDefOf.MedicalTendQualityOffset ||
-                              offset.stat == StatDefOf.ImmunityGainSpeedFactor
-                        select offset).ToList().Count > 0)
+                var affectees = facility.GetCompProperties<CompProperties_Facility>();
+                if (affectees?.statOffsets == null)
+                {
+                    continue;
+                }
+
+                if (affectees.statOffsets.Any(offset => offset.stat == StatDefOf.SurgerySuccessChanceFactor ||
+                                                        offset.stat == StatDefOf.MedicalTendQualityOffset ||
+                                                        offset.stat == StatDefOf.ImmunityGainSpeedFactor))
                 {
                     affectedByFacilities.Add(facility);
                 }
@@ -1382,7 +1386,7 @@ public static class TabSorting
                 furniture.GetCompProperties<CompProperties_Battery>() == null &&
                 furniture.GetCompProperties<CompProperties_TempControl>() == null &&
                 (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
-                 furniture.GetCompProperties<CompProperties_HeatPusher>().heatPerSecond < compGlower.glowRadius) &&
+                 furniture.GetCompProperties<CompProperties_HeatPusher>()?.heatPerSecond < compGlower.glowRadius) &&
                 furniture.surfaceType != SurfaceType.Eat &&
                 furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
                 furniture.thingClass.IsDerivedFrom(typeof(Building_TurretGun)) is false &&
