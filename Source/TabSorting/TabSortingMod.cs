@@ -495,8 +495,16 @@ internal class TabSortingMod : Mod
                         var rect2 = new Rect(0f, num, 12f, 12f);
                         if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
                         {
-                            (currentDef.order, sortedTabDefs[i - 1].order) =
-                                (sortedTabDefs[i - 1].order, currentDef.order);
+                            if (currentDef.order == sortedTabDefs[i - 1].order)
+                            {
+                                currentDef.order -= 1;
+                            }
+                            else
+                            {
+                                (currentDef.order, sortedTabDefs[i - 1].order) =
+                                    (sortedTabDefs[i - 1].order, currentDef.order);
+                            }
+
                             instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
                             instance.Settings.ManualTabSorting[sortedTabDefs[i - 1].defName] =
                                 sortedTabDefs[i - 1].order;
@@ -509,8 +517,16 @@ internal class TabSortingMod : Mod
                         var rect3 = new Rect(0f, num + 12f, 12f, 12f);
                         if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
                         {
-                            (currentDef.order, sortedTabDefs[i + 1].order) =
-                                (sortedTabDefs[i + 1].order, currentDef.order);
+                            if (currentDef.order == sortedTabDefs[i + 1].order)
+                            {
+                                sortedTabDefs[i + 1].order -= 1;
+                            }
+                            else
+                            {
+                                (currentDef.order, sortedTabDefs[i + 1].order) =
+                                    (sortedTabDefs[i + 1].order, currentDef.order);
+                            }
+
                             instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
                             instance.Settings.ManualTabSorting[sortedTabDefs[i + 1].defName] =
                                 sortedTabDefs[i + 1].order;
@@ -562,8 +578,16 @@ internal class TabSortingMod : Mod
                         var rect2 = new Rect(0f, num, 12f, 12f);
                         if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
                         {
-                            (currentDef.order, buttonDefs[i - 1].order) =
-                                (buttonDefs[i - 1].order, currentDef.order);
+                            if (currentDef.order == buttonDefs[i - 1].order)
+                            {
+                                currentDef.order -= 1;
+                            }
+                            else
+                            {
+                                (currentDef.order, buttonDefs[i - 1].order) =
+                                    (buttonDefs[i - 1].order, currentDef.order);
+                            }
+
                             instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
                             instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] =
                                 buttonDefs[i - 1].order;
@@ -576,8 +600,16 @@ internal class TabSortingMod : Mod
                         var rect3 = new Rect(0f, num + 12f, 12f, 12f);
                         if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
                         {
-                            (currentDef.order, buttonDefs[i + 1].order) =
-                                (buttonDefs[i + 1].order, currentDef.order);
+                            if (currentDef.order == buttonDefs[i + 1].order)
+                            {
+                                buttonDefs[i + 1].order -= 1;
+                            }
+                            else
+                            {
+                                (currentDef.order, buttonDefs[i + 1].order) =
+                                    (buttonDefs[i + 1].order, currentDef.order);
+                            }
+
                             instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
                             instance.Settings.ManualButtonSorting[buttonDefs[i + 1].defName] =
                                 buttonDefs[i + 1].order;

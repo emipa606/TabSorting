@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.3.14 - Fixed an issue with mods that remove main-buttons, also fixed tab and button sorting where the order-value is the same value on two items.
+
+
 1.3.13 - Fixed hospital linkables that uses a custom effect. Thanks rain for the discovery!
 
 

@@ -368,9 +368,11 @@ public static class TabSorting
         {
             var mainRoot = Find.MainButtonsRoot;
             var prop = mainRoot.GetType().GetField("allButtonsInOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            prop.SetValue(mainRoot, (from x in DefDatabase<MainButtonDef>.AllDefs
-                orderby x.order
-                select x).ToList());
+            var currentButtons = (List<MainButtonDef>)prop.GetValue(mainRoot);
+            prop.SetValue(mainRoot, (from buttonDef in DefDatabase<MainButtonDef>.AllDefs
+                where currentButtons.Contains(buttonDef)
+                orderby buttonDef.order
+                select buttonDef).ToList());
         }
 
         if (!TabSortingMod.instance.Settings.SortTabs)
