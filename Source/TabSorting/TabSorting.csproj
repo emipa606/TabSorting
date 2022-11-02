@@ -6,14 +6,14 @@
     <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
     <DebugType>None</DebugType>
     <LangVersion>latest</LangVersion>
-    <FileVersion>1.4.1</FileVersion>
+    <FileVersion>1.4.2</FileVersion>
   </PropertyGroup>
   <ItemGroup>
-	  <PackageReference Include="Krafs.Publicizer" Version="*">
-		  <PrivateAssets>all</PrivateAssets>
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-	  </PackageReference>
-	  <PackageReference Include="Krafs.Rimworld.Ref">
+    <PackageReference Include="Krafs.Publicizer" Version="*">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Krafs.Rimworld.Ref">
       <Version>*</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
       <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -24,7 +24,7 @@
     </PackageReference>
     <PackageReference Include="Mlie_Rimworld_VersionFromManifest" Version="*" />
   </ItemGroup>
-	<ItemGroup>
-		<Publicize Include="Assembly-CSharp" />
-	</ItemGroup>
+  <ItemGroup>
+    <Publicize Include="Assembly-CSharp" />
+  </ItemGroup>
 </Project>

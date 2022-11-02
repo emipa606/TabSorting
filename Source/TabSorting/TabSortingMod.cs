@@ -848,7 +848,7 @@ internal class TabSortingMod : Mod
                 }
 
                 contentRect.height =
-                    (allCurrentDefsInCategory.Count * 24f) + 40f + 24f;
+                    (allCurrentDefsInCategory.Count * 25f) + 40f + 24f;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
                 listing_Options.Begin(contentRect);
 
@@ -978,7 +978,7 @@ internal class TabSortingMod : Mod
         var categoryDefs = instance.Settings.VanillaCategoryMemory;
         var manualDefs = instance.Settings.ManualCategoryMemory;
 
-        tabContentRect.height = (categoryDefs.Count + manualDefs.Count + 5) * 22f;
+        tabContentRect.height = (categoryDefs.Count + manualDefs.Count + 5) * 27f;
         Widgets.BeginScrollView(tabFrameRect, ref tabsScrollPosition, tabContentRect);
         listing_Standard.Begin(tabContentRect);
         if (listing_Standard.ListItemSelectable("TabSorting.Settings".Translate(), Color.yellow,

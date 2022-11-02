@@ -13,7 +13,7 @@ public static class ListingExtension
     {
         var anchor = Text.Anchor;
         var color = GUI.color;
-        var rect = lister.GetRect(20f);
+        var rect = lister.GetRect(25f);
         if (!string.IsNullOrEmpty(loadImage) && TabSorting.architectIconsLoaded)
         {
             rect.width -= TabSortingMod.tabIconSize.x;

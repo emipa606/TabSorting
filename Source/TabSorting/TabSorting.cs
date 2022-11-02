@@ -612,7 +612,7 @@ public static class TabSorting
             return;
         }
 
-        var designationCategory = GetDesignationFromDatabase("IdeologyTab");
+        var designationCategory = GetDesignationFromDatabase("Ideology");
         if (designationCategory == null)
         {
             Log.ErrorOnce("[TabSorting]: Cannot find the IdeologyTab-def, will not sort Ideology items.",
@@ -627,7 +627,7 @@ public static class TabSorting
 
         var ideologyFurnitureInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
-                  furniture.designationCategory != null && furniture.designationCategory.defName != "IdeologyTab" &&
+                  furniture.designationCategory != null && furniture.designationCategory.defName != "Ideology" &&
                   (furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualPosition)) == true ||
                    furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualSeat)) == true ||
                    furniture.comps?.Any(properties => properties.compClass == typeof(CompRelicContainer)) == true ||
