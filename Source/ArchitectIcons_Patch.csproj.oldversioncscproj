@@ -18,6 +18,5 @@
       <Version>*</Version>
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
-    <PackageReference Include="Mlie_Rimworld_VersionFromManifest" Version="*" />
   </ItemGroup>
 </Project>

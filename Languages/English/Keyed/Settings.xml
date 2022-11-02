@@ -31,6 +31,8 @@
   Continue?</TabSorting.ResetButtonsort>
   <TabSorting.ResetOne>All items in this tab will be restored to their original tabs and this tab will be removed. Continue?</TabSorting.ResetOne>
   <TabSorting.ResetAll>Reset all</TabSorting.ResetAll>
+  <TabSorting.ResetSort>Reset sortings</TabSorting.ResetSort>
+  <TabSorting.ResetOrder>Reset ordering</TabSorting.ResetOrder>
   <TabSorting.GroupContaining>Group containing: \n{0}</TabSorting.GroupContaining>
   <TabSorting.ModVersion>Installed mod-version: {0}</TabSorting.ModVersion>
   <TabSorting.MorePlanning>The More Planning mod is loaded and will loose its colored designators if the sorting is redone after game-start. Do you want to resort the menu? If NO, only the settings will be saved and applied the next game-start.</TabSorting.MorePlanning>
@@ -72,7 +74,7 @@
   <TabSorting.SkipZoneOrders.Label>   But skip Orders and Zone-tab</TabSorting.SkipZoneOrders.Label>
   <TabSorting.SkipZoneOrders.Tooltip>Orders and Zone-tab will remain in the top if the menu</TabSorting.SkipZoneOrders.Tooltip>
   <TabSorting.ManualReset.Label>Manual sorting reset</TabSorting.ManualReset.Label>
-  <TabSorting.ManualReset.Tooltip>Reset all manually defined sortings</TabSorting.ManualReset.Tooltip>
+  <TabSorting.ManualReset.Tooltip>Reset all manually defined sortings and order of gizmos</TabSorting.ManualReset.Tooltip>
   <TabSorting.MapRunning.Label>NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.</TabSorting.MapRunning.Label>
   <TabSorting.VerboseLogging.Label>Enable verbose logging</TabSorting.VerboseLogging.Label>
   <TabSorting.VerboseLogging.Tooltip>Shows verbose logging during sorting, for finding errors</TabSorting.VerboseLogging.Tooltip>

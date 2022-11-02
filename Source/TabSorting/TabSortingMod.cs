@@ -202,7 +202,7 @@ internal class TabSortingMod : Mod
         action();
     }
 
-    private static void SetManualSortTarget(List<Def> defs)
+    private static void SetManualSortTarget(List<BuildableDef> defs)
     {
         var defNames = defs.Select(x => x.defName).ToList();
         foreach (var def in defs)
@@ -434,13 +434,12 @@ internal class TabSortingMod : Mod
                 }
 
                 listing_Standard.Gap();
-                if (instance.Settings.ManualSorting != null && instance.Settings.ManualSorting.Any())
-                {
-                    var labelPoint = listing_Standard.Label("TabSorting.ManualReset.Label".Translate(), -1F,
-                        "TabSorting.ManualReset.Tooltip".Translate());
-                    DrawButton(instance.Settings.ResetManualValues, "TabSorting.ResetAll".Translate(),
-                        new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
-                }
+                var labelPoint = listing_Standard.Label("TabSorting.ManualReset.Label".Translate(), -1F,
+                    "TabSorting.ManualReset.Tooltip".Translate());
+                DrawButton(instance.Settings.ResetManualValues, "TabSorting.ResetSort".Translate(),
+                    new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
+                DrawButton(instance.Settings.ResetManualThingSortingValues, "TabSorting.ResetOrder".Translate(),
+                    new Vector2(labelPoint.position.x + buttonSpacer + buttonSize.x, labelPoint.position.y));
 
                 if (Current.ProgramState == ProgramState.Playing)
                 {
@@ -589,8 +588,7 @@ internal class TabSortingMod : Mod
                             }
 
                             instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
-                            instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] =
-                                buttonDefs[i - 1].order;
+                            instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] = buttonDefs[i - 1].order;
                             SoundDefOf.Tick_High.PlayOneShotOnCamera();
                         }
                     }
@@ -656,7 +654,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[item.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(new List<Def> { item }); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget(new List<BuildableDef> { item }); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(item,
                         new Rect(
@@ -726,20 +724,15 @@ internal class TabSortingMod : Mod
                     return;
                 }
 
-                var allDefsInCategory = (from thing in DefDatabase<ThingDef>.AllDefsListForReading
+                var allDefsInCategory = (from thing in DefDatabase<BuildableDef>.AllDefsListForReading
                     where thing.designationCategory != null && thing.designationCategory == sortCategory
-                    orderby thing.label
+                    orderby thing.uiOrder
                     select thing).ToList();
-
-                var allTerrainInCategory = (from terrain in DefDatabase<TerrainDef>.AllDefsListForReading
-                    where terrain.designationCategory != null && terrain.designationCategory == sortCategory
-                    orderby terrain.label
-                    select terrain).ToList();
 
                 designatorGroups = new Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>>();
                 if (instance.Settings.GroupSameDesignator)
                 {
-                    var tempAllDefsInCategory = new List<ThingDef>();
+                    var tempAllDefsInCategory = new List<BuildableDef>();
 
                     foreach (var thingDef in allDefsInCategory)
                     {
@@ -758,27 +751,7 @@ internal class TabSortingMod : Mod
                         designatorGroups[thingDef.designatorDropdown].Add(thingDef);
                     }
 
-                    var tempAllTerrainDefsInCategory = new List<TerrainDef>();
-
-                    foreach (var terrainDef in allTerrainInCategory)
-                    {
-                        if (terrainDef.designatorDropdown == null)
-                        {
-                            tempAllTerrainDefsInCategory.Add(terrainDef);
-                            continue;
-                        }
-
-                        if (!designatorGroups.ContainsKey(terrainDef.designatorDropdown))
-                        {
-                            designatorGroups.Add(terrainDef.designatorDropdown, new List<BuildableDef>());
-                            tempAllTerrainDefsInCategory.Add(terrainDef);
-                        }
-
-                        designatorGroups[terrainDef.designatorDropdown].Add(terrainDef);
-                    }
-
                     allDefsInCategory = tempAllDefsInCategory;
-                    allTerrainInCategory = tempAllTerrainDefsInCategory;
                 }
 
                 var architechMargin = 0f;
@@ -866,26 +839,22 @@ internal class TabSortingMod : Mod
                 viewRect.y += extraRowSpace;
                 contentRect.width -= 20;
                 var allCurrentDefsInCategory = allDefsInCategory;
-                var allCurrentTerrainInCategory = allTerrainInCategory;
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
                     allCurrentDefsInCategory = allDefsInCategory.Where(def =>
                         def.label.ToLower().Contains(searchText.ToLower()) ||
                         def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
-                    allCurrentTerrainInCategory = allTerrainInCategory.Where(def =>
-                        def.label.ToLower().Contains(searchText.ToLower()) ||
-                        def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
                 }
 
-                contentRect.height = ((allCurrentDefsInCategory.Count + allCurrentTerrainInCategory.Count) * 24f) +
-                                     40f + 24f;
+                contentRect.height =
+                    (allCurrentDefsInCategory.Count * 24f) + 40f + 24f;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
                 listing_Options.Begin(contentRect);
 
                 listing_Options.Gap(5f);
 
-                if (allCurrentDefsInCategory.Any() || allCurrentTerrainInCategory.Any())
+                if (allCurrentDefsInCategory.Any())
                 {
                     var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
                     Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
@@ -893,15 +862,61 @@ internal class TabSortingMod : Mod
                             new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y),
                             "TabSorting.Select".Translate()))
                     {
-                        SetManualSortTarget(allCurrentDefsInCategory.Cast<Def>().Concat(allCurrentTerrainInCategory)
-                            .ToList());
+                        SetManualSortTarget(allCurrentDefsInCategory);
                     }
 
                     listing_Options.Gap(24f);
                 }
 
-                foreach (var thing in allCurrentDefsInCategory)
+                var num = 50f;
+                for (var index = 0; index < allCurrentDefsInCategory.Count; index++)
                 {
+                    var rowRect = new Rect(20f, num, contentRect.width - 20f, 25f);
+                    var thing = allCurrentDefsInCategory[index];
+                    if (index > 0)
+                    {
+                        var rect2 = new Rect(0f, num, 12f, 12f);
+                        if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
+                        {
+                            if (thing.uiOrder == allCurrentDefsInCategory[index - 1].uiOrder)
+                            {
+                                thing.uiOrder -= 1;
+                            }
+                            else
+                            {
+                                (thing.uiOrder, allCurrentDefsInCategory[index - 1].uiOrder) =
+                                    (allCurrentDefsInCategory[index - 1].uiOrder, thing.uiOrder);
+                            }
+
+                            instance.Settings.ManualThingSorting[thing.defName] = thing.uiOrder;
+                            instance.Settings.ManualThingSorting[allCurrentDefsInCategory[index - 1].defName] =
+                                allCurrentDefsInCategory[index - 1].uiOrder;
+                            SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                        }
+                    }
+
+                    if (index < allCurrentDefsInCategory.Count - 1)
+                    {
+                        var rect3 = new Rect(0f, num + 12f, 12f, 12f);
+                        if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
+                        {
+                            if (thing.uiOrder == allCurrentDefsInCategory[index + 1].uiOrder)
+                            {
+                                allCurrentDefsInCategory[index + 1].uiOrder -= 1;
+                            }
+                            else
+                            {
+                                (thing.uiOrder, allCurrentDefsInCategory[index + 1].uiOrder) =
+                                    (allCurrentDefsInCategory[index + 1].uiOrder, thing.uiOrder);
+                            }
+
+                            instance.Settings.ManualThingSorting[thing.defName] = thing.uiOrder;
+                            instance.Settings.ManualThingSorting[allCurrentDefsInCategory[index + 1].defName] =
+                                allCurrentDefsInCategory[index + 1].uiOrder;
+                            SoundDefOf.Tick_Low.PlayOneShotOnCamera();
+                        }
+                    }
+
                     var toolTip = thing.defName;
                     var iconToolTip = string.Empty;
                     if (instance.Settings.GroupSameDesignator && thing.designatorDropdown != null &&
@@ -917,8 +932,9 @@ internal class TabSortingMod : Mod
                         toolTip += $" ({thing.modContentPack.Name})";
                     }
 
-                    var currentPosition = listing_Options.Label(thing.LabelCap);
+                    var currentPosition = rowRect;
                     currentPosition.width /= 2;
+                    Widgets.Label(currentPosition, thing.LabelCap);
                     TooltipHandler.TipRegion(currentPosition, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(thing.defName))
@@ -926,46 +942,14 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[thing.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(new List<Def> { thing }); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget(new List<BuildableDef> { thing }); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(thing,
                         new Rect(
                             new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
                                 currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
-                }
 
-                foreach (var terrain in allCurrentTerrainInCategory)
-                {
-                    var toolTip = terrain.defName;
-                    var iconToolTip = string.Empty;
-                    if (instance.Settings.GroupSameDesignator && terrain.designatorDropdown != null &&
-                        designatorGroups.ContainsKey(terrain.designatorDropdown) &&
-                        designatorGroups[terrain.designatorDropdown].Any())
-                    {
-                        iconToolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
-                            designatorGroups[terrain.designatorDropdown].Select(def => def.LabelCap)));
-                    }
-
-                    if (!string.IsNullOrEmpty(terrain.modContentPack?.Name))
-                    {
-                        toolTip += $" ({terrain.modContentPack.Name})";
-                    }
-
-                    var currentPosition = listing_Options.Label(terrain.LabelCap);
-                    currentPosition.width /= 2;
-                    TooltipHandler.TipRegion(currentPosition, toolTip);
-                    var buttonText = "TabSorting.Default".Translate();
-                    if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(terrain.defName))
-                    {
-                        buttonText = Settings.ManualSorting[terrain.defName];
-                    }
-
-                    DrawButton(delegate { SetManualSortTarget(new List<Def> { terrain }); }, buttonText,
-                        new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
-                    drawIcon(terrain,
-                        new Rect(
-                            new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
-                                currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
+                    num += 25f;
                 }
 
                 listing_Options.GapLine();

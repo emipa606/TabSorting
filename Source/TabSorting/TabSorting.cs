@@ -160,6 +160,14 @@ public static class TabSorting
         }
     }
 
+    public static void RecacheTheThingSorting()
+    {
+        foreach (var thingOrder in TabSortingMod.instance.Settings.VanillaThingOrderMemory)
+        {
+            TabSortingMod.instance.Settings.ManualThingSorting.Add(thingOrder.Key.defName, thingOrder.Value);
+        }
+    }
+
     public static void RecacheTheButtonSorting()
     {
         foreach (var buttonOrder in TabSortingMod.instance.Settings.VanillaButtonOrderMemory)
@@ -201,14 +209,10 @@ public static class TabSorting
 
         if (!TabSortingMod.instance.Settings.VanillaItemMemory.Any())
         {
-            foreach (var thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
+            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading)
             {
-                TabSortingMod.instance.Settings.VanillaItemMemory.Add(thingDef, thingDef.designationCategory);
-            }
-
-            foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefsListForReading)
-            {
-                TabSortingMod.instance.Settings.VanillaItemMemory.Add(terrainDef, terrainDef.designationCategory);
+                TabSortingMod.instance.Settings.VanillaItemMemory.Add(buildableDef, buildableDef.designationCategory);
+                TabSortingMod.instance.Settings.VanillaThingOrderMemory.Add(buildableDef, buildableDef.uiOrder);
             }
         }
         else
@@ -278,6 +282,19 @@ public static class TabSorting
             foreach (var buttonDef in DefDatabase<MainButtonDef>.AllDefsListForReading)
             {
                 TabSortingMod.instance.Settings.ManualButtonSorting[buttonDef.defName] = buttonDef.order;
+            }
+        }
+
+        if (TabSortingMod.instance.Settings.ManualThingSorting == null)
+        {
+            TabSortingMod.instance.Settings.ManualThingSorting = new Dictionary<string, float>();
+        }
+
+        if (!TabSortingMod.instance.Settings.ManualThingSorting.Any())
+        {
+            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading)
+            {
+                TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
             }
         }
 
@@ -364,6 +381,17 @@ public static class TabSorting
             buttonDef.order = buttonSortInfo.Value;
         }
 
+        foreach (var thingSortInfo in TabSortingMod.instance.Settings.ManualThingSorting)
+        {
+            var buildableDef = DefDatabase<BuildableDef>.GetNamedSilentFail(thingSortInfo.Key);
+            if (buildableDef == null)
+            {
+                continue;
+            }
+
+            buildableDef.uiOrder = thingSortInfo.Value;
+        }
+
         if (Current.Game != null)
         {
             var mainRoot = Find.MainButtonsRoot;
@@ -401,8 +429,7 @@ public static class TabSorting
         foreach (var designationCategoryDef in designationCategoryDefs)
         {
             topValue -= steps;
-            if (TabSortingMod.instance.Settings.SkipBuiltIn && (designationCategoryDef.label == "orders" ||
-                                                                designationCategoryDef.label == "zone"))
+            if (TabSortingMod.instance.Settings.SkipBuiltIn && designationCategoryDef.label is "orders" or "zone")
             {
                 continue;
             }
@@ -424,7 +451,7 @@ public static class TabSorting
             return false;
         }
 
-        if (currentCategory.defName == "Orders" || currentCategory.defName == "Zone")
+        if (currentCategory.defName is "Orders" or "Zone")
         {
             return false;
         }
@@ -1166,12 +1193,7 @@ public static class TabSorting
 
     public static bool IsDerivedFrom(this Type thingClass, Type baseClass)
     {
-        if (thingClass == null)
-        {
-            return false;
-        }
-
-        return baseClass.IsAssignableFrom(thingClass);
+        return thingClass != null && baseClass.IsAssignableFrom(thingClass);
     }
 
     /// <summary>
@@ -1363,7 +1385,7 @@ public static class TabSorting
             }
 
             var compGlower = furniture.GetCompProperties<CompProperties_Glower>();
-            if (compGlower == null || !(compGlower.glowRadius >= 3))
+            if (compGlower is not { glowRadius: >= 3 })
             {
                 return false;
             }
@@ -1384,7 +1406,7 @@ public static class TabSorting
                 return false;
             }
 
-            if (furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
+            return furniture.GetCompProperties<CompProperties_ShipLandingBeacon>() == null &&
                 furniture.GetCompProperties<CompProperties_Battery>() == null &&
                 furniture.GetCompProperties<CompProperties_TempControl>() == null &&
                 (furniture.GetCompProperties<CompProperties_HeatPusher>() == null ||
@@ -1399,12 +1421,7 @@ public static class TabSorting
                 (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) &&
                 !furniture.hasInteractionCell || furniture.label != null &&
                 (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
-                (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp")))
-            {
-                return true;
-            }
-
-            return false;
+                (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"));
         }
 
         var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(LightValidator).ToList();
@@ -1520,8 +1537,8 @@ public static class TabSorting
         var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading
             where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) &&
                   storage.designationCategory != null &&
-                  storage.designationCategory.defName != "FurnitureStorage" && storage.thingClass != null &&
-                  storage.thingClass.IsDerivedFrom(typeof(Building_Grave)) is false &&
+                  storage.designationCategory.defName != "FurnitureStorage" &&
+                  storage.thingClass?.IsDerivedFrom(typeof(Building_Grave)) is false &&
                   (storage.thingClass.IsDerivedFrom(typeof(Building_Storage)) || storage.inspectorTabs != null &&
                       storage.inspectorTabs.Contains(typeof(ITab_Storage)))
                   && (storage.placeWorkers == null ||
@@ -1594,11 +1611,8 @@ public static class TabSorting
     {
         var cleanTabName = Regex.Replace(tabName, @"[^a-zA-Z]*", string.Empty);
         var currentDesignations = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
-        if (currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName))
-        {
-            return null;
-        }
-
-        return cleanTabName;
+        return currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName)
+            ? null
+            : cleanTabName;
     }
 }

@@ -17,4 +17,11 @@
     <li IfModActive="com.bymarcin.ArchitectIcons">ArchitectIcons/1.3</li>
     <li IfModActive="Ludeon.Rimworld.Ideology">Ideology</li>
   </v1.3>
+  <v1.4>
+    <li>/</li>
+    <li>1.4</li>
+    <li IfModActive="avius.prisonlabor">PrisonLabour/1.4</li>
+    <li IfModActive="com.bymarcin.ArchitectIcons">ArchitectIcons/1.4</li>
+    <li IfModActive="Ludeon.Rimworld.Ideology">Ideology</li>
+  </v1.4>
 </loadFolders>

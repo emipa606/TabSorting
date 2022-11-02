@@ -1,5 +1,9 @@
 # Changelog for TabSorting
 
+1.4.1 - Mod updated for 1.4 and passed autotests.
+Used DeepL to update translations for ChineseSimplified, French, German, Russian
+
+
 1.3.14 - Fixed an issue with mods that remove main-buttons, also fixed tab and button sorting where the order-value is the same value on two items.
 
 

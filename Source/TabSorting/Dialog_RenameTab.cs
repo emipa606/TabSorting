@@ -12,7 +12,7 @@ public class Dialog_RenameTab : Dialog_Rename
         curName = designationTab.label;
     }
 
-    protected override AcceptanceReport NameIsValid(string name)
+    public override AcceptanceReport NameIsValid(string name)
     {
         var result = base.NameIsValid(name);
         if (!result.Accepted)
@@ -28,7 +28,7 @@ public class Dialog_RenameTab : Dialog_Rename
         return true;
     }
 
-    protected override void SetName(string name)
+    public override void SetName(string name)
     {
         TabSortingMod.instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == tab.defName);
         tab.label = name;

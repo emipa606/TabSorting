@@ -20,6 +20,9 @@ internal class TabSortingModSettings : ModSettings
     public readonly Dictionary<DesignationCategoryDef, int> VanillaTabOrderMemory =
         new Dictionary<DesignationCategoryDef, int>();
 
+    public readonly Dictionary<BuildableDef, float> VanillaThingOrderMemory =
+        new Dictionary<BuildableDef, float>();
+
     private List<string> CategoriesToIgnore = new List<string>();
     public bool GroupSameDesignator;
 
@@ -53,6 +56,10 @@ internal class TabSortingModSettings : ModSettings
     private List<int> manualTabSortingValues;
 
     private List<string> manualTabsValues;
+    public Dictionary<string, float> ManualThingSorting = new Dictionary<string, float>();
+    private List<string> manualThingSortingKeys;
+
+    private List<float> manualThingSortingValues;
 
     public bool RemoveEmptyTabs = true;
 
@@ -119,6 +126,8 @@ internal class TabSortingModSettings : ModSettings
             ref manualTabsKeys, ref manualTabsValues);
         Scribe_Collections.Look(ref ManualTabSorting, "ManualTabSorting", LookMode.Value, LookMode.Value,
             ref manualTabSortingKeys, ref manualTabSortingValues);
+        Scribe_Collections.Look(ref ManualThingSorting, "ManualThingSorting", LookMode.Value, LookMode.Value,
+            ref manualThingSortingKeys, ref manualThingSortingValues);
         Scribe_Collections.Look(ref ManualButtonSorting, "ManualButtonSorting", LookMode.Value, LookMode.Value,
             ref manualButtonSortingKeys, ref manualButtonSortingValues);
         Scribe_Collections.Look(ref ManualTabIcons, "ManualTabIcons", LookMode.Value, LookMode.Value,
@@ -140,6 +149,15 @@ internal class TabSortingModSettings : ModSettings
         manualTabSortingValues = new List<int>();
         ManualTabSorting = new Dictionary<string, int>();
         TabSorting.RecacheTheTabSorting();
+        TabSorting.DoTheSorting();
+    }
+
+    public void ResetManualThingSortingValues()
+    {
+        manualThingSortingKeys = new List<string>();
+        manualThingSortingValues = new List<float>();
+        ManualThingSorting = new Dictionary<string, float>();
+        TabSorting.RecacheTheThingSorting();
         TabSorting.DoTheSorting();
     }
 
