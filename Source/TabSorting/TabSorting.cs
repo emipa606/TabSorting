@@ -224,8 +224,13 @@ public static class TabSorting
         {
             foreach (var manualTab in TabSortingMod.instance.Settings.ManualTabs)
             {
+                DesignationCategoryDef designationCategory;
                 if (TabSortingMod.instance.Settings.ManualCategoryMemory.Any(def => def.defName == manualTab.Key))
                 {
+                    designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
+                    designationCategory.specialDesignatorClasses = new List<Type>
+                        { typeof(Designator_Cancel), typeof(Designator_Deconstruct) };
+                    designationCategory.ResolveDesignators();
                     continue;
                 }
 
@@ -235,9 +240,9 @@ public static class TabSorting
                     TabSortingMod.instance.Settings.ManualTabSorting = new Dictionary<string, int>();
                 }
 
-                if (TabSortingMod.instance.Settings.ManualTabSorting.ContainsKey(manualTab.Key))
+                if (TabSortingMod.instance.Settings.ManualTabSorting.TryGetValue(manualTab.Key, out var value))
                 {
-                    order = TabSortingMod.instance.Settings.ManualTabSorting[manualTab.Key];
+                    order = value;
                 }
 
                 while (DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Any(def => def.order == order))
@@ -256,6 +261,10 @@ public static class TabSorting
                 DefGenerator.AddImpliedDef(newTab);
                 TabSortingMod.instance.Settings.ManualCategoryMemory.Add(
                     DefDatabase<DesignationCategoryDef>.GetNamed(manualTab.Key));
+                designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
+                designationCategory.specialDesignatorClasses = new List<Type>
+                    { typeof(Designator_Cancel), typeof(Designator_Deconstruct) };
+                designationCategory.ResolveDesignators();
             }
         }
 
@@ -582,17 +591,17 @@ public static class TabSorting
 
         foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading)
         {
-            if (TabSortingMod.instance.Settings.VanillaItemMemory.ContainsKey(def))
+            if (TabSortingMod.instance.Settings.VanillaItemMemory.TryGetValue(def, out var value))
             {
-                def.designationCategory = TabSortingMod.instance.Settings.VanillaItemMemory[def];
+                def.designationCategory = value;
             }
         }
 
         foreach (var def in DefDatabase<TerrainDef>.AllDefsListForReading)
         {
-            if (TabSortingMod.instance.Settings.VanillaItemMemory.ContainsKey(def))
+            if (TabSortingMod.instance.Settings.VanillaItemMemory.TryGetValue(def, out var value))
             {
-                def.designationCategory = TabSortingMod.instance.Settings.VanillaItemMemory[def];
+                def.designationCategory = value;
             }
         }
 

@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.4.3 - Custom tabs will now have Cancel and Deconstruct gizmos
+
+
 1.4.2 - Fixed the cut-off list view and duplicate ideology-tab
 
 

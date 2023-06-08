@@ -67,8 +67,7 @@ internal class TabSortingMod : Mod
         instance = this;
         tabsScrollPosition = new Vector2(0, 0);
         optionsScrollPosition = new Vector2(0, 0);
-        currentVersion =
-            VersionFromManifest.GetVersionFromModMetaData(ModLister.GetActiveModWithIdentifier("Mlie.TabSorting"));
+        currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
     }
 
     /// <summary>
