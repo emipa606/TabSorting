@@ -54,6 +54,7 @@ public static class TabSorting
     public static readonly bool gardenToolsLoaded;
     public static readonly bool fencesAndFloorsLoaded;
     public static readonly bool architectIconsLoaded;
+    public static readonly bool blueprintsLoaded;
     public static readonly Dictionary<string, Texture2D> iconsCache;
 
     static TabSorting()
@@ -66,6 +67,7 @@ public static class TabSorting
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
+        blueprintsLoaded = DefDatabase<DesignationDef>.GetNamedSilentFail("Blueprints") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
             where modIdsToIgnore.Contains(mod.PackageId)
             select mod).ToList();
@@ -112,6 +114,10 @@ public static class TabSorting
         }
 
         LogMessage($"Found {iconsCache.Count} icons in ArchitectIcons to choose from.", true);
+        var findArchitectTabCategoryIconMethod =
+            AccessTools.Method("ArchitectIcons.Resources:FindArchitectTabCategoryIcon");
+        harmony.Patch(findArchitectTabCategoryIconMethod,
+            new HarmonyMethod(typeof(TabSorting), nameof(ArchitectIconsPrefix)));
     }
 
     public static string GetCustomTabIcon(string tabName)
@@ -461,6 +467,11 @@ public static class TabSorting
         }
 
         if (currentCategory.defName is "Orders" or "Zone")
+        {
+            return false;
+        }
+
+        if (blueprintsLoaded && currentCategory.defName == "Blueprints")
         {
             return false;
         }
@@ -1001,7 +1012,7 @@ public static class TabSorting
         }
 
         LogMessage(
-            "Moved " + (affectedByFacilities.Count + bedsInGame.Count) + " bedroom furniture to the Bedroom tab.",
+            $"Moved {affectedByFacilities.Count + bedsInGame.Count} bedroom furniture to the Bedroom tab.",
             true);
     }
 
@@ -1623,5 +1634,10 @@ public static class TabSorting
         return currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName)
             ? null
             : cleanTabName;
+    }
+
+    private static void ArchitectIconsPrefix(ref string categoryDefName)
+    {
+        categoryDefName = GetCustomTabIcon(categoryDefName);
     }
 }

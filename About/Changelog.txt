@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.4.4 - Will no longer remove the blueprint-tab from FLuffys Blueprint mod
+
+
 1.4.3 - Custom tabs will now have Cancel and Deconstruct gizmos
 
 

@@ -21,6 +21,5 @@
     <li>/</li>
     <li>1.4</li>
     <li IfModActive="avius.prisonlabor">PrisonLabour/1.4</li>
-    <li IfModActive="com.bymarcin.ArchitectIcons">ArchitectIcons/1.4</li>
   </v1.4>
 </loadFolders>
