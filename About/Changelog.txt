@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.4.5 - Added support for chinese characters in custom tab-names
+
+
 1.4.4 - Will no longer remove the blueprint-tab from FLuffys Blueprint mod
 
 
