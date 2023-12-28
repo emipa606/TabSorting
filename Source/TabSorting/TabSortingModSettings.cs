@@ -12,7 +12,7 @@ internal class TabSortingModSettings : ModSettings
     public readonly Dictionary<MainButtonDef, int> VanillaButtonOrderMemory =
         new Dictionary<MainButtonDef, int>();
 
-    public readonly List<DesignationCategoryDef> VanillaCategoryMemory = new List<DesignationCategoryDef>();
+    public readonly List<DesignationCategoryDef> VanillaCategoryMemory = [];
 
     public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory =
         new Dictionary<Def, DesignationCategoryDef>();
@@ -23,7 +23,7 @@ internal class TabSortingModSettings : ModSettings
     public readonly Dictionary<BuildableDef, float> VanillaThingOrderMemory =
         new Dictionary<BuildableDef, float>();
 
-    private List<string> CategoriesToIgnore = new List<string>();
+    private List<string> CategoriesToIgnore = [];
     public bool GroupSameDesignator;
 
     public Dictionary<string, int> ManualButtonSorting = new Dictionary<string, int>();
@@ -31,7 +31,7 @@ internal class TabSortingModSettings : ModSettings
     private List<string> manualButtonSortingKeys;
 
     private List<int> manualButtonSortingValues;
-    public List<DesignationCategoryDef> ManualCategoryMemory = new List<DesignationCategoryDef>();
+    public List<DesignationCategoryDef> ManualCategoryMemory = [];
 
     public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
 
@@ -137,16 +137,16 @@ internal class TabSortingModSettings : ModSettings
 
     public void ResetManualValues()
     {
-        manualSortingKeys = new List<string>();
-        manualSortingValues = new List<string>();
+        manualSortingKeys = [];
+        manualSortingValues = [];
         ManualSorting = new Dictionary<string, string>();
         TabSorting.DoTheSorting();
     }
 
     public void ResetManualTabSortingValues()
     {
-        manualTabSortingKeys = new List<string>();
-        manualTabSortingValues = new List<int>();
+        manualTabSortingKeys = [];
+        manualTabSortingValues = [];
         ManualTabSorting = new Dictionary<string, int>();
         TabSorting.RecacheTheTabSorting();
         TabSorting.DoTheSorting();
@@ -154,8 +154,8 @@ internal class TabSortingModSettings : ModSettings
 
     public void ResetManualThingSortingValues()
     {
-        manualThingSortingKeys = new List<string>();
-        manualThingSortingValues = new List<float>();
+        manualThingSortingKeys = [];
+        manualThingSortingValues = [];
         ManualThingSorting = new Dictionary<string, float>();
         TabSorting.RecacheTheThingSorting();
         TabSorting.DoTheSorting();
@@ -163,8 +163,8 @@ internal class TabSortingModSettings : ModSettings
 
     public void ResetManualButtonSortingValues()
     {
-        manualButtonSortingKeys = new List<string>();
-        manualButtonSortingValues = new List<int>();
+        manualButtonSortingKeys = [];
+        manualButtonSortingValues = [];
         ManualButtonSorting = new Dictionary<string, int>();
         TabSorting.RecacheTheButtonSorting();
         TabSorting.DoTheSorting();

@@ -14,8 +14,8 @@ namespace TabSorting;
 [StaticConstructorOnStartup]
 public static class TabSorting
 {
-    private static readonly HashSet<string> modIdsToIgnore = new HashSet<string>
-    {
+    private static readonly HashSet<string> modIdsToIgnore =
+    [
         "atlas.androidtiers",
         "dubwise.dubsbadhygiene",
         "vanillaexpanded.vfepower",
@@ -23,10 +23,10 @@ public static class TabSorting
         "vanillaexpanded.vfepropsanddecor",
         "kentington.saveourship2",
         "flashpoint55.poweredfloorpanelmod"
-    };
+    ];
 
-    private static readonly HashSet<string> defsToIgnore = new HashSet<string>
-    {
+    private static readonly HashSet<string> defsToIgnore =
+    [
         "FM_AIManager",
         "PRF_MiniDroneColumn",
         "PRF_RecipeDatabase",
@@ -34,21 +34,21 @@ public static class TabSorting
         "PRF_TypeTwoAssembler_I",
         "PRF_TypeTwoAssembler_II",
         "PRF_TypeTwoAssembler_III"
-    };
+    ];
 
     private static HashSet<string> changedDefNames;
 
-    private static readonly HashSet<string> tabsToIgnore = new HashSet<string>
-    {
+    private static readonly HashSet<string> tabsToIgnore =
+    [
         "Planning",
         "Shapes"
-    };
+    ];
 
-    private static readonly HashSet<string> namespacesToIgnore = new HashSet<string>
-    {
+    private static readonly HashSet<string> namespacesToIgnore =
+    [
         "RimWorld",
         "DubRoss"
-    };
+    ];
 
     public static readonly bool mintMenusLoaded;
     public static readonly bool gardenToolsLoaded;
@@ -185,7 +185,7 @@ public static class TabSorting
     public static void DoTheSorting()
     {
         LogMessage("Starting a new sorting-session");
-        changedDefNames = new HashSet<string>();
+        changedDefNames = [];
         if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
         {
             foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
@@ -210,7 +210,7 @@ public static class TabSorting
 
         if (TabSortingMod.instance.Settings.ManualCategoryMemory == null)
         {
-            TabSortingMod.instance.Settings.ManualCategoryMemory = new List<DesignationCategoryDef>();
+            TabSortingMod.instance.Settings.ManualCategoryMemory = [];
         }
 
         if (!TabSortingMod.instance.Settings.VanillaItemMemory.Any())
@@ -234,8 +234,8 @@ public static class TabSorting
                 if (TabSortingMod.instance.Settings.ManualCategoryMemory.Any(def => def.defName == manualTab.Key))
                 {
                     designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
-                    designationCategory.specialDesignatorClasses = new List<Type>
-                        { typeof(Designator_Cancel), typeof(Designator_Deconstruct) };
+                    designationCategory.specialDesignatorClasses =
+                        [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
                     designationCategory.ResolveDesignators();
                     continue;
                 }
@@ -268,8 +268,8 @@ public static class TabSorting
                 TabSortingMod.instance.Settings.ManualCategoryMemory.Add(
                     DefDatabase<DesignationCategoryDef>.GetNamed(manualTab.Key));
                 designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
-                designationCategory.specialDesignatorClasses = new List<Type>
-                    { typeof(Designator_Cancel), typeof(Designator_Deconstruct) };
+                designationCategory.specialDesignatorClasses =
+                    [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
                 designationCategory.ResolveDesignators();
             }
         }
@@ -1395,6 +1395,18 @@ public static class TabSorting
 
         var gardenToolsExists = DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) != null;
 
+        var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(LightValidator).ToList();
+        foreach (var furniture in lightsInGame)
+        {
+            LogMessage(
+                $"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
+            changedDefNames.Add(furniture.defName);
+            furniture.designationCategory = designationCategory;
+        }
+
+        LogMessage($"Moved {lightsInGame.Count} lights to the Lights tab.", true);
+        return;
+
         bool LightValidator(ThingDef furniture)
         {
             if (defsToIgnore.Contains(furniture.defName) || changedDefNames.Contains(furniture.defName) ||
@@ -1443,17 +1455,6 @@ public static class TabSorting
                 (furniture.label.ToLower().Contains("wall") || furniture.label.ToLower().Contains("floor")) &&
                 (furniture.label.ToLower().Contains("light") || furniture.label.ToLower().Contains("lamp"));
         }
-
-        var lightsInGame = DefDatabase<ThingDef>.AllDefs.Where(LightValidator).ToList();
-        foreach (var furniture in lightsInGame)
-        {
-            LogMessage(
-                $"Changing designation for furniture {furniture.defName} from {furniture.designationCategory} to {designationCategory.defName}");
-            changedDefNames.Add(furniture.defName);
-            furniture.designationCategory = designationCategory;
-        }
-
-        LogMessage($"Moved {lightsInGame.Count} lights to the Lights tab.", true);
     }
 
     /// <summary>

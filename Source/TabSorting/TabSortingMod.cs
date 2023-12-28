@@ -116,6 +116,7 @@ internal class TabSortingMod : Mod
             var thingsToRemove = new List<string>();
             foreach (var item in from item in instance.Settings.ManualSorting
                      where item.Value == "TabSorting.None".Translate()
+                           || item.Value == "None"
                      select item)
             {
                 var hiddenThingDef = DefDatabase<ThingDef>.GetNamedSilentFail(item.Key);
@@ -217,6 +218,44 @@ internal class TabSortingMod : Mod
             }
         }
 
+        var list = new List<FloatMenuOption> { new FloatMenuOption("TabSorting.Default".Translate(), defaultAction) };
+
+        foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory
+                 orderby vanillaCategory.label
+                 select vanillaCategory)
+        {
+            list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
+            continue;
+
+            void action()
+            {
+                foreach (var defName in defNames)
+                {
+                    instance.Settings.ManualSorting[defName] = sortOption.defName;
+                }
+            }
+        }
+
+        foreach (var sortOption in from manualCategory in instance.Settings.ManualCategoryMemory
+                 orderby manualCategory.label
+                 select manualCategory)
+        {
+            list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
+            continue;
+
+            void action()
+            {
+                foreach (var defName in defNames)
+                {
+                    instance.Settings.ManualSorting[defName] = sortOption.defName;
+                }
+            }
+        }
+
+        list.Add(new FloatMenuOption("TabSorting.NoneHidden".Translate(), noneAction));
+        Find.WindowStack.Add(new FloatMenu(list));
+        return;
+
         void defaultAction()
         {
             foreach (var defName in defNames)
@@ -230,48 +269,13 @@ internal class TabSortingMod : Mod
             }
         }
 
-        var list = new List<FloatMenuOption> { new FloatMenuOption("TabSorting.Default".Translate(), defaultAction) };
-
-        foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory
-                 orderby vanillaCategory.label
-                 select vanillaCategory)
-        {
-            void action()
-            {
-                foreach (var defName in defNames)
-                {
-                    instance.Settings.ManualSorting[defName] = sortOption.defName;
-                }
-            }
-
-            list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
-        }
-
-        foreach (var sortOption in from manualCategory in instance.Settings.ManualCategoryMemory
-                 orderby manualCategory.label
-                 select manualCategory)
-        {
-            void action()
-            {
-                foreach (var defName in defNames)
-                {
-                    instance.Settings.ManualSorting[defName] = sortOption.defName;
-                }
-            }
-
-            list.Add(new FloatMenuOption($"{sortOption.label.CapitalizeFirst()} ({sortOption.defName})", action));
-        }
-
         void noneAction()
         {
             foreach (var defName in defNames)
             {
-                instance.Settings.ManualSorting[defName] = "TabSorting.None".Translate();
+                instance.Settings.ManualSorting[defName] = "None";
             }
         }
-
-        list.Add(new FloatMenuOption("TabSorting.NoneHidden".Translate(), noneAction));
-        Find.WindowStack.Add(new FloatMenu(list));
     }
 
     private void drawIcon(BuildableDef thing, Rect rect, string designatorTooltip = null)
@@ -653,7 +657,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[item.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(new List<BuildableDef> { item }); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget([item]); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(item,
                         new Rect(
@@ -743,7 +747,7 @@ internal class TabSortingMod : Mod
 
                         if (!designatorGroups.ContainsKey(thingDef.designatorDropdown))
                         {
-                            designatorGroups.Add(thingDef.designatorDropdown, new List<BuildableDef>());
+                            designatorGroups.Add(thingDef.designatorDropdown, []);
                             tempAllDefsInCategory.Add(thingDef);
                         }
 
@@ -941,7 +945,7 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[thing.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget(new List<BuildableDef> { thing }); }, buttonText,
+                    DrawButton(delegate { SetManualSortTarget([thing]); }, buttonText,
                         new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
                     drawIcon(thing,
                         new Rect(
