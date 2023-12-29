@@ -1,5 +1,9 @@
 # Changelog for TabSorting
 
+1.4.7 - Fixed none-sorting (hopefully)
+Now ignores all items that has no designation from the start, should fix the issue with Vanilla Furniture Expanded - Props and Decor
+
+
 1.4.6 - Should be possible to hide buildables even when using a translation
 
 

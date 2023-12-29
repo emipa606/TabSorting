@@ -280,7 +280,7 @@ internal class TabSortingMod : Mod
 
     private void drawIcon(BuildableDef thing, Rect rect, string designatorTooltip = null)
     {
-        if (thing == null || thing.uiIcon == BaseContent.BadTex)
+        if (thing == null || thing.uiIcon == null || thing.uiIcon == BaseContent.BadTex)
         {
             return;
         }
@@ -307,7 +307,8 @@ internal class TabSortingMod : Mod
         GUI.color = new Color(textureColor.r, textureColor.g, textureColor.b, GUI.color.a);
         GUI.DrawTexture(rect, texture2D);
         GUI.color = beforeColor;
-        if (!instance.Settings.GroupSameDesignator || thing.designatorDropdown == null ||
+        if (!instance.Settings.GroupSameDesignator || thing.designatorDropdown == null || designatorGroups == null ||
+            !designatorGroups.ContainsKey(thing.designatorDropdown) ||
             !designatorGroups[thing.designatorDropdown].Any())
         {
             return;

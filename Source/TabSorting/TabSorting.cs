@@ -83,6 +83,16 @@ public static class TabSorting
             }
         }
 
+        foreach (var thingDef in DefDatabase<ThingDef>.AllDefs.Where(def => def.designationCategory == null))
+        {
+            defsToIgnore.Add(thingDef.defName);
+        }
+
+        foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefs.Where(def => def.designationCategory == null))
+        {
+            defsToIgnore.Add(terrainDef.defName);
+        }
+
         DoTheSorting();
 
         if (!architectIconsLoaded)
@@ -307,9 +317,18 @@ public static class TabSorting
 
         if (!TabSortingMod.instance.Settings.ManualThingSorting.Any())
         {
-            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading)
+            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading.Where(def =>
+                         !defsToIgnore.Contains(def.defName)))
             {
                 TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
+            }
+        }
+
+        foreach (var defName in defsToIgnore)
+        {
+            if (TabSortingMod.instance.Settings.ManualThingSorting.ContainsKey(defName))
+            {
+                TabSortingMod.instance.Settings.ManualThingSorting.Remove(defName);
             }
         }
 
@@ -602,18 +621,12 @@ public static class TabSorting
 
         foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading)
         {
-            if (TabSortingMod.instance.Settings.VanillaItemMemory.TryGetValue(def, out var value))
-            {
-                def.designationCategory = value;
-            }
+            def.designationCategory = TabSortingMod.instance.Settings.VanillaItemMemory.GetValueOrDefault(def);
         }
 
         foreach (var def in DefDatabase<TerrainDef>.AllDefsListForReading)
         {
-            if (TabSortingMod.instance.Settings.VanillaItemMemory.TryGetValue(def, out var value))
-            {
-                def.designationCategory = value;
-            }
+            def.designationCategory = TabSortingMod.instance.Settings.VanillaItemMemory.GetValueOrDefault(def);
         }
 
         foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
