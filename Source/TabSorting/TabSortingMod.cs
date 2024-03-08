@@ -135,6 +135,7 @@ internal class TabSortingMod : Mod
             foreach (var defName in thingsToRemove)
             {
                 instance.Settings.ManualSorting.Remove(defName);
+                ResetSortOrder(defName);
             }
         }
 
@@ -232,6 +233,7 @@ internal class TabSortingMod : Mod
                 foreach (var defName in defNames)
                 {
                     instance.Settings.ManualSorting[defName] = sortOption.defName;
+                    ResetSortOrder(defName);
                 }
             }
         }
@@ -248,6 +250,7 @@ internal class TabSortingMod : Mod
                 foreach (var defName in defNames)
                 {
                     instance.Settings.ManualSorting[defName] = sortOption.defName;
+                    ResetSortOrder(defName);
                 }
             }
         }
@@ -266,6 +269,7 @@ internal class TabSortingMod : Mod
                 }
 
                 instance.Settings.ManualSorting.Remove(defName);
+                ResetSortOrder(defName);
             }
         }
 
@@ -274,6 +278,7 @@ internal class TabSortingMod : Mod
             foreach (var defName in defNames)
             {
                 instance.Settings.ManualSorting[defName] = "None";
+                ResetSortOrder(defName);
             }
         }
     }
@@ -691,7 +696,8 @@ internal class TabSortingMod : Mod
                     }
 
                     var order = 1;
-                    while (DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Any(def => def.order == order))
+                    var orders = DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Select(def => def.order);
+                    while (orders.Contains(order))
                     {
                         order++;
                     }
@@ -732,6 +738,7 @@ internal class TabSortingMod : Mod
                     where thing.designationCategory != null && thing.designationCategory == sortCategory
                     orderby thing.uiOrder
                     select thing).ToList();
+                allDefsInCategory = VerifyUniqueOrderValues(allDefsInCategory);
 
                 designatorGroups = new Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>>();
                 if (instance.Settings.GroupSameDesignator)
@@ -961,6 +968,33 @@ internal class TabSortingMod : Mod
                 Widgets.EndScrollView();
                 break;
             }
+        }
+    }
+
+    public static List<BuildableDef> VerifyUniqueOrderValues(List<BuildableDef> buildableDefs)
+    {
+        if (!buildableDefs.Any(def => buildableDefs.Count(buildableDef => buildableDef.uiOrder == def.uiOrder) > 1))
+        {
+            return buildableDefs;
+        }
+
+        var currentOrder = buildableDefs.OrderBy(def => def.uiOrder).First().uiOrder;
+
+        foreach (var buildableDef in buildableDefs)
+        {
+            buildableDef.uiOrder = currentOrder;
+            instance.Settings.ManualThingSorting[buildableDef.defName] = currentOrder;
+            currentOrder++;
+        }
+
+        return buildableDefs;
+    }
+
+    public static void ResetSortOrder(string defName)
+    {
+        if (instance.Settings.ManualThingSorting?.ContainsKey(defName) == true)
+        {
+            instance.Settings.ManualThingSorting.Remove(defName);
         }
     }
 

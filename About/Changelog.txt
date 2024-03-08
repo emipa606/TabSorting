@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.4.8 - Changing the order of items should now work a bit better
+
+
 1.4.7 - Fixed none-sorting (hopefully)
 Now ignores all items that has no designation from the start, should fix the issue with Vanilla Furniture Expanded - Props and Decor
 

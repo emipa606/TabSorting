@@ -261,7 +261,8 @@ public static class TabSorting
                     order = value;
                 }
 
-                while (DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Any(def => def.order == order))
+                var orders = DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Select(def => def.order);
+                while (orders.Contains(order))
                 {
                     order++;
                 }

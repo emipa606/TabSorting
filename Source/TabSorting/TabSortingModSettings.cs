@@ -137,6 +137,11 @@ internal class TabSortingModSettings : ModSettings
 
     public void ResetManualValues()
     {
+        foreach (var manualSortingKey in ManualSorting.Keys)
+        {
+            TabSortingMod.ResetSortOrder(manualSortingKey);
+        }
+
         manualSortingKeys = [];
         manualSortingValues = [];
         ManualSorting = new Dictionary<string, string>();
