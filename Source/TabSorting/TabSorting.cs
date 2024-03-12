@@ -318,18 +318,9 @@ public static class TabSorting
 
         if (!TabSortingMod.instance.Settings.ManualThingSorting.Any())
         {
-            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading.Where(def =>
-                         !defsToIgnore.Contains(def.defName)))
+            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading)
             {
                 TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
-            }
-        }
-
-        foreach (var defName in defsToIgnore)
-        {
-            if (TabSortingMod.instance.Settings.ManualThingSorting.ContainsKey(defName))
-            {
-                TabSortingMod.instance.Settings.ManualThingSorting.Remove(defName);
             }
         }
 
@@ -1482,13 +1473,11 @@ public static class TabSorting
             return;
         }
 
-        var thingsToRemove = new List<string>();
         foreach (var itemToSort in TabSortingMod.instance.Settings.ManualSorting)
         {
             var designationCategory = GetDesignationFromDatabase(itemToSort.Value);
             if (designationCategory == null && itemToSort.Value != "None")
             {
-                thingsToRemove.Add(itemToSort.Key);
                 continue;
             }
 
@@ -1496,7 +1485,6 @@ public static class TabSorting
             var terrainDefToSort = DefDatabase<TerrainDef>.GetNamedSilentFail(itemToSort.Key);
             if (thingDefToSort == null && terrainDefToSort == null)
             {
-                thingsToRemove.Add(itemToSort.Key);
                 continue;
             }
 
@@ -1528,11 +1516,6 @@ public static class TabSorting
             }
 
             changedDefNames.Add(itemToSort.Key);
-        }
-
-        foreach (var defName in thingsToRemove)
-        {
-            TabSortingMod.instance.Settings.ManualSorting.Remove(defName);
         }
 
         LogMessage(
