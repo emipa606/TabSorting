@@ -56,12 +56,13 @@ public static class TabSorting
     public static readonly bool architectIconsLoaded;
     public static readonly bool blueprintsLoaded;
     public static readonly Dictionary<string, Texture2D> iconsCache;
+    private static readonly FieldInfo basePowerConsumptionField;
 
     static TabSorting()
     {
         var harmony = new Harmony("Mlie.TabSorting");
         harmony.PatchAll(Assembly.GetExecutingAssembly());
-
+        basePowerConsumptionField = AccessTools.Field(typeof(CompProperties_Power), "basePowerConsumption");
         TabSortingMod.plusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus") != null;
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
@@ -246,7 +247,9 @@ public static class TabSorting
                     designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
                     designationCategory.specialDesignatorClasses =
                         [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
-                    designationCategory.ResolveDesignators();
+                    AccessTools.Method(typeof(DesignationCategoryDef), "ResolveDesignators")
+                        .Invoke(designationCategory, []);
+                    //designationCategory.ResolveDesignators();
                     continue;
                 }
 
@@ -281,7 +284,9 @@ public static class TabSorting
                 designationCategory = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(manualTab.Key);
                 designationCategory.specialDesignatorClasses =
                     [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
-                designationCategory.ResolveDesignators();
+                AccessTools.Method(typeof(DesignationCategoryDef), "ResolveDesignators")
+                    .Invoke(designationCategory, []);
+                //designationCategory.ResolveDesignators();
             }
         }
 
@@ -1428,12 +1433,17 @@ public static class TabSorting
             }
 
             var compPower = furniture.GetCompProperties<CompProperties_Power>();
-            if (compPower != null && (compPower.compClass == typeof(CompPowerPlant) ||
-                                      !(compPower.basePowerConsumption < 2000) &&
-                                      !furniture.thingClass.IsDerivedFrom(
-                                          AccessTools.TypeByName("RimWorld.Building_SunLamp"))))
+            if (compPower != null)
             {
-                return false;
+                var powerConsumption = (float)basePowerConsumptionField.GetValue(compPower);
+
+                if (compPower.compClass == typeof(CompPowerPlant) ||
+                    !(powerConsumption < 2000) &&
+                    !furniture.thingClass.IsDerivedFrom(
+                        AccessTools.TypeByName("RimWorld.Building_SunLamp")))
+                {
+                    return false;
+                }
             }
 
             if (furniture.recipes != null || furniture.placeWorkers != null &&

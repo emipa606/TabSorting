@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.0 - Mod updated for 1.5 and passed autotests
+
+
 1.4.9 - Manual sorting will not be affected by the the exclusions for auto-sorting. Non-existing manually sorted items will not be remove from manual sorting settings.
 
 
