@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<LanguageData>
+  
+  <!-- EN: Lights -->
+  <LightsTab.label>灯具</LightsTab.label>
+  <!-- EN: Light Cat. -->
+  <LightsTab.description>灯具分类</LightsTab.description>
+  
+  <!-- EN: Table/Chairs -->
+  <TableChairsTab.label>桌子/椅子</TableChairsTab.label>
+  <!-- EN: All tables and chairs -->
+  <TableChairsTab.description>所有的桌子/椅子</TableChairsTab.description>
+  
+  <!-- EN: Bedroom -->
+  <BedroomTab.label>卧室</BedroomTab.label>
+  <!-- EN: Furniture for Bedrooms -->
+  <BedroomTab.description>卧室家具</BedroomTab.description>
+  
+  <!-- EN: Hospital -->
+  <HospitalTab.label>医院</HospitalTab.label>
+  <!-- EN: Furniture for Hospital -->
+  <HospitalTab.description>医院设备</HospitalTab.description>
+  
+  <!-- EN: Decorations -->
+  <DecorationTab.label>装饰品</DecorationTab.label>
+  <!-- EN: Items to decorate with -->
+  <DecorationTab.description>用以装饰的物品</DecorationTab.description>
+  
+  <!-- EN: Storage -->
+  <StorageTab.label>存储</StorageTab.label>
+  <!-- EN: Storage containers -->
+  <StorageTab.description>存储容器</StorageTab.description>
+  
+  <!-- EN: Kitchen -->
+  <KitchenTab.label>厨房</KitchenTab.label>
+  <!-- EN: Kitchen furniture -->
+  <KitchenTab.description>厨房家具</KitchenTab.description>
+  
+  <!-- EN: Research -->
+  <ResearchTab.label>研究</ResearchTab.label>
+  <!-- EN: Research furniture -->
+  <ResearchTab.description>研究设备</ResearchTab.description>
+  
+  <!-- EN: Doors -->
+  <DoorTab.label>门</DoorTab.label>
+  <!-- EN: Doors -->
+  <DoorTab.description>门</DoorTab.description>
+  
+</LanguageData>
