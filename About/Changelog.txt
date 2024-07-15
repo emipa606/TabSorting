@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.2 - Fixed Ideology check
+
+
 1.5.1 - Chinese translation added, thanks Ercilan
 
 

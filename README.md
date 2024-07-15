@@ -4,7 +4,7 @@
 
 **NOTICE**
 
-Not sure how much more time I will put on this mod seeing the scope of the [ https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924](Vanilla UI Expanded)
+Not sure how much more time I will put on this mod seeing the scope of the [Vanilla UI Expanded]( https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924)
 I may add compatibility for the autosort but the general Ui of that mod is more refined and worked on by more than one person (that do not have a few houndred mods to support). 
 
 —
@@ -31,11 +31,11 @@ Currently the mod supports the following sorting:
 
 Special case
 - All storage-containers to the Storage-tab
-  If [https://steamcommunity.com/sharedfiles/filedetails/?id=731732064]Extended Storage[/url] or [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896](LWM's Deep Storage) is loaded their Storage-tab will be used instead.
+  If [Extended Storage](https://steamcommunity.com/sharedfiles/filedetails/?id=731732064) or [LWM's Deep Storage](https://steamcommunity.com/sharedfiles/filedetails/?id=1617282896) is loaded their Storage-tab will be used instead.
   
 Options dependent of other mods:
-- All garden-tools to the Garden Tools-tab of [https://steamcommunity.com/sharedfiles/filedetails/?id=2007063961](VGP Garden Tools)
-- All fences the Fences-tab of [https://steamcommunity.com/sharedfiles/filedetails/?id=2012420113](Fences and Floors)
+- All garden-tools to the Garden Tools-tab of [VGP Garden Tools](https://steamcommunity.com/sharedfiles/filedetails/?id=2007063961)
+- All fences the Fences-tab of [Fences and Floors](https://steamcommunity.com/sharedfiles/filedetails/?id=2012420113)
   
 Other options:
 - If a tab is empty after the sorting the mod can remove it
@@ -44,7 +44,7 @@ Other options:
 - Items that use the same button can be moved all at once, for example stuffed floors
 - Manual sorting - if some items gets in the wrong place, move them around.
 - Create new tabs to sort to
-- Added support for marcin212's [https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067](Architect Icons)
+- Added support for marcin212's [Architect Icons](https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067)
 - Sort the main buttons
 - Sort the order of buildable items
 
@@ -56,25 +56,27 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 - Thanks to some performace updates and the "Move all"-feature by Taranchuk
 - Kitchen room role worker fix by slippycheeze
 
-Big thanks to [https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100](SmashPhil) for the help and coding examples when I made a better (good) version of the settings menu! 
-Also thanks to [https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100](AUTOMATIC) for the well structured code for the miniature icons from the Recipe Icons mod!
+Big thanks to [SmashPhil](https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100) for the help and coding examples when I made a better (good) version of the settings menu! 
+Also thanks to [AUTOMATIC](https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100) for the well structured code for the miniature icons from the Recipe Icons mod!
 
 ![Image](https://i.imgur.com/Ds0rBAD.png)
-Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my [https://store.steampowered.com/wishlist/id/Mlie](Wishlist) or buy me a cup of tea.
 
-[https://ko-fi.com/G2G55DDYD]![Image]((https://i.imgur.com/VWG0yff.png))
+Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my [Wishlist](https://store.steampowered.com/wishlist/id/Mlie) or buy me a cup of tea.
+
+[![Image](https://i.imgur.com/VWG0yff.png)](https://ko-fi.com/G2G55DDYD)
 
 ![Image](https://i.imgur.com/5xwDG6H.png)
 
 
+
 -  See if the the error persists if you just have this mod and its requirements active.
 -  If not, try adding your other mods until it happens again.
--  Post your error-log using [https://steamcommunity.com/workshop/filedetails/?id=818773962]HugsLib[/url] or the standalone [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2873415404](Uploader) and command Ctrl+F12
+-  Post your error-log using [HugsLib](https://steamcommunity.com/workshop/filedetails/?id=818773962) or the standalone [Uploader](https://steamcommunity.com/sharedfiles/filedetails/?id=2873415404) and command Ctrl+F12
 -  For best support, please use the Discord-channel for error-reporting.
 -  Do not report errors by making a discussion-thread, I get no notification of that.
 -  If you have the solution for a problem, please post it to the GitHub repository.
--  Use [https://github.com/RimSort/RimSort/releases/latest](RimSort) to sort your mods
+-  Use [RimSort](https://github.com/RimSort/RimSort/releases/latest) to sort your mods
 
 
 
-[https://steamcommunity.com/sharedfiles/filedetails/changelog/2138635288]![Image]((https://img.shields.io/github/v/release/emipa606/TabSorting?label=latest%20version&style=plastic&labelColor=0070cd&color=white))
+[![Image](https://img.shields.io/github/v/release/emipa606/TabSorting?label=latest%20version&style=plastic&labelColor=0070cd&color=white)](https://steamcommunity.com/sharedfiles/filedetails/changelog/2138635288)

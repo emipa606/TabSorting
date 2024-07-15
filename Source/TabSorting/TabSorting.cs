@@ -637,7 +637,7 @@ public static class TabSorting
     /// </summary>
     private static void SortIdeologyFurniture()
     {
-        if (!ModLister.IdeologyInstalled)
+        if (ModLister.GetActiveModWithIdentifier("ludeon.rimworld.ideology") == null)
         {
             return;
         }
