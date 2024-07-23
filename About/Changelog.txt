@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.3 - Fixed the carpet issue, thanks to AJarOfDirt!
+
+
 1.5.2 - Fixed Ideology check
 
 

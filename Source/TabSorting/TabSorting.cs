@@ -231,6 +231,13 @@ public static class TabSorting
                 TabSortingMod.instance.Settings.VanillaItemMemory.Add(buildableDef, buildableDef.designationCategory);
                 TabSortingMod.instance.Settings.VanillaThingOrderMemory.Add(buildableDef, buildableDef.uiOrder);
             }
+
+            foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefsListForReading.Where(def =>
+                         !defsToIgnore.Contains(def.defName)))
+            {
+                TabSortingMod.instance.Settings.VanillaItemMemory.TryAdd(terrainDef, terrainDef.designationCategory);
+                TabSortingMod.instance.Settings.VanillaThingOrderMemory.TryAdd(terrainDef, terrainDef.uiOrder);
+            }
         }
         else
         {
@@ -607,6 +614,7 @@ public static class TabSorting
     private static void RestoreVanillaSorting()
     {
         LogMessage("Restoring all things to vanilla sorting");
+
         foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
         {
             var designation = GetDesignationFromDatabase(designationCategoryDef.defName);
