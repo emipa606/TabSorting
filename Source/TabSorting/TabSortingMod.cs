@@ -17,7 +17,7 @@ internal class TabSortingMod : Mod
     /// </summary>
     public static TabSortingMod instance;
 
-    public static readonly Vector2 buttonSize = new Vector2(120f, 25f);
+    public static readonly Vector2 buttonSize = new Vector2(120f, 20f);
 
     public static readonly Vector2 tabIconSize = new Vector2(16f, 16f);
     private static readonly Vector2 tabIconContainer = new Vector2(20f, 20f);
@@ -28,6 +28,8 @@ internal class TabSortingMod : Mod
     private static readonly float columnSpacer = 0.1f;
 
     private static readonly float iconSize = 20f;
+
+    private static readonly float iconSpacer = 2f;
 
     private static float leftSideWidth;
 
@@ -51,6 +53,7 @@ internal class TabSortingMod : Mod
 
     private static Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>> designatorGroups;
 
+    private int reorderID = -1;
 
     /// <summary>
     ///     The private settings
@@ -327,6 +330,30 @@ internal class TabSortingMod : Mod
             TooltipHandler.TipRegion(newRect, designatorTooltip);
         }
     }
+
+    // copypaste - Stolen from Replace Stuff mod
+    public static void DefLabelWithIconButNoTooltipCmonReally(Rect rect, Def def, float iconMargin = 2f,
+        float textOffsetX = 6f)
+    {
+        //DrawHighlightIfMouseover(rect);
+        //TooltipHandler.TipRegion(rect, def.description);
+        Widgets.BeginGroup(rect);
+        var rect2 = new Rect(0f, 0f, rect.height, rect.height);
+        if (iconMargin != 0f)
+        {
+            rect2 = rect2.ContractedBy(iconMargin);
+        }
+
+        Widgets.DefIcon(rect2, def, drawPlaceholder: true);
+        var rect3 = new Rect(rect2.xMax + textOffsetX, 0f, rect.width, rect.height);
+        Text.Anchor = TextAnchor.MiddleLeft;
+        Text.WordWrap = false;
+        Widgets.Label(rect3, def.LabelCap);
+        Text.Anchor = TextAnchor.UpperLeft;
+        Text.WordWrap = true;
+        Widgets.EndGroup();
+    }
+
 
     private void DrawOptions(Rect rect)
     {
@@ -849,23 +876,27 @@ internal class TabSortingMod : Mod
                 viewRect.height -= extraRowSpace;
                 viewRect.y += extraRowSpace;
                 contentRect.width -= 20;
-                var allCurrentDefsInCategory = allDefsInCategory;
+                AllCurrentDefsInCategory.allCurrentDefsInCategory = allDefsInCategory;
 
                 if (!string.IsNullOrEmpty(searchText))
                 {
-                    allCurrentDefsInCategory = allDefsInCategory.Where(def =>
+                    AllCurrentDefsInCategory.allCurrentDefsInCategory = allDefsInCategory.Where(def =>
                         def.label.ToLower().Contains(searchText.ToLower()) ||
                         def.modContentPack?.Name.ToLower().Contains(searchText.ToLower()) == true).ToList();
                 }
 
-                contentRect.height =
-                    (allCurrentDefsInCategory.Count * 25f) + 40f + 24f;
+                var itemHeight = Text.LineHeight + 5f;
+
+                var moveEverythingRowHeight = itemHeight + 20f;
+                var defListHeight = (AllCurrentDefsInCategory.allCurrentDefsInCategory.Count * itemHeight) + 10f;
+
+                contentRect.height = defListHeight + moveEverythingRowHeight;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
                 listing_Options.Begin(contentRect);
 
                 listing_Options.Gap(5f);
 
-                if (allCurrentDefsInCategory.Any())
+                if (AllCurrentDefsInCategory.allCurrentDefsInCategory.Any())
                 {
                     var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
                     Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
@@ -873,94 +904,84 @@ internal class TabSortingMod : Mod
                             new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y),
                             "TabSorting.Select".Translate()))
                     {
-                        SetManualSortTarget(allCurrentDefsInCategory);
+                        SetManualSortTarget(AllCurrentDefsInCategory.allCurrentDefsInCategory);
                     }
 
                     listing_Options.Gap(24f);
                 }
 
-                var num = 50f;
-                for (var index = 0; index < allCurrentDefsInCategory.Count; index++)
+                listing_Options.GapLine();
+
+                var reorderRect = listing_Options.GetRect(defListHeight);
+                Widgets.DrawBox(reorderRect);
+                listing_Options.Gap(2f);
+
+                var labelRect = reorderRect.ContractedBy(5).TopPartPixels(itemHeight);
+                var globalDragRect = labelRect;
+                globalDragRect.position = GUIUtility.GUIToScreenPoint(globalDragRect.position);
+
+                if (Event.current.type == EventType.Repaint)
                 {
-                    var rowRect = new Rect(20f, num, contentRect.width - 20f, 25f);
-                    var thing = allCurrentDefsInCategory[index];
-                    if (index > 0)
-                    {
-                        var rect2 = new Rect(0f, num, 12f, 12f);
-                        if (Widgets.ButtonImage(rect2, TexButton.ReorderUp, Color.white))
+                    reorderID = ReorderableWidget.NewGroup(
+                        AllCurrentDefsInCategory.Reorder,
+                        ReorderableDirection.Vertical,
+                        reorderRect,
+                        extraDraggedItemOnGUI: delegate(int index, Vector2 dragStartPos)
                         {
-                            if (thing.uiOrder == allCurrentDefsInCategory[index - 1].uiOrder)
-                            {
-                                thing.uiOrder -= 1;
-                            }
-                            else
-                            {
-                                (thing.uiOrder, allCurrentDefsInCategory[index - 1].uiOrder) =
-                                    (allCurrentDefsInCategory[index - 1].uiOrder, thing.uiOrder);
-                            }
+                            var dragRect = globalDragRect; //copy it in so multiple frames don't edit the same thing
+                            dragRect.y += index * itemHeight; //i-th item
+                            dragRect.position +=
+                                Event.current.mousePosition - dragStartPos; //adjust for mouse vs starting point
+                            //Same id 34003428 as GenUI.DrawMouseAttachment
+                            Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super, () =>
+                                DefLabelWithIconButNoTooltipCmonReally(dragRect.AtZero(),
+                                    AllCurrentDefsInCategory.allCurrentDefsInCategory[index], 0)
+                            );
+                        });
+                }
 
-                            instance.Settings.ManualThingSorting[thing.defName] = thing.uiOrder;
-                            instance.Settings.ManualThingSorting[allCurrentDefsInCategory[index - 1].defName] =
-                                allCurrentDefsInCategory[index - 1].uiOrder;
-                            SoundDefOf.Tick_High.PlayOneShotOnCamera();
-                        }
-                    }
-
-                    if (index < allCurrentDefsInCategory.Count - 1)
-                    {
-                        var rect3 = new Rect(0f, num + 12f, 12f, 12f);
-                        if (Widgets.ButtonImage(rect3, TexButton.ReorderDown, Color.white))
-                        {
-                            if (thing.uiOrder == allCurrentDefsInCategory[index + 1].uiOrder)
-                            {
-                                allCurrentDefsInCategory[index + 1].uiOrder -= 1;
-                            }
-                            else
-                            {
-                                (thing.uiOrder, allCurrentDefsInCategory[index + 1].uiOrder) =
-                                    (allCurrentDefsInCategory[index + 1].uiOrder, thing.uiOrder);
-                            }
-
-                            instance.Settings.ManualThingSorting[thing.defName] = thing.uiOrder;
-                            instance.Settings.ManualThingSorting[allCurrentDefsInCategory[index + 1].defName] =
-                                allCurrentDefsInCategory[index + 1].uiOrder;
-                            SoundDefOf.Tick_Low.PlayOneShotOnCamera();
-                        }
-                    }
-
-                    var toolTip = thing.defName;
+                foreach (var def in AllCurrentDefsInCategory.allCurrentDefsInCategory)
+                {
+                    var toolTip = def.defName;
                     var iconToolTip = string.Empty;
-                    if (instance.Settings.GroupSameDesignator && thing.designatorDropdown != null &&
-                        designatorGroups.ContainsKey(thing.designatorDropdown) &&
-                        designatorGroups[thing.designatorDropdown].Any())
+
+                    if (instance.Settings.GroupSameDesignator && def.designatorDropdown != null &&
+                        designatorGroups.ContainsKey(def.designatorDropdown) &&
+                        designatorGroups[def.designatorDropdown].Any())
                     {
                         iconToolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
-                            designatorGroups[thing.designatorDropdown].Select(def => def.LabelCap)));
+                            designatorGroups[def.designatorDropdown].Select(buildableDef => buildableDef.LabelCap)));
                     }
 
-                    if (!string.IsNullOrEmpty(thing.modContentPack?.Name))
+                    if (!string.IsNullOrEmpty(def.modContentPack?.Name))
                     {
-                        toolTip += $" ({thing.modContentPack.Name})";
+                        toolTip += $" ({def.modContentPack.Name})";
                     }
 
-                    var currentPosition = rowRect;
-                    currentPosition.width /= 2;
-                    Widgets.Label(currentPosition, thing.LabelCap);
-                    TooltipHandler.TipRegion(currentPosition, toolTip);
+                    var halfRect = labelRect;
+                    halfRect.width /= 2;
+                    var rightPart = halfRect.RightPartPixels(halfRect.width - iconSize - iconSpacer);
+                    rightPart.y += 2;
+                    var leftPart = halfRect.LeftPartPixels(iconSize).TopPartPixels(iconSize).CenteredOnYIn(halfRect);
+                    GUI.DrawTexture(leftPart, TexButton.DragHash);
+                    Widgets.Label(rightPart, def.LabelCap);
+                    TooltipHandler.TipRegion(rightPart, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
-                    if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(thing.defName))
+                    if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(def.defName))
                     {
-                        buttonText = Settings.ManualSorting[thing.defName];
+                        buttonText = Settings.ManualSorting[def.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget([thing]); }, buttonText,
-                        new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
-                    drawIcon(thing,
+                    DrawButton(delegate { SetManualSortTarget([def]); }, buttonText,
+                        new Vector2(rightPart.position.x + buttonSpacer, rightPart.position.y));
+                    drawIcon(def,
                         new Rect(
-                            new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
-                                currentPosition.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
+                            new Vector2(rightPart.position.x + buttonSpacer - iconSize,
+                                rightPart.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
 
-                    num += 25f;
+                    ReorderableWidget.Reorderable(reorderID, labelRect);
+
+                    labelRect.y += itemHeight;
                 }
 
                 listing_Options.GapLine();

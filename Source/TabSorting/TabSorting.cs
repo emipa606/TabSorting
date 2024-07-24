@@ -226,7 +226,8 @@ public static class TabSorting
 
         if (!TabSortingMod.instance.Settings.VanillaItemMemory.Any())
         {
-            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading)
+            foreach (var buildableDef in DefDatabase<BuildableDef>.AllDefsListForReading.Where(def =>
+                         def.designationCategory != null))
             {
                 TabSortingMod.instance.Settings.VanillaItemMemory.Add(buildableDef, buildableDef.designationCategory);
                 TabSortingMod.instance.Settings.VanillaThingOrderMemory.Add(buildableDef, buildableDef.uiOrder);

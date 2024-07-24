@@ -14,7 +14,7 @@ namespace TabSorting;
 ///     https://gist.github.com/slippycheeze/8ee7bdc7e035a3ea4c7ecb2fcb1c4406
 /// </summary>
 [HarmonyPatch(typeof(RoomRoleWorker_Kitchen), "GetScore")]
-public static class RoomRoleWorker_Kitchen__HandleDesignationCategoryChanges
+public static class RoomRoleWorker_Kitchen_GetScore
 {
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> code, ILGenerator generator,
         MethodBase original)
@@ -23,7 +23,7 @@ public static class RoomRoleWorker_Kitchen__HandleDesignationCategoryChanges
         {
             Log.Message("[TabSorting]: Fixing kitchen room role worker, thanks slippycheeze!");
 
-            var to_be_removed = new[]
+            var toBeRemoved = new[]
             {
                 // IL_0018: ldloc.3      // thing
                 new CodeMatch(i => i.IsLdloc()),
@@ -39,9 +39,9 @@ public static class RoomRoleWorker_Kitchen__HandleDesignationCategoryChanges
 
             return new CodeMatcher(code, generator)
                 .Start()
-                .MatchStartForward(to_be_removed)
+                .MatchStartForward(toBeRemoved)
                 .ThrowIfInvalid("finding the designation category check")
-                .RemoveInstructions(to_be_removed.Length)
+                .RemoveInstructions(toBeRemoved.Length)
                 .InstructionEnumeration();
         }
         catch (Exception ex)
