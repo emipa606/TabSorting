@@ -763,9 +763,16 @@ internal class TabSortingMod : Mod
 
                 var allDefsInCategory = (from thing in DefDatabase<BuildableDef>.AllDefsListForReading
                     where thing.designationCategory != null && thing.designationCategory == sortCategory
-                    orderby thing.uiOrder
                     select thing).ToList();
-                allDefsInCategory = VerifyUniqueOrderValues(allDefsInCategory);
+
+                allDefsInCategory.AddRange(from terraindef in DefDatabase<TerrainDef>.AllDefsListForReading
+                    where terraindef.designationCategory != null && terraindef.designationCategory == sortCategory &&
+                          !allDefsInCategory.Contains(terraindef)
+                    select terraindef);
+
+                allDefsInCategory =
+                    VerifyUniqueOrderValues([..allDefsInCategory.OrderBy(def => def.uiOrder)]);
+                AllCurrentDefsInCategory.allDefsInCategory = allDefsInCategory;
 
                 designatorGroups = new Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>>();
                 if (instance.Settings.GroupSameDesignator)

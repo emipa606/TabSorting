@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Verse;
 
 namespace TabSorting;
@@ -7,10 +8,12 @@ namespace TabSorting;
 public static class AllCurrentDefsInCategory
 {
     public static List<BuildableDef> allCurrentDefsInCategory;
+    public static List<BuildableDef> allDefsInCategory;
 
     static AllCurrentDefsInCategory()
     {
         allCurrentDefsInCategory = [];
+        allDefsInCategory = [];
     }
 
     public static void Reorder(int originalIndex, int newIndex)
@@ -25,34 +28,60 @@ public static class AllCurrentDefsInCategory
             newIndex -= 1;
         }
 
-        TabSorting.LogMessage(
-            $"Reorder def '{allCurrentDefsInCategory[originalIndex]}' from index/uiOrder {originalIndex}/{allCurrentDefsInCategory[originalIndex].uiOrder} to index/uiOrder {newIndex}/{allCurrentDefsInCategory[newIndex].uiOrder}");
-        _ = allCurrentDefsInCategory[originalIndex].uiOrder;
         var uiOrderAtNewIndex = allCurrentDefsInCategory[newIndex].uiOrder;
         var originalDef = allCurrentDefsInCategory[originalIndex];
+
+        var defsToMove = new List<BuildableDef>
+        {
+            originalDef
+        };
+
+        if (TabSortingMod.instance.Settings.GroupSameDesignator && originalDef.designatorDropdown != null)
+        {
+            defsToMove.AddRange(allDefsInCategory.Where(def =>
+                def != originalDef && def.designatorDropdown == originalDef.designatorDropdown));
+        }
+
+        TabSorting.LogMessage(
+            $"Reorder '{string.Join(", ", defsToMove)}' from index/uiOrder {originalIndex}/{allCurrentDefsInCategory[originalIndex].uiOrder} to index/uiOrder {newIndex}/{allCurrentDefsInCategory[newIndex].uiOrder}");
+
+
         // Increment all uiOrders above original def location down.
-        for (var decIndex = originalIndex + 1; decIndex < allCurrentDefsInCategory.Count; decIndex++)
+        for (var decIndex = originalIndex + 1; decIndex < allDefsInCategory.Count; decIndex++)
         {
-            allCurrentDefsInCategory[decIndex].uiOrder -= 1;
-            TabSortingMod.instance.Settings.ManualThingSorting[allCurrentDefsInCategory[decIndex].defName] =
-                allCurrentDefsInCategory[decIndex].uiOrder;
+            if (defsToMove.Contains(allDefsInCategory[decIndex]))
+            {
+                continue;
+            }
+
+            allDefsInCategory[decIndex].uiOrder -= 1;
+            TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[decIndex].defName] =
+                allDefsInCategory[decIndex].uiOrder;
         }
 
-        // Remove def
-        allCurrentDefsInCategory.RemoveAt(originalIndex);
+        foreach (var buildableDef in defsToMove)
+        {
+            // Remove def
+            allCurrentDefsInCategory.Remove(buildableDef);
+            allDefsInCategory.Remove(buildableDef);
+            // Add def at new index with new uiOrder.
+            allCurrentDefsInCategory.Insert(newIndex, buildableDef);
+            allDefsInCategory.Insert(newIndex, buildableDef);
+            buildableDef.uiOrder = uiOrderAtNewIndex;
+            TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = uiOrderAtNewIndex;
+        }
 
-        // Add def at new index with new uiOrder.
-        allCurrentDefsInCategory.Insert(newIndex, originalDef);
         // Next add increment above new index.
-        for (var upIndex = newIndex + 1; upIndex < allCurrentDefsInCategory.Count; upIndex++)
+        for (var upIndex = newIndex + 1; upIndex < allDefsInCategory.Count; upIndex++)
         {
-            allCurrentDefsInCategory[upIndex].uiOrder += 1;
-            TabSortingMod.instance.Settings.ManualThingSorting[allCurrentDefsInCategory[upIndex].defName] =
-                allCurrentDefsInCategory[upIndex].uiOrder;
-        }
+            if (defsToMove.Contains(allDefsInCategory[upIndex]))
+            {
+                continue;
+            }
 
-        allCurrentDefsInCategory[newIndex].uiOrder = uiOrderAtNewIndex;
-        TabSortingMod.instance.Settings.ManualThingSorting[allCurrentDefsInCategory[newIndex].defName] =
-            allCurrentDefsInCategory[newIndex].uiOrder;
+            allDefsInCategory[upIndex].uiOrder += 1;
+            TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[upIndex].defName] =
+                allDefsInCategory[upIndex].uiOrder;
+        }
     }
 }

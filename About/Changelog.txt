@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.5 - Carpets can now be moved, thanks to AJarOfDirt. I also fixed dragging grouped items.
+
+
 1.5.4 - Added drag-support for reordering. Thanks AJarOfDirt!
 
 
