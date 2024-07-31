@@ -1007,11 +1007,34 @@ internal class TabSortingMod : Mod
         }
 
         var currentOrder = buildableDefs.OrderBy(def => def.uiOrder).First().uiOrder;
+        var skipList = new List<BuildableDef>();
 
         foreach (var buildableDef in buildableDefs)
         {
-            buildableDef.uiOrder = currentOrder;
-            instance.Settings.ManualThingSorting[buildableDef.defName] = currentOrder;
+            if (buildableDef.designatorDropdown != null)
+            {
+                foreach (var def in buildableDefs)
+                {
+                    if (def.designatorDropdown != buildableDef.designatorDropdown)
+                    {
+                        continue;
+                    }
+
+                    def.uiOrder = currentOrder;
+                    instance.Settings.ManualThingSorting[def.defName] = currentOrder;
+                    skipList.Add(def);
+                    currentOrder++;
+                }
+
+                continue;
+            }
+
+            if (!skipList.Any(def => def == buildableDef))
+            {
+                buildableDef.uiOrder = currentOrder;
+                instance.Settings.ManualThingSorting[buildableDef.defName] = currentOrder;
+            }
+
             currentOrder++;
         }
 

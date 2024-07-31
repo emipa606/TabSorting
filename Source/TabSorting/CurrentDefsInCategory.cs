@@ -10,6 +10,7 @@ public static class AllCurrentDefsInCategory
     public static List<BuildableDef> allCurrentDefsInCategory;
     public static List<BuildableDef> allDefsInCategory;
 
+
     static AllCurrentDefsInCategory()
     {
         allCurrentDefsInCategory = [];
@@ -30,58 +31,90 @@ public static class AllCurrentDefsInCategory
 
         var uiOrderAtNewIndex = allCurrentDefsInCategory[newIndex].uiOrder;
         var originalDef = allCurrentDefsInCategory[originalIndex];
+        var origIndexInFullList = originalIndex;
+        var newIndexInFullList = newIndex;
 
         var defsToMove = new List<BuildableDef>
         {
             originalDef
         };
 
-        if (TabSortingMod.instance.Settings.GroupSameDesignator && originalDef.designatorDropdown != null)
+        if (TabSortingMod.instance.Settings.GroupSameDesignator)
         {
             defsToMove.AddRange(allDefsInCategory.Where(def =>
                 def != originalDef && def.designatorDropdown == originalDef.designatorDropdown));
+            origIndexInFullList = allDefsInCategory.FindIndex(def => def == originalDef);
+            newIndexInFullList = allDefsInCategory.FindIndex(def => def == allCurrentDefsInCategory[newIndex]);
+            if (originalDef.designatorDropdown != null)
+            {
+                defsToMove.AddRange(allDefsInCategory.Where(def =>
+                    def != originalDef && def.designatorDropdown == originalDef.designatorDropdown));
+            }
+
+            // If moving down the listings (up in uiOrder)
+            if (origIndexInFullList < newIndexInFullList)
+            {
+                // If trying to move past another group...
+                if (allDefsInCategory[newIndexInFullList].designatorDropdown != null)
+                {
+                    var sizeOfGroupAtNewIndex = allDefsInCategory.Count(def =>
+                        def.designatorDropdown == allCurrentDefsInCategory[newIndex].designatorDropdown);
+                    newIndexInFullList += sizeOfGroupAtNewIndex - 1;
+                    uiOrderAtNewIndex = allDefsInCategory[newIndexInFullList].uiOrder;
+                }
+            }
         }
 
         TabSorting.LogMessage(
             $"Reorder '{string.Join(", ", defsToMove)}' from index/uiOrder {originalIndex}/{allCurrentDefsInCategory[originalIndex].uiOrder} to index/uiOrder {newIndex}/{allCurrentDefsInCategory[newIndex].uiOrder}");
 
 
-        // Increment all uiOrders above original def location down.
-        for (var decIndex = originalIndex + 1; decIndex < allDefsInCategory.Count; decIndex++)
+        // Decrement all uiOrders above original def location down.
+        for (var decIndex = origIndexInFullList; decIndex < allDefsInCategory.Count; decIndex++)
         {
             if (defsToMove.Contains(allDefsInCategory[decIndex]))
             {
                 continue;
             }
 
-            allDefsInCategory[decIndex].uiOrder -= 1;
             TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[decIndex].defName] =
                 allDefsInCategory[decIndex].uiOrder;
         }
 
+        var increment = 0;
+        allCurrentDefsInCategory.Remove(originalDef);
+        allCurrentDefsInCategory.Insert(newIndex, originalDef);
+
         foreach (var buildableDef in defsToMove)
         {
             // Remove def
-            allCurrentDefsInCategory.Remove(buildableDef);
             allDefsInCategory.Remove(buildableDef);
             // Add def at new index with new uiOrder.
-            allCurrentDefsInCategory.Insert(newIndex, buildableDef);
-            allDefsInCategory.Insert(newIndex, buildableDef);
-            buildableDef.uiOrder = uiOrderAtNewIndex;
-            TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = uiOrderAtNewIndex;
+            allDefsInCategory.Insert(newIndexInFullList, buildableDef);
+            buildableDef.uiOrder = uiOrderAtNewIndex + increment;
+            TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
+            increment += 1;
         }
 
+        var previousUiOrder = allDefsInCategory[newIndexInFullList].uiOrder;
         // Next add increment above new index.
-        for (var upIndex = newIndex + 1; upIndex < allDefsInCategory.Count; upIndex++)
+        for (var upIndex = newIndexInFullList; upIndex < allDefsInCategory.Count; upIndex++)
         {
             if (defsToMove.Contains(allDefsInCategory[upIndex]))
             {
+                previousUiOrder = allDefsInCategory[upIndex].uiOrder;
                 continue;
             }
 
-            allDefsInCategory[upIndex].uiOrder += 1;
+            allDefsInCategory[upIndex].uiOrder += defsToMove.Count;
+            if (allDefsInCategory[upIndex].uiOrder <= previousUiOrder)
+            {
+                allDefsInCategory[upIndex].uiOrder += 1 + previousUiOrder - allDefsInCategory[upIndex].uiOrder;
+            }
+
             TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[upIndex].defName] =
                 allDefsInCategory[upIndex].uiOrder;
+            previousUiOrder = allDefsInCategory[upIndex].uiOrder;
         }
     }
 }
