@@ -41,8 +41,6 @@ public static class AllCurrentDefsInCategory
 
         if (TabSortingMod.instance.Settings.GroupSameDesignator)
         {
-            defsToMove.AddRange(allDefsInCategory.Where(def =>
-                def != originalDef && def.designatorDropdown == originalDef.designatorDropdown));
             origIndexInFullList = allDefsInCategory.FindIndex(def => def == originalDef);
             newIndexInFullList = allDefsInCategory.FindIndex(def => def == allCurrentDefsInCategory[newIndex]);
             if (originalDef.designatorDropdown != null)
@@ -66,7 +64,7 @@ public static class AllCurrentDefsInCategory
         }
 
         TabSorting.LogMessage(
-            $"Reorder '{string.Join(", ", defsToMove)}' from index/uiOrder {originalIndex}/{allCurrentDefsInCategory[originalIndex].uiOrder} to index/uiOrder {newIndex}/{allCurrentDefsInCategory[newIndex].uiOrder}");
+            $"Reorder '{string.Join(", ", defsToMove)}' from index/uiOrder {origIndexInFullList}/{allDefsInCategory[origIndexInFullList].uiOrder} to index/uiOrder {newIndexInFullList}/{uiOrderAtNewIndex}");
 
 
         // Decrement all uiOrders above original def location down.
@@ -77,6 +75,7 @@ public static class AllCurrentDefsInCategory
                 continue;
             }
 
+            allDefsInCategory[decIndex].uiOrder -= defsToMove.Count;
             TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[decIndex].defName] =
                 allDefsInCategory[decIndex].uiOrder;
         }
