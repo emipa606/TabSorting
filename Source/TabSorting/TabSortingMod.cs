@@ -970,10 +970,8 @@ internal class TabSortingMod : Mod
                     var rightPart = halfRect.RightPartPixels(halfRect.width - iconSize - iconSpacer);
                     rightPart.y += 2;
                     var leftPart = halfRect.LeftPartPixels(iconSize).TopPartPixels(iconSize).CenteredOnYIn(halfRect);
-                    // var farRightPart = new Rect(new Vector2(rightPart.position.x + buttonSpacer - 100, rightPart.position.y), rightPart.size);
                     GUI.DrawTexture(leftPart, TexButton.DragHash);
                     Widgets.Label(rightPart, def.LabelCap);
-                    // Widgets.Label(farRightPart, $"{def.uiOrder}");
                     TooltipHandler.TipRegion(rightPart, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(def.defName))

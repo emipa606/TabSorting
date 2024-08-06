@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.7 - Fixed drag-sorting, thanks AJarOfDirt
+
+
 1.5.6 - Minor fix for the drag-sorting of grouped items
 
 
