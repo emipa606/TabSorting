@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.8 - Fixed hidden category not showing when any custom tabs are created
+
+
 1.5.7 - Fixed drag-sorting, thanks AJarOfDirt
 
 

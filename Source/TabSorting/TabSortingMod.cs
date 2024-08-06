@@ -1066,8 +1066,13 @@ internal class TabSortingMod : Mod
 
         var categoryDefs = instance.Settings.VanillaCategoryMemory;
         var manualDefs = instance.Settings.ManualCategoryMemory;
+        var rows = categoryDefs.Count + manualDefs.Count + 6;
+        if (manualDefs.Count == 0)
+        {
+            rows--;
+        }
 
-        tabContentRect.height = (categoryDefs.Count + manualDefs.Count + 5) * 27f;
+        tabContentRect.height = rows * 27f;
         Widgets.BeginScrollView(tabFrameRect, ref tabsScrollPosition, tabContentRect);
         listing_Standard.Begin(tabContentRect);
         if (listing_Standard.ListItemSelectable("TabSorting.Settings".Translate(), Color.yellow,
