@@ -1,5 +1,9 @@
 # Changelog for TabSorting
 
+1.5.9 - Added copy and paste buttons for designations
+Used DeepL to update translations for ChineseSimplified, French, German, Russian
+
+
 1.5.8 - Fixed hidden category not showing when any custom tabs are created
 
 

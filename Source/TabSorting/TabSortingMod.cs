@@ -979,8 +979,54 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[def.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget([def]); }, buttonText,
-                        new Vector2(rightPart.position.x + buttonSpacer, rightPart.position.y));
+                    var buttonPosition = new Vector2(rightPart.position.x + buttonSpacer, rightPart.position.y);
+                    var copyRect = new Rect(buttonPosition + new Vector2(buttonSize.x + iconSpacer, 0), tabIconSize);
+                    var pasteRect = new Rect(
+                        buttonPosition + new Vector2(buttonSize.x + (iconSpacer * 2) + tabIconSize.x, 0),
+                        tabIconSize);
+                    if (GUIUtility.systemCopyBuffer?.StartsWith("Designation|") == true)
+                    {
+                        var designation = GUIUtility.systemCopyBuffer.Split('|').Last();
+                        if (designation != buttonText)
+                        {
+                            TooltipHandler.TipRegion(pasteRect, "TabSorting.Paste".Translate(designation));
+                            if (Widgets.ButtonImageFitted(pasteRect, TexButton.Paste))
+                            {
+                                if (designation != buttonText)
+                                {
+                                    if (designation == "TabSorting.Default".Translate())
+                                    {
+                                        if (instance.Settings.ManualSorting != null &&
+                                            instance.Settings.ManualSorting.ContainsKey(def.defName))
+                                        {
+                                            instance.Settings.ManualSorting.Remove(def.defName);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        Settings.ManualSorting[def.defName] = designation;
+                                    }
+
+                                    ResetSortOrder(def.defName);
+                                    SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                                    Messages.Message("TabSorting.Pasted".Translate(),
+                                        MessageTypeDefOf.SituationResolved,
+                                        false);
+                                }
+                            }
+                        }
+                    }
+
+                    DrawButton(delegate { SetManualSortTarget([def]); }, buttonText, buttonPosition);
+                    if (Widgets.ButtonImageFitted(copyRect, TexButton.Copy))
+                    {
+                        GUIUtility.systemCopyBuffer = $"Designation|{buttonText}";
+                        SoundDefOf.Tick_High.PlayOneShotOnCamera();
+                        Messages.Message("TabSorting.Copied".Translate(), MessageTypeDefOf.SituationResolved, false);
+                    }
+
+                    TooltipHandler.TipRegionByKey(copyRect, "TabSorting.Copy");
+
                     drawIcon(def,
                         new Rect(
                             new Vector2(rightPart.position.x + buttonSpacer - iconSize,

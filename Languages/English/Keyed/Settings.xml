@@ -17,6 +17,10 @@
   <TabSorting.Rename>Rename</TabSorting.Rename>
   <TabSorting.Edit>Edit</TabSorting.Edit>
   <TabSorting.Create>Create</TabSorting.Create>
+  <TabSorting.Copy>Copy Designation</TabSorting.Copy>
+  <TabSorting.Copied>Designation copied</TabSorting.Copied>
+  <TabSorting.Paste>Paste ({0})</TabSorting.Paste>
+  <TabSorting.Pasted>Designation pasted</TabSorting.Pasted>
   <TabSorting.Delete>Delete</TabSorting.Delete>
   <TabSorting.Exists>Tab named {0} already exists!</TabSorting.Exists>
   <TabSorting.CurrentCustom>Current custom tabs: {0}</TabSorting.CurrentCustom>
@@ -43,7 +47,7 @@
   <TabSorting.SortFloors.Tooltip>Moves all floors to the Floors-tab</TabSorting.SortFloors.Tooltip>
   <TabSorting.SortWallsDoors.Label>Sort walls and doors</TabSorting.SortWallsDoors.Label>
   <TabSorting.SortWallsDoors.Tooltip>Moves all doors and walls to the Structure-tab</TabSorting.SortWallsDoors.Tooltip>
-  <TabSorting.SortDoors.Label>   Sort doors separatly</TabSorting.SortDoors.Label>
+  <TabSorting.SortDoors.Label>   Sort doors separately</TabSorting.SortDoors.Label>
   <TabSorting.SortDoors.Tooltip>Moves all doors to the Doors-tab</TabSorting.SortDoors.Tooltip>
   <TabSorting.SortTablesChairs.Label>Sort tables and chairs</TabSorting.SortTablesChairs.Label>
   <TabSorting.SortTablesChairs.Tooltip>Moves all tables and chairs the Table/Chairs-tab</TabSorting.SortTablesChairs.Tooltip>
