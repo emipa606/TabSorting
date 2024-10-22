@@ -85,4 +85,8 @@
   <TabSorting.Copied>Désignation copiée</TabSorting.Copied>
   <TabSorting.Paste>Coller ({0})</TabSorting.Paste>
   <TabSorting.Pasted>Désignation collée</TabSorting.Pasted>
+  <TabSorting.SortAlphabetically>Trier par ordre alphabétique</TabSorting.SortAlphabetically>
+  <TabSorting.Sort>Trier</TabSorting.Sort>
+  <TabSorting.HideEmptyTabs.Label>Cacher les onglets vides</TabSorting.HideEmptyTabs.Label>
+  <TabSorting.HideEmptyTabs.Tooltip>N'affiche pas les onglets d'architectes qui ne contiennent rien.</TabSorting.HideEmptyTabs.Tooltip>
 </LanguageData>

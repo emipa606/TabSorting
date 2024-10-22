@@ -26,6 +26,8 @@ internal class TabSortingModSettings : ModSettings
     private List<string> CategoriesToIgnore = [];
     public bool GroupSameDesignator;
 
+    public bool HideEmptyTabs;
+
     public Dictionary<string, int> ManualButtonSorting = new Dictionary<string, int>();
 
     private List<string> manualButtonSortingKeys;
@@ -118,6 +120,7 @@ internal class TabSortingModSettings : ModSettings
         Scribe_Values.Look(ref GroupSameDesignator, "GroupSameDesignator");
         Scribe_Values.Look(ref SortTabs, "SortTabs");
         Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn");
+        Scribe_Values.Look(ref HideEmptyTabs, "HideEmptyTabs");
 
         Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
         Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value,

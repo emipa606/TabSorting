@@ -85,4 +85,8 @@
   <TabSorting.Copied>Bezeichnung kopiert</TabSorting.Copied>
   <TabSorting.Paste>Einfügen ({0})</TabSorting.Paste>
   <TabSorting.Pasted>Bezeichnung eingefügt</TabSorting.Pasted>
+  <TabSorting.SortAlphabetically>Alphabetisch sortieren</TabSorting.SortAlphabetically>
+  <TabSorting.Sort>Sortieren</TabSorting.Sort>
+  <TabSorting.HideEmptyTabs.Label>Leere Registerkarten ausblenden</TabSorting.HideEmptyTabs.Label>
+  <TabSorting.HideEmptyTabs.Tooltip>Zeigt keine Architekten-Registerkarten an, die nichts enthalten</TabSorting.HideEmptyTabs.Tooltip>
 </LanguageData>

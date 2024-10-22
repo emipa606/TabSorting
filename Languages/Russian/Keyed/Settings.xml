@@ -85,4 +85,8 @@
   <TabSorting.Copied>Назначение скопировано</TabSorting.Copied>
   <TabSorting.Paste>Паста ({0})</TabSorting.Paste>
   <TabSorting.Pasted>Вставка обозначения</TabSorting.Pasted>
+  <TabSorting.SortAlphabetically>Сортировать по алфавиту</TabSorting.SortAlphabetically>
+  <TabSorting.Sort>Сортировать</TabSorting.Sort>
+  <TabSorting.HideEmptyTabs.Label>Скрыть пустые вкладки</TabSorting.HideEmptyTabs.Label>
+  <TabSorting.HideEmptyTabs.Tooltip>Не показывает вкладки архитекторов, в которых ничего нет</TabSorting.HideEmptyTabs.Tooltip>
 </LanguageData>

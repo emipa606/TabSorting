@@ -110,7 +110,8 @@ public static class TabSorting
             {
                 var texture = new Texture2D((int)TabSortingMod.tabIconSize.x, (int)TabSortingMod.tabIconSize.y);
                 texture.LoadImage(File.ReadAllBytes(image));
-                iconsCache[Path.GetFileNameWithoutExtension(image)] = texture;
+                var imagePath = Path.GetFileNameWithoutExtension(image);
+                iconsCache[imagePath] = texture;
             }
         }
 

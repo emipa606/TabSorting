@@ -206,6 +206,60 @@ internal class TabSortingMod : Mod
         action();
     }
 
+    private static List<BuildableDef> SortAlphabetically(List<BuildableDef> buildableDefs)
+    {
+        var skipList = new List<BuildableDef>();
+        var buildingsWithDesignatorGroup = buildableDefs.Where(def => def.designatorDropdown != null).ToList();
+        var buildingsWithNoDesignatorGroup = buildableDefs.Where(def => def.designatorDropdown == null).ToList();
+
+        if (buildingsWithDesignatorGroup.Any())
+        {
+            var designatorDropdownGroupDefs = buildableDefs.Select(def => def.designatorDropdown).Distinct();
+            foreach (var designatorGroup in designatorDropdownGroupDefs)
+            {
+                var groupBuildings = buildingsWithDesignatorGroup
+                    .Where(def => def.designatorDropdown == designatorGroup).OrderBy(def => def.label);
+                if (!groupBuildings.Any())
+                {
+                    continue;
+                }
+
+                if (groupBuildings.Count() == 1)
+                {
+                    buildingsWithNoDesignatorGroup.AddRange(groupBuildings);
+                    continue;
+                }
+
+                buildingsWithNoDesignatorGroup.Add(groupBuildings.First());
+                skipList.AddRange(groupBuildings.Skip(1));
+            }
+        }
+
+        buildingsWithDesignatorGroup = buildingsWithNoDesignatorGroup.OrderBy(def => def.label).ToList();
+        var currentUiValue = buildableDefs.OrderBy(def => def.uiOrder).First().uiOrder;
+
+        foreach (var buildableDef in buildingsWithDesignatorGroup)
+        {
+            instance.Settings.ManualThingSorting[buildableDef.defName] = currentUiValue;
+            if (buildableDef.designatorDropdown != null)
+            {
+                var sameDesignator = skipList.Where(def => def.designatorDropdown == buildableDef.designatorDropdown);
+                if (sameDesignator.Any())
+                {
+                    foreach (var def in sameDesignator.OrderBy(def => def.label))
+                    {
+                        currentUiValue++;
+                        instance.Settings.ManualThingSorting[def.defName] = currentUiValue;
+                    }
+                }
+            }
+
+            currentUiValue++;
+        }
+
+        return buildingsWithNoDesignatorGroup.OrderBy(def => def.uiOrder).ToList();
+    }
+
     private static void SetManualSortTarget(List<BuildableDef> defs)
     {
         var defNames = defs.Select(x => x.defName).ToList();
@@ -468,6 +522,9 @@ internal class TabSortingMod : Mod
                 {
                     Settings.SkipBuiltIn = false;
                 }
+
+                listing_Standard.CheckboxLabeled("TabSorting.HideEmptyTabs.Label".Translate(),
+                    ref Settings.HideEmptyTabs, "TabSorting.HideEmptyTabs.Tooltip".Translate());
 
                 listing_Standard.Gap();
                 var labelPoint = listing_Standard.Label("TabSorting.ManualReset.Label".Translate(), -1F,
@@ -831,7 +888,7 @@ internal class TabSortingMod : Mod
                 var frameTitle = $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}";
                 Widgets.Label(
                     new Rect(frameRect.position,
-                        new Vector2(frameRect.width - buttonSize.x, buttonSize.y)),
+                        new Vector2(frameRect.width - buttonSize.x, searchSize.y)),
                     frameTitle);
                 Text.Font = GameFont.Small;
 
@@ -905,13 +962,21 @@ internal class TabSortingMod : Mod
 
                 if (AllCurrentDefsInCategory.allCurrentDefsInCategory.Any())
                 {
-                    var moveEverythingRect = new Rect(contentRect.x, listing_Options.CurHeight, 200, 24);
-                    Widgets.Label(moveEverythingRect, "TabSorting.MoveEverything".Translate());
-                    if (Widgets.ButtonText(
-                            new Rect(moveEverythingRect.xMax + 100, moveEverythingRect.y, buttonSize.x, buttonSize.y),
+                    var buttonRow = new Rect(contentRect.x, listing_Options.CurHeight, contentRect.width, 24);
+                    Widgets.Label(buttonRow.LeftHalf(), "TabSorting.MoveEverything".Translate());
+                    if (Widgets.ButtonText(buttonRow.LeftHalf().LeftPart(0.95f).RightPartPixels(buttonSize.x),
                             "TabSorting.Select".Translate()))
                     {
                         SetManualSortTarget(AllCurrentDefsInCategory.allCurrentDefsInCategory);
+                    }
+
+                    Widgets.Label(buttonRow.RightHalf(), "TabSorting.SortAlphabetically".Translate());
+                    if (Widgets.ButtonText(buttonRow.RightHalf().LeftPart(0.95f).RightPartPixels(buttonSize.x),
+                            "TabSorting.Sort".Translate()))
+                    {
+                        AllCurrentDefsInCategory.allDefsInCategory =
+                            SortAlphabetically(AllCurrentDefsInCategory.allDefsInCategory);
+                        TabSorting.DoTheSorting();
                     }
 
                     listing_Options.Gap(24f);

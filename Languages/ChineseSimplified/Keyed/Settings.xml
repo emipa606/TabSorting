@@ -163,4 +163,8 @@
   <TabSorting.Copied>名称已复制</TabSorting.Copied>
   <TabSorting.Paste>粘贴 ({0})</TabSorting.Paste>
   <TabSorting.Pasted>粘贴指定</TabSorting.Pasted>
+  <TabSorting.SortAlphabetically>按字母顺序排序</TabSorting.SortAlphabetically>
+  <TabSorting.Sort>分类</TabSorting.Sort>
+  <TabSorting.HideEmptyTabs.Label>隐藏空标签页</TabSorting.HideEmptyTabs.Label>
+  <TabSorting.HideEmptyTabs.Tooltip>不会显示没有任何内容的建筑选项卡</TabSorting.HideEmptyTabs.Tooltip>
 </LanguageData>

@@ -27,6 +27,8 @@
   <TabSorting.UnloadedMod>Unloaded mod</TabSorting.UnloadedMod>
   <TabSorting.CustomTab>Custom tab</TabSorting.CustomTab>
   <TabSorting.Reset>Reset</TabSorting.Reset>
+  <TabSorting.SortAlphabetically>Sort alphabetically</TabSorting.SortAlphabetically>
+  <TabSorting.Sort>Sort</TabSorting.Sort>
   <TabSorting.VanillaUI.Label>Vanilla UI Expanded mod is loaded, some settings not available. Restart is needed to apply the main sorting</TabSorting.VanillaUI.Label>
   <TabSorting.VanillaUI.Tooltip>Vanilla UI Expanded has a more user-friendly UI for organizing tabs. The main sorting functions of this mod is still available but manual designations or sorting of the tabs themselves will not be applied.</TabSorting.VanillaUI.Tooltip>
   <TabSorting.ResetTabsort>All tabs will revert back to their vanilla values.
@@ -80,6 +82,8 @@
   <TabSorting.ManualReset.Label>Manual sorting reset</TabSorting.ManualReset.Label>
   <TabSorting.ManualReset.Tooltip>Reset all manually defined sortings and order of gizmos</TabSorting.ManualReset.Tooltip>
   <TabSorting.MapRunning.Label>NOTICE: If you have a running map you might get a graphic issue with the placement of the info-box when adding/removing tabs. If so, a reload of the save should help.</TabSorting.MapRunning.Label>
+  <TabSorting.HideEmptyTabs.Label>Hide empty tabs</TabSorting.HideEmptyTabs.Label>
+  <TabSorting.HideEmptyTabs.Tooltip>Will not show architect tabs that has nothing in them</TabSorting.HideEmptyTabs.Tooltip>
   <TabSorting.VerboseLogging.Label>Enable verbose logging</TabSorting.VerboseLogging.Label>
   <TabSorting.VerboseLogging.Tooltip>Shows verbose logging during sorting, for finding errors</TabSorting.VerboseLogging.Tooltip>
   <TabSorting.MoveEverything>Move everything</TabSorting.MoveEverything>
