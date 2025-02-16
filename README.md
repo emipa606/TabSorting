@@ -2,13 +2,6 @@
 
 ![Image](https://i.imgur.com/iCj5o7O.png)
 
-**NOTICE**
-
-Not sure how much more time I will put on this mod seeing the scope of the [Vanilla UI Expanded]( https://steamcommunity.com/sharedfiles/filedetails/?id=2749945924)
-I may add compatibility for the autosort but the general Ui of that mod is more refined and worked on by more than one person (that do not have a few houndred mods to support). 
-
-—
-
 Sort your stuff!
   
 This mod can sort furniture/structures into appropriate tabs.
@@ -39,6 +32,7 @@ Options dependent of other mods:
   
 Other options:
 - If a tab is empty after the sorting the mod can remove it
+- If a tab does not currently show anything due to research missing, it can be hidden
 - You can sort all tabs alphabetically, the Zones and Orders-tab can be skipped
 - You can also sort the tabs manually
 - Items that use the same button can be moved all at once, for example stuffed floors
@@ -47,6 +41,7 @@ Other options:
 - Added support for marcin212's [Architect Icons](https://steamcommunity.com/sharedfiles/filedetails/?id=1195427067)
 - Sort the main buttons
 - Sort the order of buildable items
+- Sort buildable items alphabetically
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.

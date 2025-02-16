@@ -14,6 +14,9 @@ namespace TabSorting;
 [StaticConstructorOnStartup]
 public static class TabSorting
 {
+    private static readonly bool cherryPickerLoaded;
+    private static readonly FieldInfo cherryPickerProcessedDefsField;
+
     private static readonly HashSet<string> modIdsToIgnore =
     [
         "atlas.androidtiers",
@@ -25,7 +28,9 @@ public static class TabSorting
         "flashpoint55.poweredfloorpanelmod"
     ];
 
-    private static readonly HashSet<string> defsToIgnore =
+    private static HashSet<string> defsToIgnore;
+
+    private static readonly HashSet<string> defsToIgnoreStatic =
     [
         "FM_AIManager",
         "PRF_MiniDroneColumn",
@@ -68,6 +73,19 @@ public static class TabSorting
         gardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools") != null;
         fencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors") != null;
         architectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons") != null;
+        cherryPickerLoaded = ModLister.HasActiveModWithName("Cherry Picker");
+        if (cherryPickerLoaded)
+        {
+            cherryPickerProcessedDefsField =
+                AccessTools.Field(AccessTools.TypeByName("CherryPicker.CherryPickerUtility"), "processedDefs");
+            if (cherryPickerProcessedDefsField == null)
+            {
+                LogMessage(
+                    "Failed to find the processedDefs field from Cherry Picker, will not be able to check for removed defs.");
+                cherryPickerLoaded = false;
+            }
+        }
+
         blueprintsLoaded = DefDatabase<DesignationDef>.GetNamedSilentFail("Blueprints") != null;
         var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
             where modIdsToIgnore.Contains(mod.PackageId)
@@ -79,19 +97,19 @@ public static class TabSorting
                 LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
                 foreach (var def in mod.AllDefs)
                 {
-                    defsToIgnore.Add(def.defName);
+                    defsToIgnoreStatic.Add(def.defName);
                 }
             }
         }
 
         foreach (var thingDef in DefDatabase<ThingDef>.AllDefs.Where(def => def.designationCategory == null))
         {
-            defsToIgnore.Add(thingDef.defName);
+            defsToIgnoreStatic.Add(thingDef.defName);
         }
 
         foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefs.Where(def => def.designationCategory == null))
         {
-            defsToIgnore.Add(terrainDef.defName);
+            defsToIgnoreStatic.Add(terrainDef.defName);
         }
 
         DoTheSorting();
@@ -130,6 +148,28 @@ public static class TabSorting
             AccessTools.Method("ArchitectIcons.Resources:FindArchitectTabCategoryIcon");
         harmony.Patch(findArchitectTabCategoryIconMethod,
             new HarmonyMethod(typeof(TabSorting), nameof(ArchitectIconsPrefix)));
+    }
+
+    public static HashSet<string> DefsToIgnore
+    {
+        get
+        {
+            if (defsToIgnore != null)
+            {
+                return defsToIgnore;
+            }
+
+            defsToIgnore = defsToIgnoreStatic;
+
+            if (!cherryPickerLoaded)
+            {
+                return defsToIgnore;
+            }
+
+            (cherryPickerProcessedDefsField.GetValue(null) as HashSet<Def>).Do(def => defsToIgnore.Add(def.defName));
+
+            return defsToIgnore;
+        }
     }
 
     public static string GetCustomTabIcon(string tabName)
@@ -198,6 +238,7 @@ public static class TabSorting
     {
         LogMessage("Starting a new sorting-session");
         changedDefNames = [];
+        defsToIgnore = null;
         if (!TabSortingMod.instance.Settings.VanillaCategoryMemory.Any())
         {
             foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
@@ -235,7 +276,7 @@ public static class TabSorting
             }
 
             foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefsListForReading.Where(def =>
-                         !defsToIgnore.Contains(def.defName)))
+                         !DefsToIgnore.Contains(def.defName)))
             {
                 TabSortingMod.instance.Settings.VanillaItemMemory.TryAdd(terrainDef, terrainDef.designationCategory);
                 TabSortingMod.instance.Settings.VanillaThingOrderMemory.TryAdd(terrainDef, terrainDef.uiOrder);
@@ -666,7 +707,7 @@ public static class TabSorting
         }
 
         var ideologyFurnitureInGame = (from furniture in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
+            where !DefsToIgnore.Contains(furniture.defName) && !changedDefNames.Contains(furniture.defName) &&
                   furniture.designationCategory != null && furniture.designationCategory.defName != "Ideology" &&
                   (furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualPosition)) == true ||
                    furniture.placeWorkers?.Contains(typeof(PlaceWorker_RitualSeat)) == true ||
@@ -751,7 +792,7 @@ public static class TabSorting
         LogMessage($"Found {foodMakers.Count} food processing buildings");
 
         var foodMakersInGame = (from foodMaker in foodMakers
-            where !defsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) &&
+            where !DefsToIgnore.Contains(foodMaker.defName) && !changedDefNames.Contains(foodMaker.defName) &&
                   foodMaker.designationCategory != null
             select foodMaker).ToList();
         var affectedByFacilities = new HashSet<ThingDef>();
@@ -863,7 +904,7 @@ public static class TabSorting
         researchBuildings.AddRange(researchBenches);
         researchBuildings.AddRange(requiredResearchBuildings);
         var researchBuildingsInGame = (from researchBuilding in researchBuildings
-            where !defsToIgnore.Contains(researchBuilding.defName) &&
+            where !DefsToIgnore.Contains(researchBuilding.defName) &&
                   !changedDefNames.Contains(researchBuilding.defName) &&
                   researchBuilding.designationCategory != null
             select researchBuilding).ToList();
@@ -961,7 +1002,7 @@ public static class TabSorting
         }
 
         var bedsInGame = (from bed in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(bed.defName) && !changedDefNames.Contains(bed.defName) &&
+            where !DefsToIgnore.Contains(bed.defName) && !changedDefNames.Contains(bed.defName) &&
                   bed.designationCategory != null && bed.IsBed && (bed.building == null ||
                                                                    !bed.building.bed_defaultMedical &&
                                                                    bed.building.bed_humanlike)
@@ -1055,19 +1096,19 @@ public static class TabSorting
         }
 
         var rugsInGame = (from rug in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(rug.defName) && !changedDefNames.Contains(rug.defName) &&
+            where !DefsToIgnore.Contains(rug.defName) && !changedDefNames.Contains(rug.defName) &&
                   rug.designationCategory != null && rug.altitudeLayer == AltitudeLayer.FloorEmplacement &&
                   !rug.clearBuildingArea && rug.passability == Traversability.Standable &&
                   rug.StatBaseDefined(StatDefOf.Beauty) && rug.GetStatValueAbstract(StatDefOf.Beauty) > 0
             select rug).ToList();
         var decorativePlantsInGame = (from decorativePlant in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(decorativePlant.defName) &&
+            where !DefsToIgnore.Contains(decorativePlant.defName) &&
                   !changedDefNames.Contains(decorativePlant.defName) &&
                   decorativePlant.designationCategory != null &&
                   decorativePlant.building is { sowTag: "Decorative" }
             select decorativePlant).ToList();
         var decorativeFurnitureInGame = (from decorativeFurniture in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(decorativeFurniture.defName) &&
+            where !DefsToIgnore.Contains(decorativeFurniture.defName) &&
                   !changedDefNames.Contains(decorativeFurniture.defName) &&
                   decorativeFurniture.designationCategory != null &&
                   decorativeFurniture.altitudeLayer == AltitudeLayer.BuildingOnTop &&
@@ -1138,7 +1179,7 @@ public static class TabSorting
         var staticStructureDefs = new List<string> { "GL_DoorFrame" };
 
         var doorsAndWallsInGame = (from doorOrWall in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(doorOrWall.defName) && !changedDefNames.Contains(doorOrWall.defName) &&
+            where !DefsToIgnore.Contains(doorOrWall.defName) && !changedDefNames.Contains(doorOrWall.defName) &&
                   (doorOrWall.designationCategory != null &&
                    (doorOrWall.designationCategory.defName != "Structure" ||
                     TabSortingMod.instance.Settings.SortDoors && (doorOrWall.IsDoor ||
@@ -1148,7 +1189,7 @@ public static class TabSorting
                    staticStructureDefs.Contains(doorOrWall.defName))
             select doorOrWall).ToList();
         var bridgesInGame = (from bridge in DefDatabase<TerrainDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(bridge.defName) && !changedDefNames.Contains(bridge.defName) &&
+            where !DefsToIgnore.Contains(bridge.defName) && !changedDefNames.Contains(bridge.defName) &&
                   bridge.designationCategory != null && bridge.designationCategory.defName != "Structure" &&
                   bridge.destroyEffect != null && bridge.destroyEffect.defName.ToLower().Contains("bridge")
             select bridge).ToList();
@@ -1211,7 +1252,7 @@ public static class TabSorting
         }
 
         var fencesInGame = (from fence in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
+            where !DefsToIgnore.Contains(fence.defName) && !changedDefNames.Contains(fence.defName) &&
                   !fence.IsFrame && !fence.IsBlueprint &&
                   fence.designationCategory != null && fence.designationCategory.defName != "Fences" &&
                   ((fence.thingClass.IsDerivedFrom(typeof(Building_Door)) ||
@@ -1255,7 +1296,7 @@ public static class TabSorting
         }
 
         var floorsInGame = (from floor in DefDatabase<TerrainDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(floor.defName) && !changedDefNames.Contains(floor.defName) &&
+            where !DefsToIgnore.Contains(floor.defName) && !changedDefNames.Contains(floor.defName) &&
                   floor.designationCategory != null && floor.designationCategory.defName != "Floors" &&
                   floor.fertility == 0 && !floor.destroyBuildingsOnDestroyed
             select floor).ToList();
@@ -1289,7 +1330,7 @@ public static class TabSorting
         }
 
         var gardenThingsInGame = (from gardenThing in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(gardenThing.defName) && !changedDefNames.Contains(gardenThing.defName) &&
+            where !DefsToIgnore.Contains(gardenThing.defName) && !changedDefNames.Contains(gardenThing.defName) &&
                   gardenThing.designationCategory?.defName != "GardenTools" &&
                   !gardenThing.IsFrame && !gardenThing.IsBlueprint &&
                   (gardenThing.thingClass.IsDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) ||
@@ -1329,7 +1370,7 @@ public static class TabSorting
         }
 
         var hospitalBedsInGame = (from hoispitalBed in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(hoispitalBed.defName) && !changedDefNames.Contains(hoispitalBed.defName) &&
+            where !DefsToIgnore.Contains(hoispitalBed.defName) && !changedDefNames.Contains(hoispitalBed.defName) &&
                   hoispitalBed.designationCategory != null && hoispitalBed.IsBed && hoispitalBed.building is
                       { bed_defaultMedical: true }
             select hoispitalBed).ToList();
@@ -1429,7 +1470,7 @@ public static class TabSorting
 
         bool LightValidator(ThingDef furniture)
         {
-            if (defsToIgnore.Contains(furniture.defName) || changedDefNames.Contains(furniture.defName) ||
+            if (DefsToIgnore.Contains(furniture.defName) || changedDefNames.Contains(furniture.defName) ||
                 furniture.designationCategory == null || furniture.IsFrame || furniture.IsBlueprint ||
                 furniture.category != ThingCategory.Building)
             {
@@ -1573,7 +1614,7 @@ public static class TabSorting
         }
 
         var storageInGame = (from storage in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) &&
+            where !DefsToIgnore.Contains(storage.defName) && !changedDefNames.Contains(storage.defName) &&
                   storage.designationCategory != null &&
                   storage.designationCategory.defName != "FurnitureStorage" &&
                   storage.thingClass?.IsDerivedFrom(typeof(Building_Grave)) is false &&
@@ -1620,7 +1661,7 @@ public static class TabSorting
         }
 
         var tableChairsInGame = (from table in DefDatabase<ThingDef>.AllDefsListForReading
-            where !defsToIgnore.Contains(table.defName) && !changedDefNames.Contains(table.defName) &&
+            where !DefsToIgnore.Contains(table.defName) && !changedDefNames.Contains(table.defName) &&
                   table.designationCategory != null &&
                   (table.IsTable ||
                    table.surfaceType == SurfaceType.Eat && table.label.ToLower().Contains("table") ||

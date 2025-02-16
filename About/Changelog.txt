@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.11 - Should now ignore items removed with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3230046902]Cherry Picker[/url]
+
+
 1.5.10 - Added option to hide empty tabs
 Added option to sort things alphabetically
 Used DeepL to update translations for ChineseSimplified, French, German, Russian
