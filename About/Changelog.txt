@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.5.12 - Will now do limited sorting if Vanilla Factions Expanded - Medieval 2 is loaded as VE add things in a non-standard way
+
+
 1.5.11 - Should now ignore items removed with [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3230046902]Cherry Picker[/url]
 
 

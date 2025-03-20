@@ -41,6 +41,11 @@ public static class TabSorting
         "PRF_TypeTwoAssembler_III"
     ];
 
+    private static readonly HashSet<string> defsPrefixToIgnoreStatic =
+    [
+        "VFEM2_CobblestoneWall_"
+    ];
+
     private static HashSet<string> changedDefNames;
 
     private static readonly HashSet<string> tabsToIgnore =
@@ -87,30 +92,8 @@ public static class TabSorting
         }
 
         blueprintsLoaded = DefDatabase<DesignationDef>.GetNamedSilentFail("Blueprints") != null;
-        var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
-            where modIdsToIgnore.Contains(mod.PackageId)
-            select mod).ToList();
-        if (ignoreMods.Count > 0)
-        {
-            foreach (var mod in ignoreMods)
-            {
-                LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
-                foreach (var def in mod.AllDefs)
-                {
-                    defsToIgnoreStatic.Add(def.defName);
-                }
-            }
-        }
 
-        foreach (var thingDef in DefDatabase<ThingDef>.AllDefs.Where(def => def.designationCategory == null))
-        {
-            defsToIgnoreStatic.Add(thingDef.defName);
-        }
-
-        foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefs.Where(def => def.designationCategory == null))
-        {
-            defsToIgnoreStatic.Add(terrainDef.defName);
-        }
+        RefreshIgnoredDefs();
 
         DoTheSorting();
 
@@ -169,6 +152,43 @@ public static class TabSorting
             (cherryPickerProcessedDefsField.GetValue(null) as HashSet<Def>).Do(def => defsToIgnore.Add(def.defName));
 
             return defsToIgnore;
+        }
+    }
+
+    public static void RefreshIgnoredDefs()
+    {
+        defsToIgnore = null;
+        var ignoreMods = (from mod in LoadedModManager.RunningModsListForReading
+            where modIdsToIgnore.Contains(mod.PackageId)
+            select mod).ToList();
+        if (ignoreMods.Count > 0)
+        {
+            foreach (var mod in ignoreMods)
+            {
+                LogMessage($"{mod.Name} has {mod.AllDefs.Count()} definitions, adding to ignore.");
+                foreach (var def in mod.AllDefs)
+                {
+                    defsToIgnoreStatic.Add(def.defName);
+                }
+            }
+        }
+
+        foreach (var thingDef in DefDatabase<ThingDef>.AllDefs.Where(def => def.designationCategory == null))
+        {
+            defsToIgnoreStatic.Add(thingDef.defName);
+        }
+
+        foreach (var terrainDef in DefDatabase<TerrainDef>.AllDefs.Where(def => def.designationCategory == null))
+        {
+            defsToIgnoreStatic.Add(terrainDef.defName);
+        }
+
+        foreach (var def in DefDatabase<Def>.AllDefsListForReading)
+        {
+            if (defsPrefixToIgnoreStatic.Any(prefix => def.defName.StartsWith(prefix)))
+            {
+                defsToIgnoreStatic.Add(def.defName);
+            }
         }
     }
 
@@ -656,6 +676,13 @@ public static class TabSorting
 
     private static void RestoreVanillaSorting()
     {
+        if (ModLister.HasActiveModWithName("Vanilla Factions Expanded - Medieval 2"))
+        {
+            LogMessage(
+                "Vanilla Factions Expanded - Medieval 2 loaded, will not restore order before sorting as VE add things in a silly way. This may cause issues with sorting.");
+            return;
+        }
+
         LogMessage("Restoring all things to vanilla sorting");
 
         foreach (var designationCategoryDef in TabSortingMod.instance.Settings.VanillaCategoryMemory)
