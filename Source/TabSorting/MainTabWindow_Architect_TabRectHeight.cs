@@ -20,7 +20,7 @@ public static class MainTabWindow_Architect_TabRectHeight
     public static void Prefix(ref List<ArchitectCategoryTab> ___desPanelsCached, out List<ArchitectCategoryTab> __state)
     {
         __state = ___desPanelsCached.ToList();
-        if (!TabSortingMod.instance.Settings.HideEmptyTabs)
+        if (!TabSortingMod.Instance.Settings.HideEmptyTabs)
         {
             return;
         }
@@ -30,7 +30,7 @@ public static class MainTabWindow_Architect_TabRectHeight
 
     public static void Postfix(ref List<ArchitectCategoryTab> ___desPanelsCached, List<ArchitectCategoryTab> __state)
     {
-        if (!TabSortingMod.instance.Settings.HideEmptyTabs)
+        if (!TabSortingMod.Instance.Settings.HideEmptyTabs)
         {
             return;
         }

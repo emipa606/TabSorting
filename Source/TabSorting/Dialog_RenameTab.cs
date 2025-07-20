@@ -8,7 +8,7 @@ public class Dialog_RenameTab : Window
 {
     private readonly DesignationCategoryDef tab;
 
-    protected string curName;
+    private string curName;
 
     private bool focusedRenameField;
     private int startAcceptingInputAtFrame;
@@ -26,16 +26,16 @@ public class Dialog_RenameTab : Window
 
     private bool AcceptsInput => startAcceptingInputAtFrame <= Time.frameCount;
 
-    protected int MaxNameLength => 28;
+    private static int MaxNameLength => 28;
 
-    public override Vector2 InitialSize => new Vector2(280f, 175f);
+    public override Vector2 InitialSize => new(280f, 175f);
 
     public void WasOpenedByHotkey()
     {
         startAcceptingInputAtFrame = Time.frameCount + 1;
     }
 
-    protected AcceptanceReport NameIsValid(string name)
+    private AcceptanceReport nameIsValid(string name)
     {
         if (name.Length == 0)
         {
@@ -62,13 +62,14 @@ public class Dialog_RenameTab : Window
 
         GUI.SetNextControlName("RenameField");
         var text = Widgets.TextField(new Rect(0f, 15f, inRect.width, 35f), curName);
-        if (AcceptsInput && text.Length < MaxNameLength)
+        switch (AcceptsInput)
         {
-            curName = text;
-        }
-        else if (!AcceptsInput)
-        {
-            ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).SelectAll();
+            case true when text.Length < MaxNameLength:
+                curName = text;
+                break;
+            case false:
+                ((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).SelectAll();
+                break;
         }
 
         if (!focusedRenameField)
@@ -83,7 +84,7 @@ public class Dialog_RenameTab : Window
             return;
         }
 
-        var acceptanceReport = NameIsValid(curName);
+        var acceptanceReport = nameIsValid(curName);
         if (!acceptanceReport.Accepted)
         {
             if (acceptanceReport.Reason.NullOrEmpty())
@@ -96,16 +97,16 @@ public class Dialog_RenameTab : Window
             return;
         }
 
-        SetName(curName);
+        setName(curName);
         Find.WindowStack.TryRemove(this);
     }
 
-    protected void SetName(string name)
+    private void setName(string name)
     {
-        TabSortingMod.instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == tab.defName);
+        TabSortingMod.Instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == tab.defName);
         tab.label = name;
-        TabSortingMod.instance.Settings.ManualTabs[tab.defName] = name;
-        TabSortingMod.instance.Settings.ManualCategoryMemory.Add(tab);
+        TabSortingMod.Instance.Settings.ManualTabs[tab.defName] = name;
+        TabSortingMod.Instance.Settings.ManualCategoryMemory.Add(tab);
 
         tab.ClearCachedData();
     }

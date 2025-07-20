@@ -12,34 +12,34 @@ namespace TabSorting;
 [StaticConstructorOnStartup]
 internal class TabSortingMod : Mod
 {
+    private const int ButtonSpacer = 300;
+
+    private const float ColumnSpacer = 0.1f;
+
+    private const float IconSize = 20f;
+
+    private const float IconSpacer = 2f;
+
     /// <summary>
     ///     The instance of the settings to be read by the mod
     /// </summary>
-    public static TabSortingMod instance;
+    public static TabSortingMod Instance;
 
-    public static readonly Vector2 buttonSize = new Vector2(120f, 20f);
+    public static readonly Vector2 ButtonSize = new(120f, 20f);
 
-    public static readonly Vector2 tabIconSize = new Vector2(16f, 16f);
-    private static readonly Vector2 tabIconContainer = new Vector2(20f, 20f);
-    private static readonly Vector2 searchSize = new Vector2(200f, 25f);
-
-    private static readonly int buttonSpacer = 300;
-
-    private static readonly float columnSpacer = 0.1f;
-
-    private static readonly float iconSize = 20f;
-
-    private static readonly float iconSpacer = 2f;
+    public static readonly Vector2 TabIconSize = new(16f, 16f);
+    private static readonly Vector2 tabIconContainer = new(20f, 20f);
+    private static readonly Vector2 searchSize = new(200f, 25f);
 
     private static float leftSideWidth;
 
-    private static Listing_Standard listing_Standard;
+    private static Listing_Standard listingStandard;
 
     private static Dictionary<string, string> noneCategoryMembers;
 
     private static Vector2 optionsScrollPosition;
 
-    public static string selectedDef = "Settings";
+    public static string SelectedDef = "Settings";
 
     private static Vector2 tabsScrollPosition;
 
@@ -47,7 +47,7 @@ internal class TabSortingMod : Mod
 
     private static string newTabName;
 
-    public static Texture2D plusTexture;
+    public static Texture2D PlusTexture;
 
     private static string searchText = "";
 
@@ -67,7 +67,7 @@ internal class TabSortingMod : Mod
     public TabSortingMod(ModContentPack content)
         : base(content)
     {
-        instance = this;
+        Instance = this;
         tabsScrollPosition = new Vector2(0, 0);
         optionsScrollPosition = new Vector2(0, 0);
         currentVersion = VersionFromManifest.GetVersionFromModMetaData(content.ModMetaData);
@@ -80,10 +80,7 @@ internal class TabSortingMod : Mod
     {
         get
         {
-            if (settings == null)
-            {
-                settings = GetSettings<TabSortingModSettings>();
-            }
+            settings ??= GetSettings<TabSortingModSettings>();
 
             if (settings.SortGarden && DefDatabase<DesignationCategoryDef>.GetNamed("GardenTools", false) == null)
             {
@@ -108,16 +105,13 @@ internal class TabSortingMod : Mod
     public override void DoSettingsWindowContents(Rect rect)
     {
         base.DoSettingsWindowContents(rect);
-        if (instance.Settings.ManualSorting == null)
-        {
-            instance.Settings.ManualSorting = new Dictionary<string, string>();
-        }
+        Instance.Settings.ManualSorting ??= new Dictionary<string, string>();
 
         if (noneCategoryMembers == null)
         {
             noneCategoryMembers = new Dictionary<string, string>();
             var thingsToRemove = new List<string>();
-            foreach (var item in from item in instance.Settings.ManualSorting
+            foreach (var item in from item in Instance.Settings.ManualSorting
                      where item.Value == "TabSorting.None".Translate()
                            || item.Value == "None"
                      select item)
@@ -137,7 +131,7 @@ internal class TabSortingMod : Mod
 
             foreach (var defName in thingsToRemove)
             {
-                instance.Settings.ManualSorting.Remove(defName);
+                Instance.Settings.ManualSorting.Remove(defName);
                 ResetSortOrder(defName);
             }
         }
@@ -145,10 +139,10 @@ internal class TabSortingMod : Mod
         var rect2 = rect.ContractedBy(1);
         leftSideWidth = rect2.ContractedBy(10).width / 3;
 
-        listing_Standard = new Listing_Standard();
+        listingStandard = new Listing_Standard();
 
-        DrawOptions(rect2);
-        DrawTabsList(rect2);
+        drawOptions(rect2);
+        drawTabsList(rect2);
         Settings.Write();
     }
 
@@ -164,8 +158,8 @@ internal class TabSortingMod : Mod
     public override void WriteSettings()
     {
         base.WriteSettings();
-        var dontSort = false;
-        if (ModLister.GetActiveModWithIdentifier("com.github.alandariva.moreplanning") != null)
+        var doNotSort = false;
+        if (ModLister.GetActiveModWithIdentifier("com.github.alandariva.moreplanning", true) != null)
         {
             Find.WindowStack.Add(new Dialog_MessageBox(
                 "TabSorting.MorePlanning".Translate(),
@@ -175,17 +169,17 @@ internal class TabSortingMod : Mod
                     noneCategoryMembers = null;
                     TabSorting.DoTheSorting();
                 }));
-            dontSort = true;
+            doNotSort = true;
         }
 
-        if (settings.SortStorage && ModLister.GetActiveModWithIdentifier("LWM.DeepStorage") != null)
+        if (settings.SortStorage && ModLister.GetActiveModWithIdentifier("LWM.DeepStorage", true) != null)
         {
             Find.WindowStack.Add(new Dialog_MessageBox(
                 "TabSorting.DeepStorage".Translate(),
                 "TabSorting.Ok".Translate()));
         }
 
-        if (dontSort)
+        if (doNotSort)
         {
             return;
         }
@@ -194,9 +188,9 @@ internal class TabSortingMod : Mod
         TabSorting.DoTheSorting();
     }
 
-    private static void DrawButton(Action action, string text, Vector2 pos)
+    private static void drawButton(Action action, string text, Vector2 pos)
     {
-        var rect = new Rect(pos.x, pos.y, buttonSize.x, buttonSize.y);
+        var rect = new Rect(pos.x, pos.y, ButtonSize.x, ButtonSize.y);
         if (!Widgets.ButtonText(rect, text, true, false, Color.white))
         {
             return;
@@ -206,7 +200,7 @@ internal class TabSortingMod : Mod
         action();
     }
 
-    private static List<BuildableDef> SortAlphabetically(List<BuildableDef> buildableDefs)
+    private static List<BuildableDef> sortAlphabetically(List<BuildableDef> buildableDefs)
     {
         var skipList = new List<BuildableDef>();
         var buildingsWithDesignatorGroup = buildableDefs.Where(def => def.designatorDropdown != null).ToList();
@@ -218,7 +212,7 @@ internal class TabSortingMod : Mod
             foreach (var designatorGroup in designatorDropdownGroupDefs)
             {
                 var groupBuildings = buildingsWithDesignatorGroup
-                    .Where(def => def.designatorDropdown == designatorGroup).OrderBy(def => def.label);
+                    .Where(def => def.designatorDropdown == designatorGroup).OrderBy(def => def.label).ToArray();
                 if (!groupBuildings.Any())
                 {
                     continue;
@@ -240,16 +234,17 @@ internal class TabSortingMod : Mod
 
         foreach (var buildableDef in buildingsWithDesignatorGroup)
         {
-            instance.Settings.ManualThingSorting[buildableDef.defName] = currentUiValue;
+            Instance.Settings.ManualThingSorting[buildableDef.defName] = currentUiValue;
             if (buildableDef.designatorDropdown != null)
             {
-                var sameDesignator = skipList.Where(def => def.designatorDropdown == buildableDef.designatorDropdown);
+                var sameDesignator = skipList.Where(def => def.designatorDropdown == buildableDef.designatorDropdown)
+                    .ToArray();
                 if (sameDesignator.Any())
                 {
                     foreach (var def in sameDesignator.OrderBy(def => def.label))
                     {
                         currentUiValue++;
-                        instance.Settings.ManualThingSorting[def.defName] = currentUiValue;
+                        Instance.Settings.ManualThingSorting[def.defName] = currentUiValue;
                     }
                 }
             }
@@ -260,12 +255,12 @@ internal class TabSortingMod : Mod
         return buildingsWithNoDesignatorGroup.OrderBy(def => def.uiOrder).ToList();
     }
 
-    private static void SetManualSortTarget(List<BuildableDef> defs)
+    private static void setManualSortTarget(List<BuildableDef> defs)
     {
         var defNames = defs.Select(x => x.defName).ToList();
         foreach (var def in defs)
         {
-            if (!instance.Settings.GroupSameDesignator || !designatorGroups.Any(pair => pair.Value.Contains(def)))
+            if (!Instance.Settings.GroupSameDesignator || !designatorGroups.Any(pair => pair.Value.Contains(def)))
             {
                 continue;
             }
@@ -276,9 +271,9 @@ internal class TabSortingMod : Mod
             }
         }
 
-        var list = new List<FloatMenuOption> { new FloatMenuOption("TabSorting.Default".Translate(), defaultAction) };
+        var list = new List<FloatMenuOption> { new("TabSorting.Default".Translate(), defaultAction) };
 
-        foreach (var sortOption in from vanillaCategory in instance.Settings.VanillaCategoryMemory
+        foreach (var sortOption in from vanillaCategory in Instance.Settings.VanillaCategoryMemory
                  orderby vanillaCategory.label
                  select vanillaCategory)
         {
@@ -289,13 +284,13 @@ internal class TabSortingMod : Mod
             {
                 foreach (var defName in defNames)
                 {
-                    instance.Settings.ManualSorting[defName] = sortOption.defName;
+                    Instance.Settings.ManualSorting[defName] = sortOption.defName;
                     ResetSortOrder(defName);
                 }
             }
         }
 
-        foreach (var sortOption in from manualCategory in instance.Settings.ManualCategoryMemory
+        foreach (var sortOption in from manualCategory in Instance.Settings.ManualCategoryMemory
                  orderby manualCategory.label
                  select manualCategory)
         {
@@ -306,7 +301,7 @@ internal class TabSortingMod : Mod
             {
                 foreach (var defName in defNames)
                 {
-                    instance.Settings.ManualSorting[defName] = sortOption.defName;
+                    Instance.Settings.ManualSorting[defName] = sortOption.defName;
                     ResetSortOrder(defName);
                 }
             }
@@ -320,12 +315,11 @@ internal class TabSortingMod : Mod
         {
             foreach (var defName in defNames)
             {
-                if (instance.Settings.ManualSorting == null || !instance.Settings.ManualSorting.ContainsKey(defName))
+                if (Instance.Settings.ManualSorting == null || !Instance.Settings.ManualSorting.Remove(defName))
                 {
                     continue;
                 }
 
-                instance.Settings.ManualSorting.Remove(defName);
                 ResetSortOrder(defName);
             }
         }
@@ -334,13 +328,13 @@ internal class TabSortingMod : Mod
         {
             foreach (var defName in defNames)
             {
-                instance.Settings.ManualSorting[defName] = "None";
+                Instance.Settings.ManualSorting[defName] = "None";
                 ResetSortOrder(defName);
             }
         }
     }
 
-    private void drawIcon(BuildableDef thing, Rect rect, string designatorTooltip = null)
+    private static void drawIcon(BuildableDef thing, Rect rect, string designatorTooltip = null)
     {
         if (thing == null || thing.uiIcon == null || thing.uiIcon == BaseContent.BadTex)
         {
@@ -369,7 +363,7 @@ internal class TabSortingMod : Mod
         GUI.color = new Color(textureColor.r, textureColor.g, textureColor.b, GUI.color.a);
         GUI.DrawTexture(rect, texture2D);
         GUI.color = beforeColor;
-        if (!instance.Settings.GroupSameDesignator || thing.designatorDropdown == null || designatorGroups == null ||
+        if (!Instance.Settings.GroupSameDesignator || thing.designatorDropdown == null || designatorGroups == null ||
             !designatorGroups.ContainsKey(thing.designatorDropdown) ||
             !designatorGroups[thing.designatorDropdown].Any())
         {
@@ -378,7 +372,7 @@ internal class TabSortingMod : Mod
 
         var newRect = rect;
         newRect.x -= newRect.width;
-        GUI.DrawTexture(newRect, plusTexture);
+        GUI.DrawTexture(newRect, PlusTexture);
         if (!string.IsNullOrEmpty(designatorTooltip))
         {
             TooltipHandler.TipRegion(newRect, designatorTooltip);
@@ -386,11 +380,9 @@ internal class TabSortingMod : Mod
     }
 
     // copypaste - Stolen from Replace Stuff mod
-    public static void DefLabelWithIconButNoTooltipCmonReally(Rect rect, Def def, float iconMargin = 2f,
+    private static void defLabelWithIconButNoTooltip(Rect rect, Def def, float iconMargin = 2f,
         float textOffsetX = 6f)
     {
-        //DrawHighlightIfMouseover(rect);
-        //TooltipHandler.TipRegion(rect, def.description);
         Widgets.BeginGroup(rect);
         var rect2 = new Rect(0f, 0f, rect.height, rect.height);
         if (iconMargin != 0f)
@@ -409,39 +401,39 @@ internal class TabSortingMod : Mod
     }
 
 
-    private void DrawOptions(Rect rect)
+    private void drawOptions(Rect rect)
     {
         var optionsOuterContainer = rect.ContractedBy(10);
-        optionsOuterContainer.x += leftSideWidth + columnSpacer;
-        optionsOuterContainer.width -= leftSideWidth + columnSpacer;
+        optionsOuterContainer.x += leftSideWidth + ColumnSpacer;
+        optionsOuterContainer.width -= leftSideWidth + ColumnSpacer;
         Widgets.DrawBoxSolid(optionsOuterContainer, Color.grey);
         var optionsInnerContainer = optionsOuterContainer.ContractedBy(1);
         Widgets.DrawBoxSolid(optionsInnerContainer, new ColorInt(42, 43, 44).ToColor);
         var frameRect = optionsInnerContainer.ContractedBy(5);
-        frameRect.x = leftSideWidth + columnSpacer + 15;
+        frameRect.x = leftSideWidth + ColumnSpacer + 15;
         frameRect.y += 15;
         frameRect.height -= 15;
         var contentRect = frameRect;
         contentRect.x = 0;
         contentRect.y = 0;
-        var listing_Options = new Listing_Standard();
-        switch (selectedDef)
+        var listingOptions = new Listing_Standard();
+        switch (SelectedDef)
         {
             case null:
                 return;
             case "Settings":
             {
-                listing_Standard.Begin(frameRect);
-                listing_Standard.CheckboxLabeled("TabSorting.SortLights.Label".Translate(), ref Settings.SortLights,
+                listingStandard.Begin(frameRect);
+                listingStandard.CheckboxLabeled("TabSorting.SortLights.Label".Translate(), ref Settings.SortLights,
                     "TabSorting.SortLights.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortFloors.Label".Translate(), ref Settings.SortFloors,
+                listingStandard.CheckboxLabeled("TabSorting.SortFloors.Label".Translate(), ref Settings.SortFloors,
                     "TabSorting.SortFloors.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortWallsDoors.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortWallsDoors.Label".Translate(),
                     ref Settings.SortDoorsAndWalls,
                     "TabSorting.SortWallsDoors.Tooltip".Translate());
                 if (Settings.SortDoorsAndWalls)
                 {
-                    listing_Standard.CheckboxLabeled("TabSorting.SortDoors.Label".Translate(),
+                    listingStandard.CheckboxLabeled("TabSorting.SortDoors.Label".Translate(),
                         ref Settings.SortDoors,
                         "TabSorting.SortDoors.Tooltip".Translate());
                 }
@@ -450,30 +442,30 @@ internal class TabSortingMod : Mod
                     Settings.SortDoors = false;
                 }
 
-                listing_Standard.CheckboxLabeled("TabSorting.SortTablesChairs.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortTablesChairs.Label".Translate(),
                     ref Settings.SortTablesAndChairs,
                     "TabSorting.SortTablesChairs.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortBedroom.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortBedroom.Label".Translate(),
                     ref Settings.SortBedroomFurniture,
                     "TabSorting.SortBedroom.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortKitchen.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortKitchen.Label".Translate(),
                     ref Settings.SortKitchenFurniture,
                     "TabSorting.SortKitchen.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortHospital.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortHospital.Label".Translate(),
                     ref Settings.SortHospitalFurniture,
                     "TabSorting.SortHospital.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortResearch.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortResearch.Label".Translate(),
                     ref Settings.SortResearchFurniture,
                     "TabSorting.SortResearch.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortDecoration.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.SortDecoration.Label".Translate(),
                     ref Settings.SortDecorations,
                     "TabSorting.SortDecoration.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.SortStorage.Label".Translate(), ref Settings.SortStorage,
+                listingStandard.CheckboxLabeled("TabSorting.SortStorage.Label".Translate(), ref Settings.SortStorage,
                     "TabSorting.SortStorage.Tooltip".Translate());
 
-                if (TabSorting.gardenToolsLoaded)
+                if (TabSorting.GardenToolsLoaded)
                 {
-                    listing_Standard.CheckboxLabeled("TabSorting.SortGarden.Label".Translate(), ref Settings.SortGarden,
+                    listingStandard.CheckboxLabeled("TabSorting.SortGarden.Label".Translate(), ref Settings.SortGarden,
                         "TabSorting.SortGarden.Tooltip".Translate());
                 }
                 else
@@ -481,9 +473,9 @@ internal class TabSortingMod : Mod
                     Settings.SortGarden = false;
                 }
 
-                if (TabSorting.fencesAndFloorsLoaded)
+                if (TabSorting.FencesAndFloorsLoaded)
                 {
-                    listing_Standard.CheckboxLabeled("TabSorting.SortFences.Label".Translate(), ref Settings.SortFences,
+                    listingStandard.CheckboxLabeled("TabSorting.SortFences.Label".Translate(), ref Settings.SortFences,
                         "TabSorting.SortFences.Tooltip".Translate());
                 }
                 else
@@ -493,7 +485,7 @@ internal class TabSortingMod : Mod
 
                 if (ModLister.IdeologyInstalled)
                 {
-                    listing_Standard.CheckboxLabeled("TabSorting.SortIdeology.Label".Translate(),
+                    listingStandard.CheckboxLabeled("TabSorting.SortIdeology.Label".Translate(),
                         ref Settings.SortIdeologyFurniture,
                         "TabSorting.SortIdeology.Tooltip".Translate());
                 }
@@ -502,19 +494,19 @@ internal class TabSortingMod : Mod
                     Settings.SortIdeologyFurniture = false;
                 }
 
-                listing_Standard.Gap();
-                listing_Standard.CheckboxLabeled("TabSorting.RemoveEmpty.Label".Translate(),
+                listingStandard.Gap();
+                listingStandard.CheckboxLabeled("TabSorting.RemoveEmpty.Label".Translate(),
                     ref Settings.RemoveEmptyTabs,
                     "TabSorting.RemoveEmpty.Tooltip".Translate());
-                listing_Standard.CheckboxLabeled("TabSorting.GroupThings.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.GroupThings.Label".Translate(),
                     ref Settings.GroupSameDesignator,
                     "TabSorting.GroupThings.Tooltip".Translate());
-                listing_Standard.Gap();
-                listing_Standard.CheckboxLabeled("TabSorting.SortTabs.Label".Translate(), ref Settings.SortTabs,
+                listingStandard.Gap();
+                listingStandard.CheckboxLabeled("TabSorting.SortTabs.Label".Translate(), ref Settings.SortTabs,
                     "TabSorting.SortTabs.Tooltip".Translate());
                 if (Settings.SortTabs)
                 {
-                    listing_Standard.CheckboxLabeled("TabSorting.SkipZoneOrders.Label".Translate(),
+                    listingStandard.CheckboxLabeled("TabSorting.SkipZoneOrders.Label".Translate(),
                         ref Settings.SkipBuiltIn,
                         "TabSorting.SkipZoneOrders.Tooltip".Translate());
                 }
@@ -523,35 +515,35 @@ internal class TabSortingMod : Mod
                     Settings.SkipBuiltIn = false;
                 }
 
-                listing_Standard.CheckboxLabeled("TabSorting.HideEmptyTabs.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.HideEmptyTabs.Label".Translate(),
                     ref Settings.HideEmptyTabs, "TabSorting.HideEmptyTabs.Tooltip".Translate());
 
-                listing_Standard.Gap();
-                var labelPoint = listing_Standard.Label("TabSorting.ManualReset.Label".Translate(), -1F,
+                listingStandard.Gap();
+                var labelPoint = listingStandard.Label("TabSorting.ManualReset.Label".Translate(), -1F,
                     "TabSorting.ManualReset.Tooltip".Translate());
-                DrawButton(instance.Settings.ResetManualValues, "TabSorting.ResetSort".Translate(),
-                    new Vector2(labelPoint.position.x + buttonSpacer, labelPoint.position.y));
-                DrawButton(instance.Settings.ResetManualThingSortingValues, "TabSorting.ResetOrder".Translate(),
-                    new Vector2(labelPoint.position.x + buttonSpacer + buttonSize.x, labelPoint.position.y));
+                drawButton(Instance.Settings.ResetManualValues, "TabSorting.ResetSort".Translate(),
+                    new Vector2(labelPoint.position.x + ButtonSpacer, labelPoint.position.y));
+                drawButton(Instance.Settings.ResetManualThingSortingValues, "TabSorting.ResetOrder".Translate(),
+                    new Vector2(labelPoint.position.x + ButtonSpacer + ButtonSize.x, labelPoint.position.y));
 
                 if (Current.ProgramState == ProgramState.Playing)
                 {
-                    listing_Standard.Label(
+                    listingStandard.Label(
                         "TabSorting.MapRunning.Label".Translate());
                 }
 
-                listing_Standard.CheckboxLabeled("TabSorting.VerboseLogging.Label".Translate(),
+                listingStandard.CheckboxLabeled("TabSorting.VerboseLogging.Label".Translate(),
                     ref Settings.VerboseLogging,
                     "TabSorting.VerboseLogging.Tooltip".Translate());
                 if (currentVersion != null)
                 {
-                    listing_Standard.Gap();
+                    listingStandard.Gap();
                     GUI.contentColor = Color.gray;
-                    listing_Standard.Label("TabSorting.ModVersion".Translate(currentVersion));
+                    listingStandard.Label("TabSorting.ModVersion".Translate(currentVersion));
                     GUI.contentColor = Color.white;
                 }
 
-                listing_Standard.End();
+                listingStandard.End();
                 break;
             }
 
@@ -564,18 +556,18 @@ internal class TabSortingMod : Mod
                     .ToList();
                 contentRect.height = (sortedTabDefs.Count + 3) * 25f;
                 Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
-                listing_Options.Begin(contentRect);
+                listingOptions.Begin(contentRect);
                 GUI.contentColor = Color.green;
-                listing_Options.Label("TabSorting.TabSorting".Translate());
+                listingOptions.Label("TabSorting.TabSorting".Translate());
                 GUI.contentColor = Color.white;
                 if (Widgets.ButtonText(
-                        new Rect(contentRect.position + new Vector2(contentRect.width - buttonSize.x, 0), buttonSize),
+                        new Rect(contentRect.position + new Vector2(contentRect.width - ButtonSize.x, 0), ButtonSize),
                         "TabSorting.Reset".Translate()))
                 {
                     Find.WindowStack.Add(new Dialog_MessageBox(
                         "TabSorting.ResetTabsort".Translate(),
                         "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
-                        delegate { instance.Settings.ResetManualTabSortingValues(); }));
+                        delegate { Instance.Settings.ResetManualTabSortingValues(); }));
                 }
 
                 var num = 50f;
@@ -597,8 +589,8 @@ internal class TabSortingMod : Mod
                                     (sortedTabDefs[i - 1].order, currentDef.order);
                             }
 
-                            instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
-                            instance.Settings.ManualTabSorting[sortedTabDefs[i - 1].defName] =
+                            Instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
+                            Instance.Settings.ManualTabSorting[sortedTabDefs[i - 1].defName] =
                                 sortedTabDefs[i - 1].order;
                             SoundDefOf.Tick_High.PlayOneShotOnCamera();
                         }
@@ -619,8 +611,8 @@ internal class TabSortingMod : Mod
                                     (sortedTabDefs[i + 1].order, currentDef.order);
                             }
 
-                            instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
-                            instance.Settings.ManualTabSorting[sortedTabDefs[i + 1].defName] =
+                            Instance.Settings.ManualTabSorting[currentDef.defName] = currentDef.order;
+                            Instance.Settings.ManualTabSorting[sortedTabDefs[i + 1].defName] =
                                 sortedTabDefs[i + 1].order;
                             SoundDefOf.Tick_Low.PlayOneShotOnCamera();
                         }
@@ -633,7 +625,7 @@ internal class TabSortingMod : Mod
                 }
 
                 Widgets.DrawLineHorizontal(0, num, contentRect.width);
-                listing_Options.End();
+                listingOptions.End();
                 Widgets.EndScrollView();
                 break;
             }
@@ -647,18 +639,18 @@ internal class TabSortingMod : Mod
                     .ToList();
                 contentRect.height = (buttonDefs.Count + 3) * 25f;
                 Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
-                listing_Options.Begin(contentRect);
+                listingOptions.Begin(contentRect);
                 GUI.contentColor = Color.green;
-                listing_Options.Label("TabSorting.ButtonSorting".Translate());
+                listingOptions.Label("TabSorting.ButtonSorting".Translate());
                 GUI.contentColor = Color.white;
                 if (Widgets.ButtonText(
-                        new Rect(contentRect.position + new Vector2(contentRect.width - buttonSize.x, 0), buttonSize),
+                        new Rect(contentRect.position + new Vector2(contentRect.width - ButtonSize.x, 0), ButtonSize),
                         "TabSorting.Reset".Translate()))
                 {
                     Find.WindowStack.Add(new Dialog_MessageBox(
                         "TabSorting.ResetButtonsort".Translate(),
                         "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
-                        delegate { instance.Settings.ResetManualButtonSortingValues(); }));
+                        delegate { Instance.Settings.ResetManualButtonSortingValues(); }));
                 }
 
                 var num = 50f;
@@ -680,8 +672,8 @@ internal class TabSortingMod : Mod
                                     (buttonDefs[i - 1].order, currentDef.order);
                             }
 
-                            instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
-                            instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] = buttonDefs[i - 1].order;
+                            Instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
+                            Instance.Settings.ManualButtonSorting[buttonDefs[i - 1].defName] = buttonDefs[i - 1].order;
                             SoundDefOf.Tick_High.PlayOneShotOnCamera();
                         }
                     }
@@ -701,8 +693,8 @@ internal class TabSortingMod : Mod
                                     (buttonDefs[i + 1].order, currentDef.order);
                             }
 
-                            instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
-                            instance.Settings.ManualButtonSorting[buttonDefs[i + 1].defName] =
+                            Instance.Settings.ManualButtonSorting[currentDef.defName] = currentDef.order;
+                            Instance.Settings.ManualButtonSorting[buttonDefs[i + 1].defName] =
                                 buttonDefs[i + 1].order;
                             SoundDefOf.Tick_Low.PlayOneShotOnCamera();
                         }
@@ -715,7 +707,7 @@ internal class TabSortingMod : Mod
                 }
 
                 Widgets.DrawLineHorizontal(0, num, contentRect.width);
-                listing_Options.End();
+                listingOptions.End();
                 Widgets.EndScrollView();
                 break;
             }
@@ -726,9 +718,9 @@ internal class TabSortingMod : Mod
 
                 contentRect.height = (noneCategoryMembers.Count * 24f) + 40f;
                 Widgets.BeginScrollView(frameRect, ref optionsScrollPosition, contentRect);
-                listing_Options.Begin(contentRect);
+                listingOptions.Begin(contentRect);
                 GUI.contentColor = Color.green;
-                listing_Options.Label("TabSorting.NoneHidden".Translate());
+                listingOptions.Label("TabSorting.NoneHidden".Translate());
                 GUI.contentColor = Color.white;
                 foreach (var hiddenItem in noneCategoryMembers)
                 {
@@ -740,35 +732,35 @@ internal class TabSortingMod : Mod
                     }
 
                     var currentPosition =
-                        listing_Options.Label(item.label.CapitalizeFirst(), -1f, toolTip);
+                        listingOptions.Label((TaggedString)item.label.CapitalizeFirst(), -1f, toolTip);
                     var buttonText = "TabSorting.Default".Translate();
                     if (Settings.ManualSorting != null && Settings.ManualSorting.ContainsKey(item.defName))
                     {
                         buttonText = Settings.ManualSorting[item.defName];
                     }
 
-                    DrawButton(delegate { SetManualSortTarget([item]); }, buttonText,
-                        new Vector2(currentPosition.position.x + buttonSpacer, currentPosition.position.y));
+                    drawButton(delegate { setManualSortTarget([item]); }, buttonText,
+                        new Vector2(currentPosition.position.x + ButtonSpacer, currentPosition.position.y));
                     drawIcon(item,
                         new Rect(
-                            new Vector2(currentPosition.position.x + buttonSpacer - iconSize,
-                                currentPosition.position.y), new Vector2(iconSize, iconSize)));
+                            new Vector2(currentPosition.position.x + ButtonSpacer - IconSize,
+                                currentPosition.position.y), new Vector2(IconSize, IconSize)));
                 }
 
-                listing_Options.GapLine();
-                listing_Options.End();
+                listingOptions.GapLine();
+                listingOptions.End();
                 Widgets.EndScrollView();
                 break;
             }
 
             case "CreateNew":
             {
-                listing_Standard.Begin(frameRect);
-                listing_Standard.Gap();
+                listingStandard.Begin(frameRect);
+                listingStandard.Gap();
 
-                listing_Standard.Label("TabSorting.NewTab".Translate());
-                newTabName = listing_Standard.TextEntry(newTabName);
-                if (newTabName.Length > 0 && listing_Standard.ButtonText("TabSorting.Create".Translate()))
+                listingStandard.Label("TabSorting.NewTab".Translate());
+                newTabName = listingStandard.TextEntry(newTabName);
+                if (newTabName.Length > 0 && listingStandard.ButtonText("TabSorting.Create".Translate()))
                 {
                     var cleanTabName = TabSorting.ValidateTabName(newTabName);
                     if (string.IsNullOrEmpty(cleanTabName))
@@ -780,7 +772,8 @@ internal class TabSortingMod : Mod
                     }
 
                     var order = 1;
-                    var orders = DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Select(def => def.order);
+                    var orders = DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Select(def => def.order)
+                        .ToArray();
                     while (orders.Contains(order))
                     {
                         order++;
@@ -794,27 +787,27 @@ internal class TabSortingMod : Mod
                         order = order
                     };
                     DefGenerator.AddImpliedDef(newTab);
-                    instance.Settings.ManualTabs[cleanTabName] = newTabName;
-                    instance.Settings.ManualCategoryMemory.Add(
+                    Instance.Settings.ManualTabs[cleanTabName] = newTabName;
+                    Instance.Settings.ManualCategoryMemory.Add(
                         DefDatabase<DesignationCategoryDef>.GetNamed(cleanTabName));
-                    selectedDef = "Settings";
+                    SelectedDef = "Settings";
                     newTabName = string.Empty;
                     TabSorting.LogMessage(
-                        "TabSorting.CurrentCustom".Translate(string.Join(",", instance.Settings.ManualCategoryMemory)));
+                        "TabSorting.CurrentCustom".Translate(string.Join(",", Instance.Settings.ManualCategoryMemory)));
                 }
 
-                listing_Standard.End();
+                listingStandard.End();
                 break;
             }
 
             default:
             {
-                var sortCategory = TabSorting.GetDesignationFromDatabase(selectedDef);
+                var sortCategory = TabSorting.GetDesignationFromDatabase(SelectedDef);
                 if (sortCategory == null)
                 {
                     Log.ErrorOnce(
-                        $"TabSorter: Could not find category called {selectedDef}, this should not happen.",
-                        selectedDef.GetHashCode());
+                        $"TabSorter: Could not find category called {SelectedDef}, this should not happen.",
+                        SelectedDef.GetHashCode());
                     return;
                 }
 
@@ -822,17 +815,17 @@ internal class TabSortingMod : Mod
                     where thing.designationCategory != null && thing.designationCategory == sortCategory
                     select thing).ToList();
 
-                allDefsInCategory.AddRange(from terraindef in DefDatabase<TerrainDef>.AllDefsListForReading
-                    where terraindef.designationCategory != null && terraindef.designationCategory == sortCategory &&
-                          !allDefsInCategory.Contains(terraindef)
-                    select terraindef);
+                allDefsInCategory.AddRange(from terrainDef in DefDatabase<TerrainDef>.AllDefsListForReading
+                    where terrainDef.designationCategory != null && terrainDef.designationCategory == sortCategory &&
+                          !allDefsInCategory.Contains(terrainDef)
+                    select terrainDef);
 
                 allDefsInCategory =
-                    VerifyUniqueOrderValues([..allDefsInCategory.OrderBy(def => def.uiOrder)]);
+                    verifyUniqueOrderValues([..allDefsInCategory.OrderBy(def => def.uiOrder)]);
                 AllCurrentDefsInCategory.allDefsInCategory = allDefsInCategory;
 
                 designatorGroups = new Dictionary<DesignatorDropdownGroupDef, List<BuildableDef>>();
-                if (instance.Settings.GroupSameDesignator)
+                if (Instance.Settings.GroupSameDesignator)
                 {
                     var tempAllDefsInCategory = new List<BuildableDef>();
 
@@ -856,24 +849,24 @@ internal class TabSortingMod : Mod
                     allDefsInCategory = tempAllDefsInCategory;
                 }
 
-                var architechMargin = 0f;
-                if (TabSorting.architectIconsLoaded)
+                var architectMargin = 0f;
+                if (TabSorting.ArchitectIconsLoaded)
                 {
-                    architechMargin = tabIconContainer.x;
+                    architectMargin = tabIconContainer.x;
                     var tabIconRect =
                         new Rect(
                             frameRect.position + new Vector2(frameRect.width - tabIconContainer.x, 0),
                             tabIconContainer);
-                    if (ListingExtension.TabIconSelectable(tabIconRect, TabSorting.GetCustomTabIcon(selectedDef),
+                    if (ListingExtension.TabIconSelectable(tabIconRect, TabSorting.GetCustomTabIcon(SelectedDef),
                             "TabSorting.Edit".Translate()))
                     {
-                        Find.WindowStack.Add(new Dialog_ChooseTabIcon(selectedDef));
+                        Find.WindowStack.Add(new Dialog_ChooseTabIcon(SelectedDef));
                     }
                 }
 
                 GUI.contentColor = Color.green;
                 var contentPack = "TabSorting.UnloadedMod".Translate();
-                var manualTab = instance.Settings.ManualCategoryMemory.Contains(sortCategory);
+                var manualTab = Instance.Settings.ManualCategoryMemory.Contains(sortCategory);
                 if (sortCategory.modContentPack?.Name != null)
                 {
                     contentPack = sortCategory.modContentPack.Name;
@@ -888,7 +881,7 @@ internal class TabSortingMod : Mod
                 var frameTitle = $"{sortCategory.label.CapitalizeFirst()} ({sortCategory.defName}) - {contentPack}";
                 Widgets.Label(
                     new Rect(frameRect.position,
-                        new Vector2(frameRect.width - buttonSize.x, searchSize.y)),
+                        new Vector2(frameRect.width - ButtonSize.x, searchSize.y)),
                     frameTitle);
                 Text.Font = GameFont.Small;
 
@@ -896,19 +889,19 @@ internal class TabSortingMod : Mod
                     Widgets.TextField(
                         new Rect(
                             frameRect.position + new Vector2(frameRect.width - searchSize.x, 0) -
-                            new Vector2(architechMargin, 0), searchSize),
+                            new Vector2(architectMargin, 0), searchSize),
                         searchText);
                 TooltipHandler.TipRegion(new Rect(frameRect.position + new Vector2(frameRect.width - searchSize.x, 0) -
-                                                  new Vector2(architechMargin, 0),
+                                                  new Vector2(architectMargin, 0),
                     searchSize), "TabSorting.Search".Translate());
-                var extraRowSpace = buttonSize.y * 1.5f;
+                var extraRowSpace = ButtonSize.y * 1.5f;
                 if (manualTab)
                 {
                     if (Widgets.ButtonText(
                             new Rect(
                                 frameRect.position +
-                                new Vector2(0, buttonSize.y),
-                                buttonSize),
+                                new Vector2(0, ButtonSize.y),
+                                ButtonSize),
                             "TabSorting.Rename".Translate()))
                     {
                         Find.WindowStack.Add(new Dialog_RenameTab(sortCategory));
@@ -916,9 +909,9 @@ internal class TabSortingMod : Mod
 
                     if (Widgets.ButtonText(
                             new Rect(
-                                frameRect.position + new Vector2(buttonSize.x,
-                                    buttonSize.y),
-                                buttonSize),
+                                frameRect.position + new Vector2(ButtonSize.x,
+                                    ButtonSize.y),
+                                ButtonSize),
                             "TabSorting.Delete".Translate()))
                     {
                         Find.WindowStack.Add(new Dialog_MessageBox(
@@ -926,16 +919,16 @@ internal class TabSortingMod : Mod
                             "TabSorting.No".Translate(), null, "TabSorting.Yes".Translate(),
                             delegate
                             {
-                                selectedDef = "Settings";
+                                SelectedDef = "Settings";
                                 TabSorting.RemoveManualTab(sortCategory);
                             }));
                     }
 
-                    extraRowSpace += buttonSize.y;
+                    extraRowSpace += ButtonSize.y;
                 }
 
                 Widgets.DrawLineHorizontal(frameRect.position.x,
-                    frameRect.position.y + extraRowSpace - (buttonSize.y / 3), frameRect.width);
+                    frameRect.position.y + extraRowSpace - (ButtonSize.y / 3), frameRect.width);
                 var viewRect = frameRect;
                 viewRect.height -= extraRowSpace;
                 viewRect.y += extraRowSpace;
@@ -956,37 +949,37 @@ internal class TabSortingMod : Mod
 
                 contentRect.height = defListHeight + moveEverythingRowHeight;
                 Widgets.BeginScrollView(viewRect, ref optionsScrollPosition, contentRect);
-                listing_Options.Begin(contentRect);
+                listingOptions.Begin(contentRect);
 
-                listing_Options.Gap(5f);
+                listingOptions.Gap(5f);
 
                 if (AllCurrentDefsInCategory.allCurrentDefsInCategory.Any())
                 {
-                    var buttonRow = new Rect(contentRect.x, listing_Options.CurHeight, contentRect.width, 24);
+                    var buttonRow = new Rect(contentRect.x, listingOptions.CurHeight, contentRect.width, 24);
                     Widgets.Label(buttonRow.LeftHalf(), "TabSorting.MoveEverything".Translate());
-                    if (Widgets.ButtonText(buttonRow.LeftHalf().LeftPart(0.95f).RightPartPixels(buttonSize.x),
+                    if (Widgets.ButtonText(buttonRow.LeftHalf().LeftPart(0.95f).RightPartPixels(ButtonSize.x),
                             "TabSorting.Select".Translate()))
                     {
-                        SetManualSortTarget(AllCurrentDefsInCategory.allCurrentDefsInCategory);
+                        setManualSortTarget(AllCurrentDefsInCategory.allCurrentDefsInCategory);
                     }
 
                     Widgets.Label(buttonRow.RightHalf(), "TabSorting.SortAlphabetically".Translate());
-                    if (Widgets.ButtonText(buttonRow.RightHalf().LeftPart(0.95f).RightPartPixels(buttonSize.x),
+                    if (Widgets.ButtonText(buttonRow.RightHalf().LeftPart(0.95f).RightPartPixels(ButtonSize.x),
                             "TabSorting.Sort".Translate()))
                     {
                         AllCurrentDefsInCategory.allDefsInCategory =
-                            SortAlphabetically(AllCurrentDefsInCategory.allDefsInCategory);
+                            sortAlphabetically(AllCurrentDefsInCategory.allDefsInCategory);
                         TabSorting.DoTheSorting();
                     }
 
-                    listing_Options.Gap(24f);
+                    listingOptions.Gap(24f);
                 }
 
-                listing_Options.GapLine();
+                listingOptions.GapLine();
 
-                var reorderRect = listing_Options.GetRect(defListHeight);
+                var reorderRect = listingOptions.GetRect(defListHeight);
                 Widgets.DrawBox(reorderRect);
-                listing_Options.Gap(2f);
+                listingOptions.Gap(2f);
 
                 var labelRect = reorderRect.ContractedBy(5).TopPartPixels(itemHeight);
                 var globalDragRect = labelRect;
@@ -1006,7 +999,7 @@ internal class TabSortingMod : Mod
                                 Event.current.mousePosition - dragStartPos; //adjust for mouse vs starting point
                             //Same id 34003428 as GenUI.DrawMouseAttachment
                             Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super, () =>
-                                DefLabelWithIconButNoTooltipCmonReally(dragRect.AtZero(),
+                                defLabelWithIconButNoTooltip(dragRect.AtZero(),
                                     AllCurrentDefsInCategory.allCurrentDefsInCategory[index], 0)
                             );
                         });
@@ -1017,7 +1010,7 @@ internal class TabSortingMod : Mod
                     var toolTip = def.defName;
                     var iconToolTip = string.Empty;
 
-                    if (instance.Settings.GroupSameDesignator && def.designatorDropdown != null &&
+                    if (Instance.Settings.GroupSameDesignator && def.designatorDropdown != null &&
                         designatorGroups.ContainsKey(def.designatorDropdown) &&
                         designatorGroups[def.designatorDropdown].Any())
                     {
@@ -1032,9 +1025,9 @@ internal class TabSortingMod : Mod
 
                     var halfRect = labelRect;
                     halfRect.width /= 2;
-                    var rightPart = halfRect.RightPartPixels(halfRect.width - iconSize - iconSpacer);
+                    var rightPart = halfRect.RightPartPixels(halfRect.width - IconSize - IconSpacer);
                     rightPart.y += 2;
-                    var leftPart = halfRect.LeftPartPixels(iconSize).TopPartPixels(iconSize).CenteredOnYIn(halfRect);
+                    var leftPart = halfRect.LeftPartPixels(IconSize).TopPartPixels(IconSize).CenteredOnYIn(halfRect);
                     GUI.DrawTexture(leftPart, TexButton.DragHash);
                     Widgets.Label(rightPart, def.LabelCap);
                     TooltipHandler.TipRegion(rightPart, toolTip);
@@ -1044,11 +1037,11 @@ internal class TabSortingMod : Mod
                         buttonText = Settings.ManualSorting[def.defName];
                     }
 
-                    var buttonPosition = new Vector2(rightPart.position.x + buttonSpacer, rightPart.position.y);
-                    var copyRect = new Rect(buttonPosition + new Vector2(buttonSize.x + iconSpacer, 0), tabIconSize);
+                    var buttonPosition = new Vector2(rightPart.position.x + ButtonSpacer, rightPart.position.y);
+                    var copyRect = new Rect(buttonPosition + new Vector2(ButtonSize.x + IconSpacer, 0), TabIconSize);
                     var pasteRect = new Rect(
-                        buttonPosition + new Vector2(buttonSize.x + (iconSpacer * 2) + tabIconSize.x, 0),
-                        tabIconSize);
+                        buttonPosition + new Vector2(ButtonSize.x + (IconSpacer * 2) + TabIconSize.x, 0),
+                        TabIconSize);
                     if (GUIUtility.systemCopyBuffer?.StartsWith("Designation|") == true)
                     {
                         var designation = GUIUtility.systemCopyBuffer.Split('|').Last();
@@ -1061,11 +1054,7 @@ internal class TabSortingMod : Mod
                                 {
                                     if (designation == "TabSorting.Default".Translate())
                                     {
-                                        if (instance.Settings.ManualSorting != null &&
-                                            instance.Settings.ManualSorting.ContainsKey(def.defName))
-                                        {
-                                            instance.Settings.ManualSorting.Remove(def.defName);
-                                        }
+                                        Instance.Settings.ManualSorting?.Remove(def.defName);
                                     }
                                     else
                                     {
@@ -1082,7 +1071,7 @@ internal class TabSortingMod : Mod
                         }
                     }
 
-                    DrawButton(delegate { SetManualSortTarget([def]); }, buttonText, buttonPosition);
+                    drawButton(delegate { setManualSortTarget([def]); }, buttonText, buttonPosition);
                     if (Widgets.ButtonImageFitted(copyRect, TexButton.Copy))
                     {
                         GUIUtility.systemCopyBuffer = $"Designation|{buttonText}";
@@ -1094,23 +1083,23 @@ internal class TabSortingMod : Mod
 
                     drawIcon(def,
                         new Rect(
-                            new Vector2(rightPart.position.x + buttonSpacer - iconSize,
-                                rightPart.position.y), new Vector2(iconSize, iconSize)), iconToolTip);
+                            new Vector2(rightPart.position.x + ButtonSpacer - IconSize,
+                                rightPart.position.y), new Vector2(IconSize, IconSize)), iconToolTip);
 
                     ReorderableWidget.Reorderable(reorderID, labelRect);
 
                     labelRect.y += itemHeight;
                 }
 
-                listing_Options.GapLine();
-                listing_Options.End();
+                listingOptions.GapLine();
+                listingOptions.End();
                 Widgets.EndScrollView();
                 break;
             }
         }
     }
 
-    public static List<BuildableDef> VerifyUniqueOrderValues(List<BuildableDef> buildableDefs)
+    private static List<BuildableDef> verifyUniqueOrderValues(List<BuildableDef> buildableDefs)
     {
         if (!buildableDefs.Any(def => buildableDefs.Count(buildableDef => buildableDef.uiOrder == def.uiOrder) > 1))
         {
@@ -1132,7 +1121,7 @@ internal class TabSortingMod : Mod
                     }
 
                     def.uiOrder = currentOrder;
-                    instance.Settings.ManualThingSorting[def.defName] = currentOrder;
+                    Instance.Settings.ManualThingSorting[def.defName] = currentOrder;
                     skipList.Add(def);
                     currentOrder++;
                 }
@@ -1143,7 +1132,7 @@ internal class TabSortingMod : Mod
             if (!skipList.Any(def => def == buildableDef))
             {
                 buildableDef.uiOrder = currentOrder;
-                instance.Settings.ManualThingSorting[buildableDef.defName] = currentOrder;
+                Instance.Settings.ManualThingSorting[buildableDef.defName] = currentOrder;
             }
 
             currentOrder++;
@@ -1154,13 +1143,10 @@ internal class TabSortingMod : Mod
 
     public static void ResetSortOrder(string defName)
     {
-        if (instance.Settings.ManualThingSorting?.ContainsKey(defName) == true)
-        {
-            instance.Settings.ManualThingSorting.Remove(defName);
-        }
+        Instance.Settings.ManualThingSorting?.Remove(defName);
     }
 
-    private void DrawTabsList(Rect rect)
+    private static void drawTabsList(Rect rect)
     {
         var scrollContainer = rect.ContractedBy(10);
         scrollContainer.width = leftSideWidth;
@@ -1175,8 +1161,8 @@ internal class TabSortingMod : Mod
         tabContentRect.y = 0;
         tabContentRect.width -= 20;
 
-        var categoryDefs = instance.Settings.VanillaCategoryMemory;
-        var manualDefs = instance.Settings.ManualCategoryMemory;
+        var categoryDefs = Instance.Settings.VanillaCategoryMemory;
+        var manualDefs = Instance.Settings.ManualCategoryMemory;
         var rows = categoryDefs.Count + manualDefs.Count + 6;
         if (manualDefs.Count == 0)
         {
@@ -1185,74 +1171,74 @@ internal class TabSortingMod : Mod
 
         tabContentRect.height = rows * 27f;
         Widgets.BeginScrollView(tabFrameRect, ref tabsScrollPosition, tabContentRect);
-        listing_Standard.Begin(tabContentRect);
-        if (listing_Standard.ListItemSelectable("TabSorting.Settings".Translate(), Color.yellow,
-                selectedDef == "Settings"))
+        listingStandard.Begin(tabContentRect);
+        if (listingStandard.ListItemSelectable("TabSorting.Settings".Translate(), Color.yellow,
+                SelectedDef == "Settings"))
         {
-            selectedDef = selectedDef == "Settings" ? null : "Settings";
+            SelectedDef = SelectedDef == "Settings" ? null : "Settings";
         }
 
 
-        if (listing_Standard.ListItemSelectable("TabSorting.CreateNew".Translate(), Color.yellow,
-                selectedDef == "CreateNew"))
+        if (listingStandard.ListItemSelectable("TabSorting.CreateNew".Translate(), Color.yellow,
+                SelectedDef == "CreateNew"))
         {
             newTabName = string.Empty;
-            selectedDef = selectedDef == "CreateNew" ? null : "CreateNew";
+            SelectedDef = SelectedDef == "CreateNew" ? null : "CreateNew";
         }
 
-        if (!instance.Settings.SortTabs)
+        if (!Instance.Settings.SortTabs)
         {
-            if (listing_Standard.ListItemSelectable("TabSorting.TabSorting".Translate(), Color.yellow,
-                    selectedDef == "TabSorting"))
+            if (listingStandard.ListItemSelectable("TabSorting.TabSorting".Translate(), Color.yellow,
+                    SelectedDef == "TabSorting"))
             {
-                selectedDef = selectedDef == "TabSorting" ? null : "TabSorting";
+                SelectedDef = SelectedDef == "TabSorting" ? null : "TabSorting";
             }
         }
 
-        if (listing_Standard.ListItemSelectable("TabSorting.ButtonSorting".Translate(), Color.yellow,
-                selectedDef == "ButtonSorting"))
+        if (listingStandard.ListItemSelectable("TabSorting.ButtonSorting".Translate(), Color.yellow,
+                SelectedDef == "ButtonSorting"))
         {
-            selectedDef = selectedDef == "ButtonSorting" ? null : "ButtonSorting";
+            SelectedDef = SelectedDef == "ButtonSorting" ? null : "ButtonSorting";
         }
 
-        listing_Standard.ListItemSelectable(null, Color.yellow);
+        listingStandard.ListItemSelectable(null, Color.yellow);
         foreach (var categoryDef in categoryDefs)
         {
-            if (!listing_Standard.ListItemSelectable(
+            if (!listingStandard.ListItemSelectable(
                     $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
-                    selectedDef == categoryDef.defName, categoryDef.defName))
+                    SelectedDef == categoryDef.defName, categoryDef.defName))
             {
                 continue;
             }
 
-            selectedDef = selectedDef == categoryDef.defName ? null : categoryDef.defName;
+            SelectedDef = SelectedDef == categoryDef.defName ? null : categoryDef.defName;
         }
 
-        listing_Standard.ListItemSelectable(null, Color.yellow);
+        listingStandard.ListItemSelectable(null, Color.yellow);
         if (manualDefs.Any())
         {
             foreach (var categoryDef in manualDefs)
             {
-                if (!listing_Standard.ListItemSelectable(
+                if (!listingStandard.ListItemSelectable(
                         $"{categoryDef.label.CapitalizeFirst()} ({categoryDef.defName})", Color.yellow,
-                        selectedDef == categoryDef.defName, categoryDef.defName))
+                        SelectedDef == categoryDef.defName, categoryDef.defName))
                 {
                     continue;
                 }
 
-                selectedDef = selectedDef == categoryDef.defName ? null : categoryDef.defName;
+                SelectedDef = SelectedDef == categoryDef.defName ? null : categoryDef.defName;
             }
 
-            listing_Standard.ListItemSelectable(null, Color.yellow);
+            listingStandard.ListItemSelectable(null, Color.yellow);
         }
 
-        if (listing_Standard.ListItemSelectable("TabSorting.NoneHidden".Translate(), Color.yellow,
-                selectedDef == "Hidden"))
+        if (listingStandard.ListItemSelectable("TabSorting.NoneHidden".Translate(), Color.yellow,
+                SelectedDef == "Hidden"))
         {
-            selectedDef = selectedDef == "Hidden" ? null : "Hidden";
+            SelectedDef = SelectedDef == "Hidden" ? null : "Hidden";
         }
 
-        listing_Standard.End();
+        listingStandard.End();
         Widgets.EndScrollView();
     }
 }

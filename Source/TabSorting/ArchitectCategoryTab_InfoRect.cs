@@ -5,12 +5,12 @@ using Verse;
 
 namespace TabSorting;
 
-[HarmonyPatch(typeof(ArchitectCategoryTab), $"get_{nameof(ArchitectCategoryTab.InfoRect)}")]
+[HarmonyPatch(typeof(ArchitectCategoryTab), nameof(ArchitectCategoryTab.InfoRect), MethodType.Getter)]
 public static class ArchitectCategoryTab_InfoRect
 {
     public static void Postfix(ref Rect __result)
     {
-        if (!TabSortingMod.instance.Settings.HideEmptyTabs)
+        if (!TabSortingMod.Instance.Settings.HideEmptyTabs)
         {
             return;
         }

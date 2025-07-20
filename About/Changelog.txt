@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.0 - Updated to 1.6
+
+
 1.5.12 - Will now do limited sorting if Vanilla Factions Expanded - Medieval 2 is loaded as VE add things in a non-standard way
 
 

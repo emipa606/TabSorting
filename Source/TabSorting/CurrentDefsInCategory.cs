@@ -39,7 +39,7 @@ public static class AllCurrentDefsInCategory
             originalDef
         };
 
-        if (TabSortingMod.instance.Settings.GroupSameDesignator)
+        if (TabSortingMod.Instance.Settings.GroupSameDesignator)
         {
             origIndexInFullList = allDefsInCategory.FindIndex(def => def == originalDef);
             newIndexInFullList = allDefsInCategory.FindIndex(def => def == allCurrentDefsInCategory[newIndex]);
@@ -76,7 +76,7 @@ public static class AllCurrentDefsInCategory
             }
 
             allDefsInCategory[decIndex].uiOrder -= defsToMove.Count;
-            TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[decIndex].defName] =
+            TabSortingMod.Instance.Settings.ManualThingSorting[allDefsInCategory[decIndex].defName] =
                 allDefsInCategory[decIndex].uiOrder;
         }
 
@@ -91,7 +91,7 @@ public static class AllCurrentDefsInCategory
             // Add def at new index with new uiOrder.
             allDefsInCategory.Insert(newIndexInFullList, buildableDef);
             buildableDef.uiOrder = uiOrderAtNewIndex + increment;
-            TabSortingMod.instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
+            TabSortingMod.Instance.Settings.ManualThingSorting[buildableDef.defName] = buildableDef.uiOrder;
             increment += 1;
         }
 
@@ -111,7 +111,7 @@ public static class AllCurrentDefsInCategory
                 allDefsInCategory[upIndex].uiOrder += 1 + previousUiOrder - allDefsInCategory[upIndex].uiOrder;
             }
 
-            TabSortingMod.instance.Settings.ManualThingSorting[allDefsInCategory[upIndex].defName] =
+            TabSortingMod.Instance.Settings.ManualThingSorting[allDefsInCategory[upIndex].defName] =
                 allDefsInCategory[upIndex].uiOrder;
             previousUiOrder = allDefsInCategory[upIndex].uiOrder;
         }

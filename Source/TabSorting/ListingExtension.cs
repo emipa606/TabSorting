@@ -14,10 +14,10 @@ public static class ListingExtension
         var anchor = Text.Anchor;
         var color = GUI.color;
         var rect = lister.GetRect(25f);
-        if (!string.IsNullOrEmpty(loadImage) && TabSorting.architectIconsLoaded)
+        if (!string.IsNullOrEmpty(loadImage) && TabSorting.ArchitectIconsLoaded)
         {
-            rect.width -= TabSortingMod.tabIconSize.x;
-            TabIconSelectable(new Rect(new Vector2(rect.x + rect.width, rect.y), TabSortingMod.tabIconSize),
+            rect.width -= TabSortingMod.TabIconSize.x;
+            TabIconSelectable(new Rect(new Vector2(rect.x + rect.width, rect.y), TabSortingMod.TabIconSize),
                 TabSorting.GetCustomTabIcon(loadImage), null, false, false);
         }
 
@@ -53,20 +53,20 @@ public static class ListingExtension
     public static bool TabIconSelectable(Rect rect, string iconName, string toolTip = null, bool selected = false,
         bool selectable = true)
     {
-        if (TabSorting.iconsCache == null || !TabSorting.iconsCache.ContainsKey("wrongsign"))
+        if (TabSorting.IconsCache == null || !TabSorting.IconsCache.ContainsKey("wrongsign"))
         {
             return false;
         }
 
         var currentIconName = iconName;
 
-        if (TabSorting.iconsCache?.ContainsKey(iconName) == false)
+        if (TabSorting.IconsCache?.ContainsKey(iconName) == false)
         {
             currentIconName = "wrongsign";
         }
 
-        GUI.DrawTexture(rect.ContractedBy((rect.width - TabSortingMod.tabIconSize.x) / 2),
-            TabSorting.iconsCache?[currentIconName]);
+        GUI.DrawTexture(rect.ContractedBy((rect.width - TabSortingMod.TabIconSize.x) / 2),
+            TabSorting.IconsCache?[currentIconName]);
 
         if (!selectable)
         {

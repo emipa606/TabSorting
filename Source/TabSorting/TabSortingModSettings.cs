@@ -9,56 +9,42 @@ namespace TabSorting;
 /// </summary>
 internal class TabSortingModSettings : ModSettings
 {
-    public readonly Dictionary<MainButtonDef, int> VanillaButtonOrderMemory =
-        new Dictionary<MainButtonDef, int>();
-
-    public readonly List<DesignationCategoryDef> VanillaCategoryMemory = [];
-
-    public readonly Dictionary<Def, DesignationCategoryDef> VanillaItemMemory =
-        new Dictionary<Def, DesignationCategoryDef>();
-
-    public readonly Dictionary<DesignationCategoryDef, int> VanillaTabOrderMemory =
-        new Dictionary<DesignationCategoryDef, int>();
-
-    public readonly Dictionary<BuildableDef, float> VanillaThingOrderMemory =
-        new Dictionary<BuildableDef, float>();
-
-    private List<string> CategoriesToIgnore = [];
+    private List<string> categoriesToIgnore = [];
     public bool GroupSameDesignator;
 
     public bool HideEmptyTabs;
 
-    public Dictionary<string, int> ManualButtonSorting = new Dictionary<string, int>();
+    public Dictionary<string, int> ManualButtonSorting = new();
 
     private List<string> manualButtonSortingKeys;
 
     private List<int> manualButtonSortingValues;
     public List<DesignationCategoryDef> ManualCategoryMemory = [];
 
-    public Dictionary<string, string> ManualSorting = new Dictionary<string, string>();
+    public Dictionary<string, string> ManualSorting = new();
 
     private List<string> manualSortingKeys;
 
     private List<string> manualSortingValues;
 
-    public Dictionary<string, string> ManualTabIcons = new Dictionary<string, string>();
+    public Dictionary<string, string> ManualTabIcons = new();
 
     private List<string> manualTabIconsKeys;
 
     private List<string> manualTabIconsValues;
 
-    public Dictionary<string, string> ManualTabs = new Dictionary<string, string>();
+    public Dictionary<string, string> ManualTabs = new();
 
     private List<string> manualTabsKeys;
 
-    public Dictionary<string, int> ManualTabSorting = new Dictionary<string, int>();
+    public Dictionary<string, int> ManualTabSorting = new();
 
     private List<string> manualTabSortingKeys;
 
     private List<int> manualTabSortingValues;
 
     private List<string> manualTabsValues;
-    public Dictionary<string, float> ManualThingSorting = new Dictionary<string, float>();
+    public Dictionary<string, float> ManualThingSorting = new();
     private List<string> manualThingSortingKeys;
 
     private List<float> manualThingSortingValues;
@@ -97,6 +83,11 @@ internal class TabSortingModSettings : ModSettings
     public bool SortTabs;
 
     public bool VerboseLogging;
+    public Dictionary<MainButtonDef, int> VanillaButtonOrderMemory { get; } = new();
+    public List<DesignationCategoryDef> VanillaCategoryMemory { get; } = [];
+    public Dictionary<Def, DesignationCategoryDef> VanillaItemMemory { get; } = new();
+    public Dictionary<DesignationCategoryDef, int> VanillaTabOrderMemory { get; } = new();
+    public Dictionary<BuildableDef, float> VanillaThingOrderMemory { get; } = new();
 
     public override void ExposeData()
     {
@@ -122,7 +113,7 @@ internal class TabSortingModSettings : ModSettings
         Scribe_Values.Look(ref SkipBuiltIn, "SkipBuiltIn");
         Scribe_Values.Look(ref HideEmptyTabs, "HideEmptyTabs");
 
-        Scribe_Collections.Look(ref CategoriesToIgnore, "CategoriesToIgnore");
+        Scribe_Collections.Look(ref categoriesToIgnore, "CategoriesToIgnore");
         Scribe_Collections.Look(ref ManualSorting, "ManualSorting", LookMode.Value, LookMode.Value,
             ref manualSortingKeys, ref manualSortingValues);
         Scribe_Collections.Look(ref ManualTabs, "ManualTabs", LookMode.Value, LookMode.Value,

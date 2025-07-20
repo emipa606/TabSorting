@@ -13,7 +13,7 @@ namespace TabSorting;
 ///     This code removes that check. Created by user slippycheeze.
 ///     https://gist.github.com/slippycheeze/8ee7bdc7e035a3ea4c7ecb2fcb1c4406
 /// </summary>
-[HarmonyPatch(typeof(RoomRoleWorker_Kitchen), "GetScore")]
+[HarmonyPatch(typeof(RoomRoleWorker_Kitchen), nameof(RoomRoleWorker_Kitchen.GetScore))]
 public static class RoomRoleWorker_Kitchen_GetScore
 {
     public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> code, ILGenerator generator,

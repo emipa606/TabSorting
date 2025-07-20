@@ -23,21 +23,18 @@ public class Dialog_ChooseTabIcon : Window
 
     public override void DoWindowContents(Rect inRect)
     {
-        if (TabSortingMod.instance.Settings.ManualTabIcons == null)
-        {
-            TabSortingMod.instance.Settings.ManualTabIcons = new Dictionary<string, string>();
-        }
+        TabSortingMod.Instance.Settings.ManualTabIcons ??= new Dictionary<string, string>();
 
         GUI.contentColor = Color.green;
         Widgets.Label(new Rect(inRect), "TabSorting.ChooseTabIcon".Translate());
         GUI.contentColor = Color.white;
         Widgets.DrawLineHorizontal(inRect.x, inRect.y + 25f, inRect.width);
-        if (TabSortingMod.instance.Settings.ManualTabIcons.ContainsKey(currentTabDef) && Widgets.ButtonText(
-                new Rect(inRect.position + new Vector2(inRect.width - TabSortingMod.buttonSize.x, 0),
-                    TabSortingMod.buttonSize),
+        if (TabSortingMod.Instance.Settings.ManualTabIcons.ContainsKey(currentTabDef) && Widgets.ButtonText(
+                new Rect(inRect.position + new Vector2(inRect.width - TabSortingMod.ButtonSize.x, 0),
+                    TabSortingMod.ButtonSize),
                 "TabSorting.Reset".Translate()))
         {
-            TabSortingMod.instance.Settings.ManualTabIcons.Remove(currentTabDef);
+            TabSortingMod.Instance.Settings.ManualTabIcons.Remove(currentTabDef);
             Find.WindowStack.TryRemove(this, false);
             return;
         }
@@ -48,14 +45,14 @@ public class Dialog_ChooseTabIcon : Window
         contentRect.width -= 20;
         contentRect.x = 0;
         contentRect.y = 0f;
-        contentRect.height = TabSorting.iconsCache.Count / ItemsPerRow * 50f;
+        contentRect.height = TabSorting.IconsCache.Count / ItemsPerRow * 50f;
         Widgets.BeginScrollView(viewRect, ref scrollPosition, contentRect);
 
         var spacer = contentRect.width / (ItemsPerRow + 1);
         var i = 0;
         var y = -50f;
         var x = 0f;
-        foreach (var textureName in TabSorting.iconsCache.Keys.OrderBy(s => s))
+        foreach (var textureName in TabSorting.IconsCache.Keys.OrderBy(s => s))
         {
             if (i % (ItemsPerRow + 1) == 0)
             {
@@ -67,20 +64,20 @@ public class Dialog_ChooseTabIcon : Window
                 x += spacer;
             }
 
-            if (ListingExtension.TabIconSelectable(new Rect(new Vector2(x, y), TabSortingMod.tabIconSize * 2),
+            if (ListingExtension.TabIconSelectable(new Rect(new Vector2(x, y), TabSortingMod.TabIconSize * 2),
                     textureName, null, textureName == TabSorting.GetCustomTabIcon(currentTabDef)))
             {
                 if (currentTabDef == textureName)
                 {
-                    TabSortingMod.instance.Settings.ManualTabIcons.Remove(textureName);
+                    TabSortingMod.Instance.Settings.ManualTabIcons.Remove(textureName);
                 }
                 else
                 {
-                    TabSortingMod.instance.Settings.ManualTabIcons[currentTabDef] = textureName;
+                    TabSortingMod.Instance.Settings.ManualTabIcons[currentTabDef] = textureName;
                 }
 
                 Widgets.EndScrollView();
-                TabSortingMod.selectedDef = currentTabDef;
+                TabSortingMod.SelectedDef = currentTabDef;
                 Find.WindowStack.TryRemove(this, false);
                 return;
             }
