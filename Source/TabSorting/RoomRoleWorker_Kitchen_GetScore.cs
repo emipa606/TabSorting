@@ -26,15 +26,29 @@ public static class RoomRoleWorker_Kitchen_GetScore
             var toBeRemoved = new[]
             {
                 // IL_0018: ldloc.3      // thing
-                new CodeMatch(i => i.IsLdloc()),
+                // new CodeMatch(i => i.IsLdloc()),
                 // IL_0019: ldfld        class Verse.ThingDef Verse.Thing::def
                 new CodeMatch(i => i.LoadsField(AccessTools.Field(typeof(Thing), "def"))),
                 // IL_001e: ldfld        class Verse.DesignationCategoryDef Verse.BuildableDef::designationCategory
                 new CodeMatch(i => i.LoadsField(AccessTools.Field(typeof(BuildableDef), "designationCategory"))),
                 // IL_0023: ldsfld       class Verse.DesignationCategoryDef RimWorld.DesignationCategoryDefOf::Production
-                new CodeMatch(i => i.LoadsField(AccessTools.Field(typeof(DesignationCategoryDefOf), "Production"))),
+                new CodeMatch(i => i.LoadsField(AccessTools.Field(typeof(DesignationCategoryDefOf), "Production")))
                 // IL_0028: bne.un       IL_00ad
-                new CodeMatch(i => i.Branches(out _))
+                // new CodeMatch(i => i.Branches(out _))
+            };
+
+            var toBeAdded = new[]
+            {
+                // IL_0019: ldfld        class Verse.ThingDef Verse.Thing::def
+                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(Thing), "def")),
+                //new CodeInstruction(i => i.LoadsField(AccessTools.Field(typeof(Thing), "def"))),
+                //ldfld     class Verse.ThingDef Verse.Thing::def
+                // IL_001e: ldfld        class Verse.DesignationCategoryDef Verse.BuildableDef::designationCategory
+                new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(ThingDef), "category")),
+                //new CodeInstruction(i => i.LoadsField(AccessTools.Field(typeof(ThingDef), "category"))),
+                // IL_0023: ldsfld       class Verse.DesignationCategoryDef RimWorld.DesignationCategoryDefOf::Production
+                new CodeInstruction(OpCodes.Ldc_I4_3)
+                //new CodeInstruction(i => i.LoadsField(AccessTools.Field(typeof(ThingCategoryDefOf), "Buildings"))),
             };
 
             return new CodeMatcher(code, generator)
@@ -42,6 +56,7 @@ public static class RoomRoleWorker_Kitchen_GetScore
                 .MatchStartForward(toBeRemoved)
                 .ThrowIfInvalid("finding the designation category check")
                 .RemoveInstructions(toBeRemoved.Length)
+                .Insert(toBeAdded)
                 .InstructionEnumeration();
         }
         catch (Exception ex)

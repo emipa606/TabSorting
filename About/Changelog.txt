@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.1 - The kitchen worker should now only check for buildings that has recipes. Allows for better compatibility with mods like War Crimes that adds operation-bills that gives products categorized as nutrition
+
+
 1.6.0 - Updated to 1.6
 
 

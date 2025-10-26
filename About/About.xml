@@ -29,7 +29,7 @@
     <li>Mlie.RemoveSpacerStuff</li>
     <li>Mlie.LordoftheRimsTheThirdAge</li>
   </loadAfter>
-  <description>[img]https://i.imgur.com/iCj5o7O.png[/img]
+  <description>[img]https://i.postimg.cc/PJc4kLbg/Self-Info.png[/img]
 
 Sort your stuff!
   
@@ -82,28 +82,28 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 
 [table]
     [tr]
-        [td][url=https://discord.gg/h5TY6DA][img]https://i.imgur.com/zdzzBrc.png[/img][/url][/td]
-        [td][url=https://github.com/emipa606/TabSorting][img]https://i.imgur.com/kTkpTOE.png[/img][/url][/td]
+        [td][url=https://discord.gg/h5TY6DA][img]https://i.postimg.cc/T1h9SjbF/Discord.png[/img][/url][/td]
+        [td][url=https://github.com/emipa606/TabSorting][img]https://i.postimg.cc/fykKF7X4/Github.png[/img][/url][/td]
     [/tr]
     [tr]
-        [td][img]https://i.imgur.com/WjDSfUn.png[/img][/td]
-        [td][img]https://i.imgur.com/h5VwTNL.png[/img][/td]
+        [td][img]https://i.postimg.cc/MHXD40RW/Safe-To-Add.png[/img][/td]
+        [td][img]https://i.postimg.cc/sx1c8PSf/Safe-To-Remove.png[/img][/td]
     [/tr]
 [/table]
 
 Big thanks to [url=https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100]SmashPhil[/url] for the help and coding examples when I made a better (good) version of the settings menu! 
 Also thanks to [url=https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100]AUTOMATIC[/url] for the well structured code for the miniature icons from the Recipe Icons mod!
 
-[img]https://i.imgur.com/Ds0rBAD.png[/img]
+[img]https://i.postimg.cc/nr5ktsY8/Self-Support-And-Donations.png[/img]
 Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my [url=https://store.steampowered.com/wishlist/id/Mlie]Wishlist[/url] or buy me a cup of tea.
 
-[url=https://ko-fi.com/G2G55DDYD][img]https://i.imgur.com/VWG0yff.png[/img][/url]
+[url=https://ko-fi.com/G2G55DDYD][img]https://i.postimg.cc/4yn5MvtR/Kofi-Small.png[/img][/url]
 
-[img]https://i.imgur.com/5xwDG6H.png[/img]
+[img]https://i.postimg.cc/cC6mj7Y4/Self-Reporting-Issues.png[/img]
 [list]
 [*] See if the the error persists if you just have this mod and its requirements active.
 [*] If not, try adding your other mods until it happens again.
-[*] Post your error-log using the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2873415404]Log Uploader[/url] or the standalone [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2873415404]Uploader[/url] and command Ctrl+F12
+[*] Always post your log using the [url=https://steamcommunity.com/sharedfiles/filedetails/?id=2873415404]Log Uploader[/url]
 [*] For best support, please use the Discord-channel for error-reporting.
 [*] Do not report errors by making a discussion-thread, I get no notification of that.
 [*] If you have the solution for a problem, please post it to the GitHub repository.
@@ -111,5 +111,5 @@ Since modding is just a hobby for me I expect no donations to keep modding. If y
 [/list] 
 
 [url=https://steamcommunity.com/sharedfiles/filedetails/changelog/2138635288][img]https://img.shields.io/github/v/release/emipa606/TabSorting?label=latest%20version&amp;style=plastic&amp;labelColor=0070cd&amp;color=white[/img][/url] | tags: sorting,  categories</description>
-  <modVersion IgnoreIfNoMatchingField="True">1.6.0</modVersion>
+  <modVersion IgnoreIfNoMatchingField="True">1.6.1</modVersion>
 </ModMetaData>

@@ -9,11 +9,11 @@
     "sorting",
     " categories"
   ],
-  "LastXmlCleaning": "2025-07-20T21:31:40.6397424+02:00",
+  "LastXmlCleaning": "2025-10-26T20:29:46.3836881+01:00",
   "Patches": false,
   "Defs": true,
   "Assemblies": true,
-  "LinesOfCode": 148568,
+  "LinesOfCode": 149642,
   "LinesOfXML": 3060,
-  "CodeBaseSize": 82
+  "CodeBaseSize": 81
 }
