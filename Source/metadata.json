@@ -9,11 +9,12 @@
     "sorting",
     " categories"
   ],
-  "LastXmlCleaning": "2025-10-26T20:29:46.3836881+01:00",
+  "LastXmlCleaning": "2025-10-27T20:21:41.1339698+01:00",
   "Patches": false,
   "Defs": true,
   "Assemblies": true,
-  "LinesOfCode": 149642,
+  "LinesOfCode": 153078,
   "LinesOfXML": 3060,
-  "CodeBaseSize": 81
+  "CodeBaseSize": 81,
+  "RimWorldBaseId": 23015
 }

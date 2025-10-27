@@ -15,7 +15,9 @@ namespace TabSorting;
 public static class TabSorting
 {
     private static readonly bool cherryPickerLoaded;
+    private static readonly bool betterArchitechtMenuLoaded;
     private static readonly FieldInfo cherryPickerProcessedDefsField;
+    private static readonly FieldInfo betterArchitectMenuParentCategoryField;
 
     private static readonly HashSet<string> modIdsToIgnore =
     [
@@ -75,6 +77,7 @@ public static class TabSorting
         basePowerConsumptionField = AccessTools.Field(typeof(CompProperties_Power), "basePowerConsumption");
         TabSortingMod.PlusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus", true) != null;
+        betterArchitechtMenuLoaded = ModLister.GetActiveModWithIdentifier("ferny.BetterArchitect", true) != null;
         GardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools", true) != null;
         FencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors", true) != null;
         ArchitectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons", true) != null;
@@ -88,6 +91,18 @@ public static class TabSorting
                 LogMessage(
                     "Failed to find the processedDefs field from Cherry Picker, will not be able to check for removed defs.");
                 cherryPickerLoaded = false;
+            }
+        }
+
+        if (betterArchitechtMenuLoaded)
+        {
+            betterArchitectMenuParentCategoryField =
+                AccessTools.Field(AccessTools.TypeByName("BetterArchitect.NestedCategoryExtension"), "parentCategory");
+            if (betterArchitectMenuParentCategoryField == null)
+            {
+                LogMessage(
+                    "Failed to find the parentCategory field from Better Architect Menu, will not be able to check for categories not to remove.");
+                betterArchitechtMenuLoaded = false;
             }
         }
 
@@ -442,11 +457,7 @@ public static class TabSorting
 
         if (TabSortingMod.Instance.Settings.RemoveEmptyTabs)
         {
-            for (var i = designationCategoriesToRemove.Count - 1; i >= 0; i--)
-            {
-                LogMessage($"Removing {designationCategoriesToRemove[i].defName} since its empty now.", true);
-                removeEmptyDesignationCategoryDef(designationCategoriesToRemove[i]);
-            }
+            removeEmptyCategories(designationCategoriesToRemove);
         }
 
         foreach (var buttonSortInfo in TabSortingMod.Instance.Settings.ManualButtonSorting)
@@ -517,6 +528,68 @@ public static class TabSorting
         }
 
         refreshArchitectMenu();
+    }
+
+    private static void removeEmptyCategories(List<DesignationCategoryDef> designationCategoriesToRemove)
+    {
+        LogMessage("Starting removal of empty categories");
+        if (betterArchitechtMenuLoaded)
+        {
+            LogMessage("Better Architect Menu loaded, doing check for nested and special DesignationCategoryDefs");
+            var filteredCategories = new List<DesignationCategoryDef>();
+            var hasNestedCategories = new HashSet<DesignationCategoryDef>();
+            var allCategories = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
+            foreach (var designationCategoryDef in allCategories)
+            {
+                var nestedCategoryExtension = designationCategoryDef.modExtensions?.FirstOrDefault(extension =>
+                    extension.GetType().Name == "NestedCategoryExtension");
+                if (nestedCategoryExtension == null)
+                {
+                    continue;
+                }
+
+                if (betterArchitectMenuParentCategoryField.GetValue(nestedCategoryExtension) is DesignationCategoryDef
+                    parentCategory)
+                {
+                    hasNestedCategories.Add(parentCategory);
+                }
+            }
+
+            foreach (var designationCategory in designationCategoriesToRemove)
+            {
+                if (hasNestedCategories.Contains(designationCategory))
+                {
+                    LogMessage(
+                        $"Not removing {designationCategory.defName} as its used as a container for nested categories in Better Architect Menu.");
+                    continue;
+                }
+
+                if (designationCategory.modExtensions?.Any() == false)
+                {
+                    filteredCategories.Add(designationCategory);
+                    continue;
+                }
+
+                if (designationCategory.modExtensions?.Any(extension =>
+                        extension.GetType().Name == "SpecialCategoryExtension") == true)
+                {
+                    LogMessage(
+                        $"Not removing {designationCategory.defName} since it's a special category used in Better Architect Menu.");
+                    continue;
+                }
+
+                filteredCategories.Add(designationCategory);
+            }
+
+            LogMessage($"Skipped {designationCategoriesToRemove.Count - filteredCategories.Count} categories");
+            designationCategoriesToRemove = filteredCategories;
+        }
+
+        for (var i = designationCategoriesToRemove.Count - 1; i >= 0; i--)
+        {
+            LogMessage($"Removing {designationCategoriesToRemove[i].defName} since its empty now.", true);
+            removeEmptyDesignationCategoryDef(designationCategoriesToRemove[i]);
+        }
     }
 
     /// <summary>
