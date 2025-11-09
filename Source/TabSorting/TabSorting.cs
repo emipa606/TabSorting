@@ -53,7 +53,13 @@ public static class TabSorting
     private static readonly HashSet<string> tabsToIgnore =
     [
         "Planning",
-        "Shapes"
+        "Shapes",
+        "Terraform"
+    ];
+
+    private static readonly HashSet<string> tabsToIgnoreThingsIn =
+    [
+        "Terraform"
     ];
 
     private static readonly HashSet<string> namespacesToIgnore =
@@ -198,6 +204,34 @@ public static class TabSorting
             defsToIgnoreStatic.Add(terrainDef.defName);
         }
 
+        if (tabsToIgnoreThingsIn.Any())
+        {
+            foreach (var tabDefName in tabsToIgnoreThingsIn)
+            {
+                var tab = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(tabDefName);
+                if (tab == null)
+                {
+                    continue;
+                }
+
+                var thingsInTab = from td in DefDatabase<ThingDef>.AllDefsListForReading
+                    where td.designationCategory == tab
+                    select td;
+                foreach (var thingDef in thingsInTab)
+                {
+                    defsToIgnoreStatic.Add(thingDef.defName);
+                }
+
+                var terrainInTab = from tr in DefDatabase<TerrainDef>.AllDefsListForReading
+                    where tr.designationCategory == tab
+                    select tr;
+                foreach (var terrainDef in terrainInTab)
+                {
+                    defsToIgnoreStatic.Add(terrainDef.defName);
+                }
+            }
+        }
+
         foreach (var def in DefDatabase<Def>.AllDefsListForReading)
         {
             if (defsPrefixToIgnoreStatic.Any(prefix => def.defName.StartsWith(prefix)))
@@ -272,7 +306,8 @@ public static class TabSorting
         defsToIgnore = null;
         if (!TabSortingMod.Instance.Settings.VanillaCategoryMemory.Any())
         {
-            foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading)
+            foreach (var categoryDef in DefDatabase<DesignationCategoryDef>.AllDefsListForReading.Where(def =>
+                         !tabsToIgnore.Contains(def.defName)))
             {
                 TabSortingMod.Instance.Settings.VanillaCategoryMemory.Add(categoryDef);
                 TabSortingMod.Instance.Settings.VanillaTabOrderMemory.Add(categoryDef, categoryDef.order);
@@ -745,12 +780,14 @@ public static class TabSorting
             }
         }
 
-        foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading)
+        foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading.Where(thingDef =>
+                     TabSortingMod.Instance.Settings.VanillaItemMemory.ContainsKey(thingDef)))
         {
             def.designationCategory = TabSortingMod.Instance.Settings.VanillaItemMemory.GetValueOrDefault(def);
         }
 
-        foreach (var def in DefDatabase<TerrainDef>.AllDefsListForReading)
+        foreach (var def in DefDatabase<TerrainDef>.AllDefsListForReading.Where(terrainDef =>
+                     TabSortingMod.Instance.Settings.VanillaItemMemory.ContainsKey(terrainDef)))
         {
             def.designationCategory = TabSortingMod.Instance.Settings.VanillaItemMemory.GetValueOrDefault(def);
         }

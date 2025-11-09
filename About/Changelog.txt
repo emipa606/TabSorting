@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.3 - Added support for [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1874652867]Terraform Rimworld[/url]
+
+
 1.6.2 - Added support for Better Architect Menu
 
 
