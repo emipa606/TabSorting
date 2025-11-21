@@ -84,6 +84,10 @@ public static class TabSorting
         TabSortingMod.PlusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus", true) != null;
         betterArchitechtMenuLoaded = ModLister.GetActiveModWithIdentifier("ferny.BetterArchitect", true) != null;
+        if(!betterArchitechtMenuLoaded)
+        {
+            betterArchitechtMenuLoaded = ModLister.GetActiveModWithIdentifier("vanillaexpanded.gravship", true) != null;
+        }
         GardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools", true) != null;
         FencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors", true) != null;
         ArchitectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons", true) != null;
@@ -106,9 +110,14 @@ public static class TabSorting
                 AccessTools.Field(AccessTools.TypeByName("BetterArchitect.NestedCategoryExtension"), "parentCategory");
             if (betterArchitectMenuParentCategoryField == null)
             {
-                LogMessage(
-                    "Failed to find the parentCategory field from Better Architect Menu, will not be able to check for categories not to remove.");
-                betterArchitechtMenuLoaded = false;
+                betterArchitectMenuParentCategoryField =
+                    AccessTools.Field(AccessTools.TypeByName("VanillaGravshipExpanded.NestedCategoryExtension"), "parentCategory");
+                if(betterArchitectMenuParentCategoryField == null)
+                {
+                    LogMessage(
+                        "Failed to find the parentCategory field from Better Architect Menu, will not be able to check for categories not to remove.");
+                    betterArchitechtMenuLoaded = false;
+                }
             }
         }
 
@@ -570,7 +579,7 @@ public static class TabSorting
         LogMessage("Starting removal of empty categories");
         if (betterArchitechtMenuLoaded)
         {
-            LogMessage("Better Architect Menu loaded, doing check for nested and special DesignationCategoryDefs");
+            LogMessage("Better Architect Menu/Vanilla Gravship Expanded loaded, doing check for nested and special DesignationCategoryDefs");
             var filteredCategories = new List<DesignationCategoryDef>();
             var hasNestedCategories = new HashSet<DesignationCategoryDef>();
             var allCategories = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
@@ -595,7 +604,7 @@ public static class TabSorting
                 if (hasNestedCategories.Contains(designationCategory))
                 {
                     LogMessage(
-                        $"Not removing {designationCategory.defName} as its used as a container for nested categories in Better Architect Menu.");
+                        $"Not removing {designationCategory.defName} as its used as a container for nested categories in Better Architect Menu/Vanilla Gravship Expanded.");
                     continue;
                 }
 
@@ -609,7 +618,7 @@ public static class TabSorting
                         extension.GetType().Name == "SpecialCategoryExtension") == true)
                 {
                     LogMessage(
-                        $"Not removing {designationCategory.defName} since it's a special category used in Better Architect Menu.");
+                        $"Not removing {designationCategory.defName} since it's a special category used in Better Architect Menu/Vanilla Gravship Expanded.");
                     continue;
                 }
 

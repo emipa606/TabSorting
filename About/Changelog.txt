@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.4 - Added support for the custom architect menu code in [url=https://steamcommunity.com/sharedfiles/filedetails/?id=3609835606]Vanilla Gravship Expanded - Chapter 1[/url]
+
+
 1.6.3 - Added support for [url=https://steamcommunity.com/sharedfiles/filedetails/?id=1874652867]Terraform Rimworld[/url]
 
 

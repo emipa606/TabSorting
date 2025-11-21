@@ -1,6 +1,6 @@
 # [Tab-sorting](https://steamcommunity.com/sharedfiles/filedetails/?id=2138635288)
 
-![Image](https://i.postimg.cc/PJc4kLbg/Self-Info.png)
+![Image](https://img.litet.net/logos/Self-Info.png)
 
 Sort your stuff!
   
@@ -54,13 +54,13 @@ Also, if you have any ideas on more stuff that can be categorized, just let me k
 Big thanks to [SmashPhil](https://steamcommunity.com/id/smashphil/myworkshopfiles/?appid=294100) for the help and coding examples when I made a better (good) version of the settings menu! 
 Also thanks to [AUTOMATIC](https://steamcommunity.com/id/no-sry/myworkshopfiles/?appid=294100) for the well structured code for the miniature icons from the Recipe Icons mod!
 
-![Image](https://i.postimg.cc/nr5ktsY8/Self-Support-And-Donations.png)
+![Image](https://img.litet.net/logos/Self-SupportAndDonations.png)
 
 Since modding is just a hobby for me I expect no donations to keep modding. If you still want to show your support you can gift me anything from my [Wishlist](https://store.steampowered.com/wishlist/id/Mlie) or buy me a cup of tea.
 
-[![Image](https://i.postimg.cc/4yn5MvtR/Kofi-Small.png)](https://ko-fi.com/G2G55DDYD)
+[![Image](https://img.litet.net/logos/Kofi-Small.png)](https://ko-fi.com/G2G55DDYD)
 
-![Image](https://i.postimg.cc/cC6mj7Y4/Self-Reporting-Issues.png)
+![Image](https://img.litet.net/logos/Self-ReportingIssues.png)
 
 
 
