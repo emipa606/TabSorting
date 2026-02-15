@@ -1009,13 +1009,18 @@ internal class TabSortingMod : Mod
                 {
                     var toolTip = def.defName;
                     var iconToolTip = string.Empty;
-
+                    BuildableDef[] selectedDefs;
                     if (Instance.Settings.GroupSameDesignator && def.designatorDropdown != null &&
                         designatorGroups.ContainsKey(def.designatorDropdown) &&
                         designatorGroups[def.designatorDropdown].Any())
                     {
+                        selectedDefs = designatorGroups[def.designatorDropdown].ToArray();
                         iconToolTip = "TabSorting.GroupContaining".Translate(string.Join("\n",
                             designatorGroups[def.designatorDropdown].Select(buildableDef => buildableDef.LabelCap)));
+                    }
+                    else
+                    {
+                        selectedDefs = [def];
                     }
 
                     if (!string.IsNullOrEmpty(def.modContentPack?.Name))
@@ -1052,13 +1057,16 @@ internal class TabSortingMod : Mod
                             {
                                 if (designation != buttonText)
                                 {
-                                    if (designation == "TabSorting.Default".Translate())
+                                    foreach (var selectedDef in selectedDefs)
                                     {
-                                        Instance.Settings.ManualSorting?.Remove(def.defName);
-                                    }
-                                    else
-                                    {
-                                        Settings.ManualSorting[def.defName] = designation;
+                                        if (designation == "TabSorting.Default".Translate())
+                                        {
+                                            Instance.Settings.ManualSorting?.Remove(selectedDef.defName);
+                                        }
+                                        else
+                                        {
+                                            Settings.ManualSorting[selectedDef.defName] = designation;
+                                        }
                                     }
 
                                     ResetSortOrder(def.defName);

@@ -1,0 +1,29 @@
+ManifestFileVersion: 0
+CRC: 3128713836
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 944aedb0815c53c3e8c6af191e50c014
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 2612ac43db082a73502ee80f2eceb73f
+  IncrementalBuildHash:
+    serializedVersion: 2
+    Hash: 944aedb0815c53c3e8c6af191e50c014
+HashAppended: 0
+ClassTypes:
+- Class: 28
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/BedroomTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/LightsTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/IdeologyTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/ResearchTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/StorageTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/DecorationTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/HospitalTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/KitchenTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/TableChairsTab.png
+- Assets/Data/Mlie.TabSorting/Textures/UI/ArchitectIcons/Default/DoorTab.png
+Dependencies: []

@@ -84,10 +84,11 @@ public static class TabSorting
         TabSortingMod.PlusTexture = ContentFinder<Texture2D>.Get("UI/Buttons/InfoButton");
         mintMenusLoaded = ModLister.GetActiveModWithIdentifier("Dubwise.DubsMintMenus", true) != null;
         betterArchitechtMenuLoaded = ModLister.GetActiveModWithIdentifier("ferny.BetterArchitect", true) != null;
-        if(!betterArchitechtMenuLoaded)
+        if (!betterArchitechtMenuLoaded)
         {
             betterArchitechtMenuLoaded = ModLister.GetActiveModWithIdentifier("vanillaexpanded.gravship", true) != null;
         }
+
         GardenToolsLoaded = ModLister.GetActiveModWithIdentifier("dismarzero.vgp.vgpgardentools", true) != null;
         FencesAndFloorsLoaded = ModLister.GetActiveModWithIdentifier("Mlie.FencesAndFloors", true) != null;
         ArchitectIconsLoaded = ModLister.GetActiveModWithIdentifier("com.bymarcin.ArchitectIcons", true) != null;
@@ -111,8 +112,9 @@ public static class TabSorting
             if (betterArchitectMenuParentCategoryField == null)
             {
                 betterArchitectMenuParentCategoryField =
-                    AccessTools.Field(AccessTools.TypeByName("VanillaGravshipExpanded.NestedCategoryExtension"), "parentCategory");
-                if(betterArchitectMenuParentCategoryField == null)
+                    AccessTools.Field(AccessTools.TypeByName("VanillaGravshipExpanded.NestedCategoryExtension"),
+                        "parentCategory");
+                if (betterArchitectMenuParentCategoryField == null)
                 {
                     LogMessage(
                         "Failed to find the parentCategory field from Better Architect Menu, will not be able to check for categories not to remove.");
@@ -579,7 +581,8 @@ public static class TabSorting
         LogMessage("Starting removal of empty categories");
         if (betterArchitechtMenuLoaded)
         {
-            LogMessage("Better Architect Menu/Vanilla Gravship Expanded loaded, doing check for nested and special DesignationCategoryDefs");
+            LogMessage(
+                "Better Architect Menu/Vanilla Gravship Expanded loaded, doing check for nested and special DesignationCategoryDefs");
             var filteredCategories = new List<DesignationCategoryDef>();
             var hasNestedCategories = new HashSet<DesignationCategoryDef>();
             var allCategories = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
