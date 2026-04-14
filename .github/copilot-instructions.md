@@ -1,65 +1,67 @@
-# GitHub Copilot Instructions for RimWorld 'Tab-sorting' Mod
+# GitHub Copilot Instructions for RimWorld `Tab-sorting` Mod
 
 ## Mod Overview and Purpose
 
-The "Tab-sorting" mod enhances the RimWorld gameplay experience by organizing furniture and structures into appropriate category tabs in the architect area. Inspired by the LigtsTab but improved upon by eliminating complexity and maintenance burdens associated with numerous patches, this mod leverages C# code to dynamically sort items after they have loaded. This approach ensures that changes are handled during startup scans, providing seamless integration without requiring individual patch files for every mod or item.
+**Mod Name**: Tab-sorting
+
+**Description**: The `Tab-sorting` mod is designed to improve the organization of buildable items within RimWorld by categorizing furniture and structures into appropriate tabs. Originally inspired by the LigtsTab mod, this version reduces complexity by eliminating specific patch-files for each mod or item, instead utilizing C# code to sort items post-loading.
 
 ## Key Features and Systems
 
-- **Auto-Sorting System**: Automatically categorizes items into various architect tabs.
-  - Lights
-  - Structure (walls, doors)
-  - Floors
-  - Beds and bedroom furniture
-  - Medical furniture
-  - Tables and chairs
-  - Decorative items
-  - Kitchen furniture
-  - Research equipment
-  - Ideology ritual furniture
-  - Special cases like storage containers
+- **Automated Sorting**: Automatically sorts items into designated tabs post-launch, which is a one-time process at startup.
+- **Categorization**:
+  - Lights are sorted into a separate Lights-tab.
+  - Walls and doors move to Structure-tab.
+  - Floors are organized under Floors-tab.
+  - Beds and linkable furniture to Bedroom-tab.
+  - Medical furniture to Hospital-tab.
+  - Tables and chairs to Tables/Chairs-tab.
+  - Decorative items to Decorations-tab.
+  - Kitchen-related furniture to Kitchen-tab.
+  - Research facilities to Research-tab.
+  - Ideology-related furniture to Ideology-tab.
+- **Special Case Handling**: Storage containers adapt to the Storage-tab, accounting for compatibility with other mods' tabs if loaded.
+- **Mod-dependent Options**:
+  - Garden tools integrate with VGP Garden Tools' tab.
+  - Fencing seamlessly combines with Fences and Floors.
 
-- **Integrated Support for Other Mods**: 
-  - VGP Garden Tools and Fences and Floors are accounted for.
-  
-- **Customizable Options**:
-  - Remove or hide empty tabs.
-  - Manual tab and item sorting.
-  - Alphabetical sorting, with options to skip certain tabs.
-  - New tab creation and architect main button organization.
-
-- **Localization**: Supports multiple languages, including Korean and Russian.
+- **Functional Enhancements**:
+  - Empty tabs can be auto-removed or hidden based on research visibility.
+  - Full manual and alphabetical sorting supported, with features to create new tabs.
+  - Compatibility with Architect Icons by marcin212.
+  - Performance improvements and batch "Move all" feature.
 
 ## Coding Patterns and Conventions
 
-- **Static Helpers and Utility Classes**: Encapsulate specific functionalities in static classes to improve code reusability. Example: `ArchitectCategoryTab_InfoRect` and `AllCurrentDefsInCategory`.
-
-- **Dialog and Window Management**: All user interfaces, such as dialogs for choosing icons or renaming tabs, are managed using the `Window` class derivatives (e.g., `Dialog_ChooseTabIcon`, `Dialog_RenameTab`).
-
-- **Settings Management**: Use of `ModSettings` through the `TabSortingModSettings` class to persist user preferences and configurations.
+- **Version Management**: Uses .NET Framework 4.7.2, 4.8.1, and 4.8.
+- **Class Declarations**: Static utility classes like `ArchitectCategoryTab_InfoRect`, and instanced classes such as `Dialog_ChooseTabIcon`, `Dialog_RenameTab` for UI handling.
+- **UI Integration**: Derives from `Window` class for dialog management in `Dialog_ChooseTabIcon` and `Dialog_RenameTab`.
+- **Settings Management**: Use `TabSortingModSettings` to reset manual values, maintaining data organization.
 
 ## XML Integration
 
-- The mod utilizes RimWorld's comprehensive XML structure for defining items. Although XML is not directly altered by this mod due to its post-load sorting mechanism, XML definitions remain vital for item identification and categorization. 
+- XML files are not directly used for sorting in this mod. Instead, C# code dynamically sorts and arranges items post-load, enhancing flexibility and reducing maintenance overhead.
 
 ## Harmony Patching
 
-- Although the mod minimizes direct patches, it benefits from Harmony for enhanced flexibility. This allows for method interception post-def load, ensuring all categorization logic is contained within C#.
+- **Usage**: The mod does not heavily rely on Harmony for patching; instead, it employs direct C# code execution after item loading to perform sorting, deviating from traditional Harmony patching methods.
+- **Strategic Locations**: Post-def loading hooks can be a point for any additional sorting logic if necessary.
 
 ## Suggestions for Copilot
 
-To optimize suggestions provided by GitHub Copilot, consider the following:
+- **Pattern Recognition**: Assist with code completion in `Dialog_RenameTab` for string validation and UI updates.
+- **Class Interface Suggestions**: Help with identifying potential interfaces for UI classes, such as `Window`, to improve dialog functionality.
+- **Sorting Logic and Methods**: Support refactoring and optimization of sorting methods within `TabSorting` and `ListingExtension`.
+- **Method Completion**: Recommend efficient collection operations when dealing with large sets of categorized items.
+- **Debugging Assistance**: Provide tips on performance tuning when initializing and sorting tabs, particularly with the `drawOptions` method in `TabSortingMod`.
+- **Localization Support**: Facilitate integration of translations with potential for further language support and maintenance.
 
-1. **Encapsulate Logic**: When writing sorting logic, encapsulate related operations into methods within appropriate static utility classes for better modularity.
-   
-2. **Use Consistent Naming Conventions**: Maintain clear, intuitive method and class names that reflect the functionality and improve understandability.
+For any items that don't correctly sort or are misplaced, users are encouraged to report the item and its originating mod either via comments or on the support Discord channel provided in the mod documentation.
 
-3. **Parameterize Tab Names and Categories**: When suggesting new features, Copilot can recommend parameterizing elements to easily expand support for more tabs or mods.
-
-4. **Dialog Enhancements**: When adding new dialogs or functionality, have Copilot suggest standard UI patterns that fit the RimWorld context.
-
-5. **Leverage LINQ**: For operations over collections, such as sorting and filtering, suggest LINQ operations to maintain concise and efficient code.
-
-6. **Localization Considerations**: Propose structures for additional language support, ensuring text strings are easily accessible for translation files.
-
-By adhering to these guidelines, the integration of Copilot can significantly streamline the development process, enhancing both the functionality and maintainability of the "Tab-sorting" mod.
+## Project Solution Guidelines
+- Relevant mod XML files are included as Solution Items under the solution folder named XML, these can be read and modified from within the solution.
+- Use these in-solution XML files as the primary files for reference and modification.
+- The `.github/copilot-instructions.md` file is included in the solution under the `.github` solution folder, so it should be read/modified from within the solution instead of using paths outside the solution. Update this file once only, as it and the parent-path solution reference point to the same file in this workspace.
+- When making functional changes in this mod, ensure the documented features stay in sync with implementation; use the in-solution `.github` copy as the primary file.
+- In the solution is also a project called Assembly-CSharp, containing a read-only version of the decompiled game source, for reference and debugging purposes.
+- For any new documentation, update this copilot-instructions.md file rather than creating separate documentation files.

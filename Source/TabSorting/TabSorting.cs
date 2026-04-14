@@ -1808,6 +1808,11 @@ public static class TabSorting
     public static string ValidateTabName(string tabName, bool justTheLabel = false)
     {
         var cleanTabName = Regex.Replace(tabName, @"[^a-zA-Z\u4e00-\u9fa5]*", string.Empty);
+        if (string.IsNullOrEmpty(cleanTabName))
+        {
+            cleanTabName = "CustomTab" + Math.Abs(tabName.GetHashCode());
+        }
+
         var currentDesignations = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
         return currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName)
             ? null
