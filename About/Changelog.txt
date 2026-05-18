@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.7 - Fixed compatibility when loading both Better Architect Menu along with Vanilla Gravship Expanded - Chapter 1
+
+
 1.6.6 - Its now possible to use special characters as custom tab-names
 
 

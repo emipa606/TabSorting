@@ -18,6 +18,7 @@ public static class TabSorting
     private static readonly bool betterArchitechtMenuLoaded;
     private static readonly FieldInfo cherryPickerProcessedDefsField;
     private static readonly FieldInfo betterArchitectMenuParentCategoryField;
+    private static readonly FieldInfo vanillaGravshipParentCategoryField;
 
     private static readonly HashSet<string> modIdsToIgnore =
     [
@@ -109,17 +110,14 @@ public static class TabSorting
         {
             betterArchitectMenuParentCategoryField =
                 AccessTools.Field(AccessTools.TypeByName("BetterArchitect.NestedCategoryExtension"), "parentCategory");
-            if (betterArchitectMenuParentCategoryField == null)
+            vanillaGravshipParentCategoryField =
+                AccessTools.Field(AccessTools.TypeByName("VanillaGravshipExpanded.NestedCategoryExtension"),
+                    "parentCategory");
+            if (betterArchitectMenuParentCategoryField == null && vanillaGravshipParentCategoryField == null)
             {
-                betterArchitectMenuParentCategoryField =
-                    AccessTools.Field(AccessTools.TypeByName("VanillaGravshipExpanded.NestedCategoryExtension"),
-                        "parentCategory");
-                if (betterArchitectMenuParentCategoryField == null)
-                {
-                    LogMessage(
-                        "Failed to find the parentCategory field from Better Architect Menu, will not be able to check for categories not to remove.");
-                    betterArchitechtMenuLoaded = false;
-                }
+                LogMessage(
+                    "Failed to find the parentCategory field from Better Architect Menu/Vanilla Gravship Expanded, will not be able to check for categories not to remove.");
+                betterArchitechtMenuLoaded = false;
             }
         }
 
@@ -595,10 +593,19 @@ public static class TabSorting
                     continue;
                 }
 
-                if (betterArchitectMenuParentCategoryField.GetValue(nestedCategoryExtension) is DesignationCategoryDef
-                    parentCategory)
+                if (betterArchitectMenuParentCategoryField?.DeclaringType?.IsInstanceOfType(nestedCategoryExtension) ==
+                    true &&
+                    betterArchitectMenuParentCategoryField.GetValue(nestedCategoryExtension) is DesignationCategoryDef
+                        betterArchitectParentCategory)
                 {
-                    hasNestedCategories.Add(parentCategory);
+                    hasNestedCategories.Add(betterArchitectParentCategory);
+                }
+                else if (vanillaGravshipParentCategoryField?.DeclaringType?.IsInstanceOfType(nestedCategoryExtension) ==
+                         true &&
+                         vanillaGravshipParentCategoryField.GetValue(nestedCategoryExtension) is DesignationCategoryDef
+                             vanillaGravshipParentCategory)
+                {
+                    hasNestedCategories.Add(vanillaGravshipParentCategory);
                 }
             }
 
