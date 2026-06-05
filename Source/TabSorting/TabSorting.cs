@@ -123,6 +123,8 @@ public static class TabSorting
 
         blueprintsLoaded = DefDatabase<DesignationDef>.GetNamedSilentFail("Blueprints") != null;
 
+        MergeIgnoresettingFromSettingDefs();
+
         refreshIgnoredDefs();
 
         DoTheSorting();
@@ -161,6 +163,29 @@ public static class TabSorting
             AccessTools.Method("ArchitectIcons.Resources:FindArchitectTabCategoryIcon");
         harmony.Patch(findArchitectTabCategoryIconMethod,
             new HarmonyMethod(typeof(TabSorting), nameof(architectIconsPrefix)));
+    }
+
+    /// <summary>
+    /// Search all ignore setting def from database, and then merge them into ignore hashset. 
+    /// this provides a way to add ignore from other mods' side by using xml. 
+    /// instead of creating PR then we put em inside those C# set manually. 
+    ///  
+    /// actually we could add namespace or other filters, but I think modID is quite enough. 
+    /// </summary>
+    private static void MergeIgnoresettingFromSettingDefs()
+    {
+        var allIgnoresetting = DefDatabase<IgnoreSettingDef>.AllDefsListForReading;
+        foreach (var ignoreSetting in allIgnoresetting)
+        {
+            if (ignoreSetting.modIDsToIgnore != null)
+            {
+                modIdsToIgnore.UnionWith(ignoreSetting.modIDsToIgnore);
+            }
+            if (ignoreSetting.defsToIgnore != null)
+            {
+                defsToIgnoreStatic.UnionWith(ignoreSetting.defsToIgnore);
+            }
+        }
     }
 
     private static HashSet<string> DefsToIgnore
