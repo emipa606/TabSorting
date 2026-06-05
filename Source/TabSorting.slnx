@@ -6,13 +6,16 @@
     <BuildType Name="Release" />
   </Configurations>
   <Project Path="TabSorting/TabSorting.csproj" />
-  <Folder Name="/XML/Defs/CategoryDefs/">
-    <File Path="../Defs/CategoryDefs/DesignationCat.xml" />
-  </Folder>
   <Folder Name="/XML/Languages/English/Keyed/">
     <File Path="../Languages/English/Keyed/Settings.xml" />
   </Folder>
   <Folder Name="/XML/About/">
     <File Path="../About/about.xml" />
+  </Folder>
+  <Folder Name="/XML/1.6/Defs/IgnoreSettingDefs/">
+    <File Path="../1.6/Defs/IgnoreSettingDefs/ExampleIgnoreSettingDef.xml" />
+  </Folder>
+  <Folder Name="/XML/1.6/Defs/CategoryDefs/">
+    <File Path="../1.6/Defs/CategoryDefs/DesignationCat.xml" />
   </Folder>
 </Solution>

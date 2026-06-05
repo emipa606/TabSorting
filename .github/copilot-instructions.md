@@ -1,62 +1,47 @@
-# GitHub Copilot Instructions for RimWorld `Tab-sorting` Mod
+# Tab-sorting Mod: GitHub Copilot Instructions
 
 ## Mod Overview and Purpose
 
-**Mod Name**: Tab-sorting
-
-**Description**: The `Tab-sorting` mod is designed to improve the organization of buildable items within RimWorld by categorizing furniture and structures into appropriate tabs. Originally inspired by the LigtsTab mod, this version reduces complexity by eliminating specific patch-files for each mod or item, instead utilizing C# code to sort items post-loading.
+**Tab-sorting** is a RimWorld mod designed to enhance the player's organizational experience by sorting furniture and structures into appropriate tabs within the game. Initially inspired by the LightsTab mod by betaALPHAs, Tab-sorting offers a simplified, maintenance-friendly approach by using C# to categorize items dynamically after all content has loaded, rather than relying on numerous patch files.
 
 ## Key Features and Systems
 
-- **Automated Sorting**: Automatically sorts items into designated tabs post-launch, which is a one-time process at startup.
-- **Categorization**:
-  - Lights are sorted into a separate Lights-tab.
-  - Walls and doors move to Structure-tab.
-  - Floors are organized under Floors-tab.
-  - Beds and linkable furniture to Bedroom-tab.
-  - Medical furniture to Hospital-tab.
-  - Tables and chairs to Tables/Chairs-tab.
-  - Decorative items to Decorations-tab.
-  - Kitchen-related furniture to Kitchen-tab.
-  - Research facilities to Research-tab.
-  - Ideology-related furniture to Ideology-tab.
-- **Special Case Handling**: Storage containers adapt to the Storage-tab, accounting for compatibility with other mods' tabs if loaded.
-- **Mod-dependent Options**:
-  - Garden tools integrate with VGP Garden Tools' tab.
-  - Fencing seamlessly combines with Fences and Floors.
-
-- **Functional Enhancements**:
-  - Empty tabs can be auto-removed or hidden based on research visibility.
-  - Full manual and alphabetical sorting supported, with features to create new tabs.
-  - Compatibility with Architect Icons by marcin212.
-  - Performance improvements and batch "Move all" feature.
+- **Automatic Sorting**: Categorizes various structures and items into relevant tabs, such as Lights, Structure, Floors, Bedroom, Hospital, Decorations, Kitchen, Research, and Ideology.
+- **Special Cases**: Optimizes sorting for specific items like storage containers, leveraging compatibility with other mods such as Extended Storage or LWM's Deep Storage.
+- **Conditional Sorting**: Options to sort items based on available mods, for instance, Garden Tools and Fences.
+- **Tab Management**: Users can remove empty tabs, hide tabs based on missing research requirements, and sort tabs alphabetically or manually.
+- **Customization**: Create custom tabs, move items manually for precise control, and sort buildable items alphabetically or by priority.
+- **Localization Support**: Includes Korean and Russian translations.
+- **Performance Enhancements**: Features such as the "Move All" option for grouped item management and specific room role worker fixes.
+- **Integration with **marcin212's Architect Icons** for enhanced UI interaction.
 
 ## Coding Patterns and Conventions
 
-- **Version Management**: Uses .NET Framework 4.7.2, 4.8.1, and 4.8.
-- **Class Declarations**: Static utility classes like `ArchitectCategoryTab_InfoRect`, and instanced classes such as `Dialog_ChooseTabIcon`, `Dialog_RenameTab` for UI handling.
-- **UI Integration**: Derives from `Window` class for dialog management in `Dialog_ChooseTabIcon` and `Dialog_RenameTab`.
-- **Settings Management**: Use `TabSortingModSettings` to reset manual values, maintaining data organization.
+- **Class and Method Naming**: Use PascalCase for class names (e.g., `TabSortingMod`) and camelCase for method names (e.g., `drawOptions`).
+- **XML Integration**: Designation categories are stored in XML format (e.g., `DesignationCat.xml`), allowing straightforward updates and expansions.
+- **Harmony Patching**: Harmony is used for non-invasive patches, minimizing conflicts and maintaining compatibility with concurrent mods.
 
 ## XML Integration
 
-- XML files are not directly used for sorting in this mod. Instead, C# code dynamically sorts and arranges items post-load, enhancing flexibility and reducing maintenance overhead.
+The XML file `DesignationCat.xml` defines designation categories, which are loaded at runtime to sort structures and furniture automatically. Ensure that if you add new categories, you maintain a consistent and descriptive naming scheme to facilitate future maintenance and readability.
 
 ## Harmony Patching
 
-- **Usage**: The mod does not heavily rely on Harmony for patching; instead, it employs direct C# code execution after item loading to perform sorting, deviating from traditional Harmony patching methods.
-- **Strategic Locations**: Post-def loading hooks can be a point for any additional sorting logic if necessary.
+This project minimizes the use of Harmony patches to avoid complexity. However, when necessary, the mod employs Harmony patches to extend or modify existing functionalities without altering the base game code directly. Document any new patches extensively and ensure they are as lightweight as possible to prevent performance issues.
 
 ## Suggestions for Copilot
 
-- **Pattern Recognition**: Assist with code completion in `Dialog_RenameTab` for string validation and UI updates.
-- **Class Interface Suggestions**: Help with identifying potential interfaces for UI classes, such as `Window`, to improve dialog functionality.
-- **Sorting Logic and Methods**: Support refactoring and optimization of sorting methods within `TabSorting` and `ListingExtension`.
-- **Method Completion**: Recommend efficient collection operations when dealing with large sets of categorized items.
-- **Debugging Assistance**: Provide tips on performance tuning when initializing and sorting tabs, particularly with the `drawOptions` method in `TabSortingMod`.
-- **Localization Support**: Facilitate integration of translations with potential for further language support and maintenance.
+To assist in maintaining and enhancing the Tab-sorting mod, use GitHub Copilot to:
+- **Generate Boilerplate Code**: Quickly create new classes or methods to manage additional tab sorting criteria.
+- **Suggest Optimization Improvements**: Refactor existing C# code to improve execution performance, especially during the initial game load and tab categorization phases.
+- **Facilitate XML Updates**: Auto-suggest XML node patterns when integrating new categories or updating existing ones.
+- **Assist with Harmony Patching**: Guide the application of Harmony patches, suggesting potential detour methodologies or prefix/postfix approaches as needed.
+- **Localization**: Speed up the addition of new languages by suggesting translation keys and formats based on existing snippets.
+  
+By following these guidelines and utilizing GitHub Copilot smartly, contributors can efficiently extend the mod’s functionality, ensure high performance, and maintain code readability.
 
-For any items that don't correctly sort or are misplaced, users are encouraged to report the item and its originating mod either via comments or on the support Discord channel provided in the mod documentation.
+
+This document provides developers and contributors with a comprehensive understanding of the Tab-sorting mod's structure, purpose, and standard practices, aiding in efficient development and troubleshooting.
 
 ## Project Solution Guidelines
 - Relevant mod XML files are included as Solution Items under the solution folder named XML, these can be read and modified from within the solution.
@@ -65,3 +50,9 @@ For any items that don't correctly sort or are misplaced, users are encouraged t
 - When making functional changes in this mod, ensure the documented features stay in sync with implementation; use the in-solution `.github` copy as the primary file.
 - In the solution is also a project called Assembly-CSharp, containing a read-only version of the decompiled game source, for reference and debugging purposes.
 - For any new documentation, update this copilot-instructions.md file rather than creating separate documentation files.
+
+
+## Hard rules (must follow)
+- Do NOT run commands that modify the repo (no git commit, git apply, dotnet format) unless explicitly asked.
+- Prefer minimal reads: read only the smallest code region needed (around the suspicious lines).
+

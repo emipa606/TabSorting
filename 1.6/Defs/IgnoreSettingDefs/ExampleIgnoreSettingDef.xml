@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <TabSorting.IgnoreSettingDef>
+    <defName>ExampleIgnoreSettingDef</defName>
+    <modIDsToIgnore>
+      <li>Mlie.ExampleModId</li>
+    </modIDsToIgnore>
+    <defsToIgnore>
+      <li>ExampleDefToIgnore</li>
+    </defsToIgnore>
+  </TabSorting.IgnoreSettingDef>
+</Defs>

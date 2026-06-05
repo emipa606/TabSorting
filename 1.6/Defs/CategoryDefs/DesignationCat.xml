@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Defs>
+  <DesignationCategoryDef>
+    <defName>LightsTab</defName>
+    <label>Lights</label>
+    <description>Light Cat.</description>
+    <order>425</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>TableChairsTab</defName>
+    <label>Table/Chairs</label>
+    <description>All tables and chairs</description>
+    <order>426</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>BedroomTab</defName>
+    <label>Bedroom</label>
+    <description>Furniture for Bedrooms</description>
+    <order>427</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>HospitalTab</defName>
+    <label>Hospital</label>
+    <description>Furniture for Hospital</description>
+    <order>428</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>DecorationTab</defName>
+    <label>Decorations</label>
+    <description>Items to decorate with</description>
+    <order>429</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>StorageTab</defName>
+    <label>Storage</label>
+    <description>Storage containers</description>
+    <order>430</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>KitchenTab</defName>
+    <label>Kitchen</label>
+    <description>Kitchen furniture</description>
+    <order>431</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>ResearchTab</defName>
+    <label>Research</label>
+    <description>Research furniture</description>
+    <order>432</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+  <DesignationCategoryDef>
+    <defName>DoorTab</defName>
+    <label>Doors</label>
+    <description>Doors</description>
+    <order>433</order>
+    <specialDesignatorClasses>
+      <li>Designator_Cancel</li>
+      <li>Designator_Deconstruct</li>
+    </specialDesignatorClasses>
+  </DesignationCategoryDef>
+</Defs>

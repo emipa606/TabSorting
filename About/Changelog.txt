@@ -1,5 +1,8 @@
 # Changelog for TabSorting
 
+1.6.8 - Added support for a IgnoreSettingDef to let other mods add ignore-rules for defs or whole mods, thanks keeptpa
+
+
 1.6.7 - Fixed compatibility when loading both Better Architect Menu along with Vanilla Gravship Expanded - Chapter 1
 
 
