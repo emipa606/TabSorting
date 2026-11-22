@@ -1,5 +1,9 @@
 # Changelog for TabSorting
 
+1.7.0 - Mod updated for 1.7 and passed autotests
+Used DeepL to update translations for ChineseSimplified, French, German, Russian
+
+
 1.6.8 - Added support for a IgnoreSettingDef to let other mods add ignore-rules for defs or whole mods, thanks keeptpa
 
 

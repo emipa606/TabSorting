@@ -1,4 +1,6 @@
-﻿using RimWorld;
+﻿using System;
+using System.Linq;
+using RimWorld;
 using UnityEngine;
 using Verse;
 
@@ -37,12 +39,15 @@ public class Dialog_RenameTab : Window
 
     private AcceptanceReport nameIsValid(string name)
     {
-        if (name.Length == 0)
+        if (string.IsNullOrWhiteSpace(name))
         {
             return false;
         }
 
-        if (name != tab.label && string.IsNullOrEmpty(TabSorting.ValidateTabName(name, true)))
+        if (DefDatabase<DesignationCategoryDef>.AllDefsListForReading
+            .Concat(TabSortingMod.Instance.Settings.VanillaCategoryMemory)
+            .Concat(TabSortingMod.Instance.Settings.ManualCategoryMemory)
+            .Any(def => def != tab && string.Equals(def.label, name, StringComparison.OrdinalIgnoreCase)))
         {
             return new AcceptanceReport("TabSorting.Exists".Translate(name));
         }
@@ -64,7 +69,7 @@ public class Dialog_RenameTab : Window
         var text = Widgets.TextField(new Rect(0f, 15f, inRect.width, 35f), curName);
         switch (AcceptsInput)
         {
-            case true when text.Length < MaxNameLength:
+            case true when text.Length <= MaxNameLength:
                 curName = text;
                 break;
             case false:
@@ -84,6 +89,7 @@ public class Dialog_RenameTab : Window
             return;
         }
 
+        curName = curName.Trim();
         var acceptanceReport = nameIsValid(curName);
         if (!acceptanceReport.Accepted)
         {
@@ -103,11 +109,20 @@ public class Dialog_RenameTab : Window
 
     private void setName(string name)
     {
-        TabSortingMod.Instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == tab.defName);
-        tab.label = name;
-        TabSortingMod.Instance.Settings.ManualTabs[tab.defName] = name;
-        TabSortingMod.Instance.Settings.ManualCategoryMemory.Add(tab);
+        var settings = TabSortingMod.Instance.Settings;
+        if (settings.ManualTabs.ContainsKey(tab.defName))
+        {
+            settings.ManualTabs[tab.defName] = name;
+        }
+        else
+        {
+            settings.VanillaTabLabelMemory.TryAdd(tab.defName, tab.label);
+            settings.RenamedTabs[tab.defName] = name;
+        }
 
+        tab.label = name;
         tab.ClearCachedData();
+        settings.Write();
+        TabSorting.RefreshArchitectMenu();
     }
 }

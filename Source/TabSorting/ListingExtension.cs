@@ -60,13 +60,13 @@ public static class ListingExtension
 
         var currentIconName = iconName;
 
-        if (TabSorting.IconsCache?.ContainsKey(iconName) == false)
+        if (!TabSorting.IconsCache.ContainsKey(iconName))
         {
             currentIconName = "wrongsign";
         }
 
         GUI.DrawTexture(rect.ContractedBy((rect.width - TabSortingMod.TabIconSize.x) / 2),
-            TabSorting.IconsCache?[currentIconName]);
+            TabSorting.IconsCache[currentIconName]);
 
         if (!selectable)
         {

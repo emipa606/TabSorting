@@ -45,6 +45,7 @@ Other options:
 
 If you find any item that don't get sorted or gets sorted in the wrong tab, please leave a report of what item and from what mod it comes from. Either here in the comments or at the support-channel via the Discord-link below.
 Also, if you have any ideas on more stuff that can be categorized, just let me know and Ill look into it.
+There is also support to define an IgnoreSettingDef in patches or other mods to force ignore defs or entire mods from autosorting.
 
 - Added Korean translation, thanks isty2e 
 - Added Russian translation, thanks Reiquard
@@ -74,4 +75,4 @@ Since modding is just a hobby for me I expect no donations to keep modding. If y
 
  
 
-[![Image](https://img.shields.io/github/v/release/emipa606/TabSorting?label=latest%20version&style=plastic&labelColor=0070cd&color=white)](https://steamcommunity.com/sharedfiles/filedetails/changelog/2138635288) | tags: categories, sorting
+[![Image](https://img.shields.io/github/v/release/emipa606/TabSorting?label=latest%20version&style=plastic&labelColor=0070cd&color=white)](https://steamcommunity.com/sharedfiles/filedetails/changelog/2138635288) | categories, sorting

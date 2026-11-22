@@ -266,12 +266,10 @@ public static class TabSorting
             }
         }
 
-        foreach (var def in DefDatabase<Def>.AllDefsListForReading)
+        foreach (var def in DefDatabase<Def>.AllDefsListForReading.Where(def =>
+                     defsPrefixToIgnoreStatic.Any(prefix => def.defName.StartsWith(prefix))))
         {
-            if (defsPrefixToIgnoreStatic.Any(prefix => def.defName.StartsWith(prefix)))
-            {
-                defsToIgnoreStatic.Add(def.defName);
-            }
+            defsToIgnoreStatic.Add(def.defName);
         }
     }
 
@@ -296,11 +294,17 @@ public static class TabSorting
 
     public static void RemoveManualTab(DesignationCategoryDef manualTab)
     {
+        foreach (var order in OrderSorting.GetOrders(manualTab).Where(order => order.Source != manualTab))
+        {
+            GetDesignationFromDatabase(order.Source.defName);
+        }
+
         TabSortingMod.Instance.Settings.ManualSorting.RemoveAll(pair => pair.Value == manualTab.defName);
         TabSortingMod.Instance.Settings.ManualTabs.RemoveAll(pair => pair.Key == manualTab.defName);
         TabSortingMod.Instance.Settings.ManualCategoryMemory.RemoveAll(def => def.defName == manualTab.defName);
         TabSortingMod.Instance.Settings.ManualTabSorting.RemoveAll(pair => pair.Key == manualTab.defName);
         TabSortingMod.Instance.Settings.ManualTabIcons.RemoveAll(pair => pair.Key == manualTab.defName);
+        TabSortingMod.Instance.Settings.ManualOrderSorting.RemoveAll(pair => pair.Value == manualTab.defName);
         removeEmptyDesignationCategoryDef(manualTab);
     }
 
@@ -336,6 +340,7 @@ public static class TabSorting
     public static void DoTheSorting()
     {
         LogMessage("Starting a new sorting-session");
+        var restoreOrders = OrderSorting.PreserveRuntimeOrders();
         changedDefNames = [];
         defsToIgnore = null;
         if (!TabSortingMod.Instance.Settings.VanillaCategoryMemory.Any())
@@ -346,6 +351,19 @@ public static class TabSorting
                 TabSortingMod.Instance.Settings.VanillaCategoryMemory.Add(categoryDef);
                 TabSortingMod.Instance.Settings.VanillaTabOrderMemory.Add(categoryDef, categoryDef.order);
             }
+        }
+
+        foreach (var category in TabSortingMod.Instance.Settings.VanillaCategoryMemory)
+        {
+            var settings = TabSortingMod.Instance.Settings;
+            settings.VanillaTabLabelMemory.TryAdd(category.defName, category.label);
+            if (!settings.RenamedTabs.TryGetValue(category.defName, out var label))
+            {
+                continue;
+            }
+
+            category.label = label;
+            category.ClearCachedData();
         }
 
         if (!TabSortingMod.Instance.Settings.VanillaButtonOrderMemory.Any())
@@ -393,7 +411,6 @@ public static class TabSorting
                         [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
                     AccessTools.Method(typeof(DesignationCategoryDef), "ResolveDesignators")
                         .Invoke(designationCategory, []);
-                    //designationCategory.ResolveDesignators();
                     continue;
                 }
 
@@ -427,7 +444,6 @@ public static class TabSorting
                     [typeof(Designator_Cancel), typeof(Designator_Deconstruct)];
                 AccessTools.Method(typeof(DesignationCategoryDef), "ResolveDesignators")
                     .Invoke(designationCategory, []);
-                //designationCategory.ResolveDesignators();
             }
         }
 
@@ -524,6 +540,8 @@ public static class TabSorting
             }
         }
 
+        LongEventHandler.ExecuteWhenFinished(restoreOrders);
+
         if (TabSortingMod.Instance.Settings.RemoveEmptyTabs)
         {
             removeEmptyCategories(designationCategoriesToRemove);
@@ -532,32 +550,24 @@ public static class TabSorting
         foreach (var buttonSortInfo in TabSortingMod.Instance.Settings.ManualButtonSorting)
         {
             var buttonDef = DefDatabase<MainButtonDef>.GetNamedSilentFail(buttonSortInfo.Key);
-            if (buttonDef == null)
-            {
-                continue;
-            }
 
-            buttonDef.order = buttonSortInfo.Value;
+            buttonDef?.order = buttonSortInfo.Value;
         }
 
         foreach (var thingSortInfo in TabSortingMod.Instance.Settings.ManualThingSorting)
         {
             var buildableDef = DefDatabase<BuildableDef>.GetNamedSilentFail(thingSortInfo.Key);
-            if (buildableDef == null)
-            {
-                continue;
-            }
 
-            buildableDef.uiOrder = thingSortInfo.Value;
+            buildableDef?.uiOrder = thingSortInfo.Value;
         }
 
         if (Current.Game != null)
         {
             var mainRoot = Find.MainButtonsRoot;
             var prop = mainRoot.GetType().GetField("allButtonsInOrder", BindingFlags.NonPublic | BindingFlags.Instance);
-            var currentButtons = (List<MainButtonDef>)prop.GetValue(mainRoot);
-            prop.SetValue(mainRoot, (from buttonDef in DefDatabase<MainButtonDef>.AllDefs
-                where currentButtons.Contains(buttonDef)
+            var currentButtons = (List<MainButtonDef>)prop?.GetValue(mainRoot);
+            prop?.SetValue(mainRoot, (from buttonDef in DefDatabase<MainButtonDef>.AllDefs
+                where currentButtons != null && currentButtons.Contains(buttonDef)
                 orderby buttonDef.order
                 select buttonDef).ToList());
         }
@@ -567,15 +577,11 @@ public static class TabSorting
             foreach (var tabSortInfo in TabSortingMod.Instance.Settings.ManualTabSorting)
             {
                 var tab = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(tabSortInfo.Key);
-                if (tab == null)
-                {
-                    continue;
-                }
 
-                tab.order = tabSortInfo.Value;
+                tab?.order = tabSortInfo.Value;
             }
 
-            refreshArchitectMenu();
+            RefreshArchitectMenu();
             return;
         }
 
@@ -588,7 +594,7 @@ public static class TabSorting
         foreach (var designationCategoryDef in designationCategoryDefs)
         {
             topValue -= steps;
-            if (TabSortingMod.Instance.Settings.SkipBuiltIn && designationCategoryDef.label is "orders" or "zone")
+            if (TabSortingMod.Instance.Settings.SkipBuiltIn && designationCategoryDef.defName is "Orders" or "Zone")
             {
                 continue;
             }
@@ -596,7 +602,7 @@ public static class TabSorting
             designationCategoryDef.order = topValue;
         }
 
-        refreshArchitectMenu();
+        RefreshArchitectMenu();
     }
 
     private static void removeEmptyCategories(List<DesignationCategoryDef> designationCategoriesToRemove)
@@ -692,7 +698,8 @@ public static class TabSorting
             return false;
         }
 
-        if (TabSortingMod.Instance.Settings.ManualTabs.ContainsKey(currentCategory.defName))
+        if (TabSortingMod.Instance.Settings.ManualTabs.ContainsKey(currentCategory.defName) ||
+            TabSortingMod.Instance.Settings.ManualOrderSorting.ContainsValue(currentCategory.defName))
         {
             return false;
         }
@@ -701,7 +708,7 @@ public static class TabSorting
         var thingsLeft = from td in DefDatabase<ThingDef>.AllDefsListForReading
             where td.designationCategory == currentCategory
             select td;
-        if (thingsLeft.Count() != 0)
+        if (thingsLeft.Any())
         {
             return false;
         }
@@ -710,7 +717,7 @@ public static class TabSorting
         var moreThingsLeft = from tr in DefDatabase<TerrainDef>.AllDefsListForReading
             where tr.designationCategory == currentCategory
             select tr;
-        if (moreThingsLeft.Count() != 0)
+        if (moreThingsLeft.Any())
         {
             return false;
         }
@@ -734,32 +741,33 @@ public static class TabSorting
         return true;
     }
 
+    public static DesignationCategoryDef FindDesignationCategory(string categoryString)
+    {
+        return DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(categoryString) ??
+               TabSortingMod.Instance.Settings.ManualCategoryMemory.FirstOrDefault(def => def.defName == categoryString) ??
+               TabSortingMod.Instance.Settings.VanillaCategoryMemory.FirstOrDefault(def => def.defName == categoryString);
+    }
+
     public static DesignationCategoryDef GetDesignationFromDatabase(string categoryString)
     {
-        if (TabSortingMod.Instance.Settings.ManualTabs.ContainsKey(categoryString))
+        var current = DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(categoryString);
+        if (current != null)
         {
-            return TabSortingMod.Instance.Settings.ManualCategoryMemory.First(def => def.defName == categoryString);
+            return current;
         }
 
-        if (!TabSortingMod.Instance.Settings.VanillaCategoryMemory.Any(def => def.defName == categoryString))
+        var category = FindDesignationCategory(categoryString);
+        if (category == null)
         {
             return null;
         }
 
-        var returnValue =
-            TabSortingMod.Instance.Settings.VanillaCategoryMemory.First(def => def.defName == categoryString);
-        if (DefDatabase<DesignationCategoryDef>.GetNamedSilentFail(categoryString) != null)
-        {
-            return returnValue;
-        }
-
-        LogMessage($"Could not find tab {categoryString}, creating");
-        DefGenerator.AddImpliedDef(returnValue);
-
-        return returnValue;
+        LogMessage($"Restoring previously removed tab {categoryString}");
+        DefDatabase<DesignationCategoryDef>.Add(category);
+        return category;
     }
 
-    private static void refreshArchitectMenu()
+    public static void RefreshArchitectMenu()
     {
         LogMessage("Sorting-session done");
 
@@ -818,10 +826,7 @@ public static class TabSorting
         foreach (var designationCategoryDef in TabSortingMod.Instance.Settings.VanillaCategoryMemory)
         {
             var designation = GetDesignationFromDatabase(designationCategoryDef.defName);
-            if (designation != null)
-            {
-                designation.order = TabSortingMod.Instance.Settings.VanillaTabOrderMemory[designationCategoryDef];
-            }
+            designation?.order = TabSortingMod.Instance.Settings.VanillaTabOrderMemory[designationCategoryDef];
         }
 
         foreach (var def in DefDatabase<ThingDef>.AllDefsListForReading.Where(thingDef =>
@@ -920,32 +925,25 @@ public static class TabSorting
             select foodMaker).ToList();
         var foodMakers = new HashSet<ThingDef>();
         foodMakers.AddRange(recipeMakers);
-        foreach (var thingDef in foods)
+        foreach (var recipes in foods.Where(food => food.recipes != null && food.recipes.Any())
+                     .Select(food => food.recipes))
         {
-            if (thingDef.recipes == null || !thingDef.recipes.Any())
+            foreach (var recipeUsers in recipes.Where(recipe => recipe.recipeUsers != null && recipe.recipeUsers.Any())
+                         .Select(recipe => recipe.recipeUsers))
             {
-                continue;
-            }
-
-            foreach (var thingDefRecipe in thingDef.recipes)
-            {
-                if (thingDefRecipe.recipeUsers == null || !thingDefRecipe.recipeUsers.Any())
-                {
-                    continue;
-                }
-
-                foodMakers.AddRange(thingDefRecipe.recipeUsers);
+                foodMakers.AddRange(recipeUsers);
             }
         }
 
-        foreach (var recipeDef in foodRecipes)
+        foreach (var recipeUsers in foodRecipes.Where(recipe => recipe.recipeUsers != null && recipe.recipeUsers.Any())
+                     .Select(recipe => recipe.recipeUsers))
         {
-            if (recipeDef.recipeUsers == null || !recipeDef.recipeUsers.Any())
+            if (recipeUsers == null || !recipeUsers.Any())
             {
                 continue;
             }
 
-            foodMakers.AddRange(recipeDef.recipeUsers);
+            foodMakers.AddRange(recipeUsers);
         }
 
         LogMessage($"Found {foodMakers.Count} food processing buildings");
@@ -987,10 +985,10 @@ public static class TabSorting
                 }
 
                 var found = false;
-                foreach (var offset in compProperties.statOffsets)
+                foreach (var offset in compProperties.statOffsets.Select(offset => offset.stat))
                 {
-                    if (offset.stat != StatDefOf.WorkTableEfficiencyFactor &&
-                        offset.stat != StatDefOf.WorkTableWorkSpeedFactor)
+                    if (offset != StatDefOf.WorkTableEfficiencyFactor &&
+                        offset != StatDefOf.WorkTableWorkSpeedFactor)
                     {
                         continue;
                     }
@@ -1100,9 +1098,9 @@ public static class TabSorting
                 }
 
                 var found = false;
-                foreach (var offset in compProperties.statOffsets)
+                foreach (var offset in compProperties.statOffsets.Select(offset => offset.stat))
                 {
-                    if (offset.stat != StatDefOf.ResearchSpeed && offset.stat != StatDefOf.ResearchSpeedFactor)
+                    if (offset != StatDefOf.ResearchSpeed && offset != StatDefOf.ResearchSpeedFactor)
                     {
                         continue;
                     }
@@ -1644,10 +1642,15 @@ public static class TabSorting
             var compPower = furniture.GetCompProperties<CompProperties_Power>();
             if (compPower != null)
             {
-                var powerConsumption = (float)basePowerConsumptionField.GetValue(compPower);
+                var powerConsumption = basePowerConsumptionField.GetValue(compPower);
+
+                if (powerConsumption is not float consumption)
+                {
+                    return false;
+                }
 
                 if (compPower.compClass == typeof(CompPowerPlant) ||
-                    !(powerConsumption < 2000) &&
+                    !(consumption < 2000f) &&
                     !furniture.thingClass.isDerivedFrom(
                         AccessTools.TypeByName("RimWorld.Building_SunLamp")))
                 {
@@ -1669,10 +1672,10 @@ public static class TabSorting
                  furniture.GetCompProperties<CompProperties_HeatPusher>()?.heatPerSecond < compGlower.glowRadius) &&
                 furniture.surfaceType != SurfaceType.Eat &&
                 furniture.terrainAffordanceNeeded != TerrainAffordanceDefOf.Heavy &&
-                furniture.thingClass.isDerivedFrom(typeof(Building_TurretGun)) is false &&
-                furniture.thingClass.isDerivedFrom(typeof(Building_PlantGrower)) is false &&
-                furniture.thingClass.isDerivedFrom(typeof(Building_Heater)) is false &&
-                (furniture.thingClass.isDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) is false ||
+                !furniture.thingClass.isDerivedFrom(typeof(Building_TurretGun)) &&
+                !furniture.thingClass.isDerivedFrom(typeof(Building_PlantGrower)) &&
+                !furniture.thingClass.isDerivedFrom(typeof(Building_Heater)) &&
+                (!furniture.thingClass.isDerivedFrom(AccessTools.TypeByName("RimWorld.Building_SunLamp")) ||
                  !gardenToolsExists) &&
                 (furniture.inspectorTabs == null || !furniture.inspectorTabs.Contains(typeof(ITab_Storage))) &&
                 !furniture.hasInteractionCell || furniture.label != null &&
@@ -1782,14 +1785,6 @@ public static class TabSorting
             storage.designationCategory = designationCategory;
         }
 
-        //var LWMTab = GetDesignationFromDatabase("LWM_DS_Storage");
-        //if (LWMTab != null)
-        //{
-        //    LogMessage(
-        //        "Forcebly removing the LWM-storage tab since it causes issues otherwise. This will cause an error.");
-        //    RemoveEmptyDesignationCategoryDef(LWMTab);
-        //}
-
         LogMessage($"Moved {storageInGame.Count} storage-items to the Storage tab.", true);
     }
 
@@ -1839,14 +1834,18 @@ public static class TabSorting
 
     public static string ValidateTabName(string tabName, bool justTheLabel = false)
     {
-        var cleanTabName = Regex.Replace(tabName, @"[^a-zA-Z\u4e00-\u9fa5]*", string.Empty);
+        var cleanTabName = Regex.Replace(tabName, @"[^a-zA-Z\u4e00-\u9fa5]*", string.Empty, RegexOptions.None,
+            TimeSpan.FromSeconds(1));
         if (string.IsNullOrEmpty(cleanTabName))
         {
             cleanTabName = "CustomTab" + Math.Abs(tabName.GetHashCode());
         }
 
-        var currentDesignations = DefDatabase<DesignationCategoryDef>.AllDefsListForReading;
-        return currentDesignations.Any(def => justTheLabel && def.defName == cleanTabName || def.label == tabName)
+        var currentDesignations = DefDatabase<DesignationCategoryDef>.AllDefsListForReading
+            .Concat(TabSortingMod.Instance.Settings.VanillaCategoryMemory)
+            .Concat(TabSortingMod.Instance.Settings.ManualCategoryMemory);
+        return currentDesignations.Any(def => !justTheLabel && def.defName == cleanTabName ||
+                                              string.Equals(def.label, tabName, StringComparison.OrdinalIgnoreCase))
             ? null
             : cleanTabName;
     }

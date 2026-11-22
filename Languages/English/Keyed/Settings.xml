@@ -88,4 +88,6 @@
   <TabSorting.VerboseLogging.Tooltip>Shows verbose logging during sorting, for finding errors</TabSorting.VerboseLogging.Tooltip>
   <TabSorting.MoveEverything>Move everything</TabSorting.MoveEverything>
   <TabSorting.Select>Select</TabSorting.Select>
+  <TabSorting.Orders>Orders</TabSorting.Orders>
+  <TabSorting.Orders.Tooltip>Move order buttons between tabs or choose Default to restore their original tab. Orders added by mods after loading appear while a game is running. Buttons of the same class in one source tab are identified by their registration order.</TabSorting.Orders.Tooltip>
 </LanguageData>

@@ -50,16 +50,14 @@ public static class AllCurrentDefsInCategory
             }
 
             // If moving down the listings (up in uiOrder)
-            if (origIndexInFullList < newIndexInFullList)
+            if (origIndexInFullList < newIndexInFullList &&
+                allDefsInCategory[newIndexInFullList].designatorDropdown != null)
             {
                 // If trying to move past another group...
-                if (allDefsInCategory[newIndexInFullList].designatorDropdown != null)
-                {
-                    var sizeOfGroupAtNewIndex = allDefsInCategory.Count(def =>
-                        def.designatorDropdown == allCurrentDefsInCategory[newIndex].designatorDropdown);
-                    newIndexInFullList += sizeOfGroupAtNewIndex - 1;
-                    uiOrderAtNewIndex = allDefsInCategory[newIndexInFullList].uiOrder;
-                }
+                var sizeOfGroupAtNewIndex = allDefsInCategory.Count(def =>
+                    def.designatorDropdown == allCurrentDefsInCategory[newIndex].designatorDropdown);
+                newIndexInFullList += sizeOfGroupAtNewIndex - 1;
+                uiOrderAtNewIndex = allDefsInCategory[newIndexInFullList].uiOrder;
             }
         }
 

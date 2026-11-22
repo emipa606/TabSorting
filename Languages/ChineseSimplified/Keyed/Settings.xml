@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <LanguageData>
   <!-- EN: None -->
   <TabSorting.None>无</TabSorting.None>
@@ -167,4 +167,6 @@
   <TabSorting.Sort>分类</TabSorting.Sort>
   <TabSorting.HideEmptyTabs.Label>隐藏空标签页</TabSorting.HideEmptyTabs.Label>
   <TabSorting.HideEmptyTabs.Tooltip>不会显示没有任何内容的建筑选项卡</TabSorting.HideEmptyTabs.Tooltip>
+  <TabSorting.Orders>指令</TabSorting.Orders>
+  <TabSorting.Orders.Tooltip>可在不同标签页之间移动指令按钮，或选择“默认”以将其恢复到原始标签页。加载后由模组添加的指令会在游戏运行时显示。同一源标签页中同类指令的按钮，将根据其注册顺序进行区分。</TabSorting.Orders.Tooltip>
 </LanguageData>

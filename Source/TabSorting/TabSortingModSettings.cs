@@ -9,47 +9,25 @@ namespace TabSorting;
 /// </summary>
 internal class TabSortingModSettings : ModSettings
 {
-    private List<string> categoriesToIgnore = [];
     public bool GroupSameDesignator;
 
     public bool HideEmptyTabs;
 
     public Dictionary<string, int> ManualButtonSorting = new();
-
-    private List<string> manualButtonSortingKeys;
-
-    private List<int> manualButtonSortingValues;
     public List<DesignationCategoryDef> ManualCategoryMemory = [];
+    public Dictionary<string, string> ManualOrderSorting = new();
 
     public Dictionary<string, string> ManualSorting = new();
 
-    private List<string> manualSortingKeys;
-
-    private List<string> manualSortingValues;
-
     public Dictionary<string, string> ManualTabIcons = new();
-
-    private List<string> manualTabIconsKeys;
-
-    private List<string> manualTabIconsValues;
-
-    public Dictionary<string, string> ManualTabs = new();
-
-    private List<string> manualTabsKeys;
 
     public Dictionary<string, int> ManualTabSorting = new();
 
-    private List<string> manualTabSortingKeys;
-
-    private List<int> manualTabSortingValues;
-
-    private List<string> manualTabsValues;
+    public Dictionary<string, string> ManualTabs = new();
     public Dictionary<string, float> ManualThingSorting = new();
-    private List<string> manualThingSortingKeys;
-
-    private List<float> manualThingSortingValues;
 
     public bool RemoveEmptyTabs = true;
+    public Dictionary<string, string> RenamedTabs = new();
 
     public bool SkipBuiltIn;
 
@@ -83,8 +61,37 @@ internal class TabSortingModSettings : ModSettings
     public bool SortTabs;
 
     public bool VerboseLogging;
+    private List<string> categoriesToIgnore = [];
+
+    private List<string> manualButtonSortingKeys;
+
+    private List<int> manualButtonSortingValues;
+    private List<string> manualOrderSortingKeys;
+    private List<string> manualOrderSortingValues;
+
+    private List<string> manualSortingKeys;
+
+    private List<string> manualSortingValues;
+
+    private List<string> manualTabIconsKeys;
+
+    private List<string> manualTabIconsValues;
+
+    private List<string> manualTabSortingKeys;
+
+    private List<int> manualTabSortingValues;
+
+    private List<string> manualTabsKeys;
+
+    private List<string> manualTabsValues;
+    private List<string> manualThingSortingKeys;
+
+    private List<float> manualThingSortingValues;
+    private List<string> renamedTabsKeys;
+    private List<string> renamedTabsValues;
     public Dictionary<MainButtonDef, int> VanillaButtonOrderMemory { get; } = new();
     public List<DesignationCategoryDef> VanillaCategoryMemory { get; } = [];
+    public Dictionary<string, string> VanillaTabLabelMemory { get; } = new();
     public Dictionary<Def, DesignationCategoryDef> VanillaItemMemory { get; } = new();
     public Dictionary<DesignationCategoryDef, int> VanillaTabOrderMemory { get; } = new();
     public Dictionary<BuildableDef, float> VanillaThingOrderMemory { get; } = new();
@@ -126,6 +133,12 @@ internal class TabSortingModSettings : ModSettings
             ref manualButtonSortingKeys, ref manualButtonSortingValues);
         Scribe_Collections.Look(ref ManualTabIcons, "ManualTabIcons", LookMode.Value, LookMode.Value,
             ref manualTabIconsKeys, ref manualTabIconsValues);
+        Scribe_Collections.Look(ref RenamedTabs, "RenamedTabs", LookMode.Value, LookMode.Value,
+            ref renamedTabsKeys, ref renamedTabsValues);
+        Scribe_Collections.Look(ref ManualOrderSorting, "ManualOrderSorting", LookMode.Value, LookMode.Value,
+            ref manualOrderSortingKeys, ref manualOrderSortingValues);
+        RenamedTabs ??= new Dictionary<string, string>();
+        ManualOrderSorting ??= new Dictionary<string, string>();
         Scribe_Values.Look(ref VerboseLogging, "VerboseLogging");
     }
 
@@ -139,6 +152,7 @@ internal class TabSortingModSettings : ModSettings
         manualSortingKeys = [];
         manualSortingValues = [];
         ManualSorting = new Dictionary<string, string>();
+        ManualOrderSorting.Clear();
         TabSorting.DoTheSorting();
     }
 

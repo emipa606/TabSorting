@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'">
+<meta name="color-scheme" content="light dark">
+<title>Tab-sorting analysis</title>
+</head>
+<body>
+<h1>Tab-sorting analysis</h1>
+<h3 id="recommendations">Recommendations</h3>
+<h4 id="highest-priority">Highest Priority</h4>
+<ol>
+<li><strong>Title:</strong> Investigate and Fix Unspecified Disappearance Issue
+<ul>
+<li><strong>Implementation Idea:</strong> Review the <code>ArchitectCategoryTab_InfoRect.cs</code> and <code>MainTabWindow_Architect_TabRectHeight.cs</code> files for any potential null reference exceptions or logical errors that could cause the mod to vanish. Add null checks and logging to identify the root cause.</li>
+<li><strong>Confidence:</strong> Medium</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2ka1wv02">Trello Card</a></li>
+</ul>
+</li>
+</ol>
+<h4 id="moderate-priority">Moderate Priority</h4>
+<ol start="2">
+<li><p><strong>Title:</strong> Prevent Orders from Existing in Multiple Tabs</p>
+<ul>
+<li><strong>Implementation Idea:</strong> Modify the <code>CurrentDefsInCategory.cs</code> file to ensure that when a definition is moved to a new tab, it is removed from any other tabs. This might involve updating the <code>Reorder</code> method to manage tab assignments more strictly.</li>
+<li><strong>Confidence:</strong> High</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2e0ZX0Vi">Trello Card</a></li>
+</ul>
+</li>
+<li><p><strong>Title:</strong> Add Feature to Rename Original Tabs</p>
+<ul>
+<li><strong>Implementation Idea:</strong> Implement a new feature in the <code>Dialog_RenameTab.cs</code> file to allow users to rename the original tabs. This could involve adding a new method to handle the renaming logic and updating the UI to provide an option for renaming.</li>
+<li><strong>Confidence:</strong> High</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2e0ZX0Vi">Trello Card</a></li>
+</ul>
+</li>
+</ol>
+<h3 id="semantic-summary-suggestions-no-trello-cards">Semantic-summary suggestions (no Trello cards)</h3>
+<ol>
+<li><strong>Title:</strong> Enhance Logging for Debugging
+<ul>
+<li><strong>Implementation Idea:</strong> Add more detailed logging throughout the mod to help with debugging. This could involve logging method calls, variable values, and any significant events.</li>
+<li><strong>Confidence:</strong> High</li>
+<li><strong>Source:</strong> Semantic summary (no Trello card)</li>
+<li><strong>Supporting Code Context:</strong> Reviewing the current logging practices and identifying areas where additional logs would be beneficial.</li>
+</ul>
+</li>
+</ol>
+<h3 id="deferred-work">Deferred-work</h3>
+<ol>
+<li><p><strong>Title:</strong> Investigate and Resolve Unspecified Disappearance Issue</p>
+<ul>
+<li><strong>Implementation Idea:</strong> The issue described is unclear, and the cause is unknown. Further investigation is needed to determine the root cause.</li>
+<li><strong>Confidence:</strong> Low</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2ka1wv02">Trello Card</a></li>
+</ul>
+</li>
+<li><p><strong>Title:</strong> Prevent Orders from Existing in Multiple Tabs</p>
+<ul>
+<li><strong>Implementation Idea:</strong> The complexity of managing tab assignments and ensuring orders are only in one tab needs further consideration. This could involve more extensive changes to the mod's architecture.</li>
+<li><strong>Confidence:</strong> Low</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2e0ZX0Vi">Trello Card</a></li>
+</ul>
+</li>
+<li><p><strong>Title:</strong> Add Feature to Rename Original Tabs</p>
+<ul>
+<li><strong>Implementation Idea:</strong> The feature request for renaming original tabs is clear, but the implementation details need further planning to ensure compatibility and user-friendliness.</li>
+<li><strong>Confidence:</strong> Low</li>
+<li><strong>Source:</strong> Trello card <a href="https://trello.com/c/2e0ZX0Vi">Trello Card</a></li>
+</ul>
+</li>
+</ol>
+
+</body>
+</html>

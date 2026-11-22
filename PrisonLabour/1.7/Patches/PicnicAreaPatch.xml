@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Patch>
+  <Operation Class="PatchOperationAdd">
+    <xpath>/Defs/DesignationCategoryDef[defName = "Zone"]/specialDesignatorClasses</xpath>
+    <value>
+      <li>PrisonLabor.Core.LaborArea.Designator_AreaLaborExpand</li>
+      <li>PrisonLabor.Core.LaborArea.Designator_AreaLaborClear</li>
+    </value>
+  </Operation>
+</Patch>
